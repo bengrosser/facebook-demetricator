@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 0.8
+// @version 1.0
 // @namespace facebookdemetricator
 // @description Removes All The Metrics From Facebook
 //
@@ -22,7 +22,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// version 1.0
+// Version 1.0
 // http://bengrosser.com/projects/facebook-demetricator
 // -----------------------------------------------------
 
@@ -66,14 +66,14 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '0.8b';        // used in the console logging
-var DBUG = false;                   // more debugging
+var VERSION_NUMBER = '1.0';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
-var IS_FIREFOX_ADDON = false;        // is this a firefox addon?
-var IS_SAFARI_EXTENSION = false;        // is this a firefox addon?
+var IS_FIREFOX_ADDON = false;        // is this a Firefox addon?
+var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
+var DBUG = false;                   // more debugging
 
 
 // setInterval element counts
@@ -86,7 +86,6 @@ var favoritesCount = 0;
 
 // state
 var demetricating = false;
-
 
 
 // jQuery selectors that fade in/out on toggle
@@ -125,7 +124,12 @@ var toggleOnOffClasses = [
 String.prototype.contains = function(it) { return this.indexOf(it) != -1; };
 
 
+
+// toggleDemetricator()
+//
 // called whenever the checkbox is toggled to fade/hide/show metrics in/out
+// most of this is handled through the hiding/showing of classes that have already
+// been inserted into FB's HTML via demetricate()
 function toggleDemetricator() {
 
     if(demetricatorON) {
@@ -184,6 +188,7 @@ function toggleDemetricator() {
         j('.counter').fadeOut(FADE_SPEED);
 
         if(DBUG) console.timeEnd('demetricatorON timer');
+
 
     } 
     
@@ -273,7 +278,10 @@ function toggleDemetricator() {
     } else {
         j('.facebooklink').css('border','0px solid red');
     }
+
+    j('#fbdtoggleindicator').hide();
 }
+
 
 
 // main():
@@ -305,7 +313,6 @@ function main() {
     // setup jQuery on j to avoid any possible conflicts
     j = jQuery.noConflict();
 
-
     // store current chat count, then hide that count on the chat button
     var chatobj = j('.fbNubButton');
     currentChatCount = chatobj.find('.count').text();
@@ -322,8 +329,10 @@ function main() {
  
     var loading = '<img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right:5px;">';
 
+    var loading2 = '<li style="float:left;padding:0;margin:0;margin-top:8px;margin-right:5px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; "></li>';
+
     // the demetricator menu item and checkbox for the navbar
-    var demetricatornavitem = 
+    var demetricatornavitem = loading2 + 
         '<li style="float:left;padding:0;margin:0;border:0px solid red;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;"><a style="line-height:29px;margin-top:0px;padding-right:10px;color:#d8dfea;font-weight:bold;" id="demetricatorlink">Demetricator</a></li><li class="navItem firstItem"><a style="margin-left:0px;margin-right:3px"></a></li>';
 
     // insert the navigation control
@@ -335,11 +344,10 @@ function main() {
 
     // HTML for the dialog box
     var dialoghtml = 
-        //'<div style="display:none; width: 330px; height: 230px; margin: 0px auto; border: 1px solid rgb(170, 170, 170); background-color: white;" class="" id="modaldialog">'+
         '<div style="display:none; width: 330px; height: 230px; margin: 0px auto; background-color: white;" class="-cx-PUBLIC-uiDialog__border" id="modaldialog">'+
-        '<div style="margin:5px;" id="modalheader"> <label style="margin:5px;float:right;" class="simplemodal-close uiCloseButton"></label><br><br> </div> <center> <h1><a href="'+GROSSER_URL+'" target="_blank">Facebook Demetricator</a></h1> <span class="messageBody">Removes all the metrics from Facebook</span><br/>'
+        '<div style="margin:5px;" id="modalheader"> <label style="margin:5px;float:right;" class="simplemodal-close uiCloseButton"></label><br><br> </div> <center> <h1><a href="'+DEMETRICATOR_HOME_URL+'" target="_blank">Facebook Demetricator</a></h1> <span class="messageBody">Removes all the metrics from Facebook</span><br/>'
         +likebutton+
-        '<h3><span class="fcg" style="font-weight:normal">by</span> Benjamin Grosser</h3> <span class="fsm fcg"><a href="http://bengrosser.com" target="_blank">bengrosser.com</a></span> </center> <div id="modalfooter" style="margin:15px;"> <p style="float:left;" class="fcg">version '+VERSION_NUMBER+'</p> <p style="float:right;" class="fcg"><a href="'+FAN_PAGE_URL+'" target="_blank">Fan page...</a></p> </div> </div>';
+        '<h3><span class="fcg" style="font-weight:normal">by</span> Benjamin Grosser</h3> <span class="fsm fcg"><a href="'+GROSSER_URL+'" target="_blank">bengrosser.com</a></span> </center> <div id="modalfooter" style="margin:15px;"> <p style="float:left;" class="fcg">version '+VERSION_NUMBER+'</p> <p style="float:right;" class="fcg"><a href="'+DEMETRICATOR_HOME_URL+'" target="_blank">More info...</a></p> </div> </div>';
 
     // insert the dialog into the page
     j('body').append(dialoghtml);
@@ -368,7 +376,10 @@ function main() {
     j('#demetricatortoggle').change(function() {
         if(j(this).is(':checked')) demetricatorON = true;
         else demetricatorON = false;
-        toggleDemetricator();
+
+        j('#fbdtoggleindicator').show();
+
+        setTimeout(function() { toggleDemetricator(); }, 250);
     });
 
     // debugging checkbox
@@ -536,15 +547,6 @@ function launchPolling() {
 
 
 
-    /*
-    j('.demetricatedlike').bind("DOMSubtreeModified", function() {
-        console.log('demetricatedlike');
-    });
-    */
-
-    j('.likeparent').bind("DOMSubtreeModified", function() {
-        console.log('likeparentDOM');
-    });
 
 
     // friend list +1 icons within 'add friend' buttons
@@ -566,7 +568,7 @@ function launchPolling() {
     }, false);
     
     // Hovercards are dynamically generated, watch for them
-//    waitForKeyElements('.uiOverlayContent', demetricateHovercard, false);
+    waitForKeyElements('.uiOverlayContent', demetricateHovercard, false);
 
     //waitForKeyElements('.uiContextualLayerPositioner', function(jn) {
     //    console.log('tooltip: '+jn.html()) 
@@ -639,6 +641,9 @@ function demetricate(callback) {
 
     // CHAT
     demetricateChatSeparator();
+
+    // SHARES
+    demetricateShareCount();
 
     // NEWS FEED
     if(j('body.home').length) {
@@ -731,13 +736,16 @@ function demetricate(callback) {
     }
 
 
-
-// NEWS FEED
-function demetricateNewsfeed() {
-     // newsfeed item share counts
+function demetricateShareCount() {
+    // newsfeed item share counts
     j('.UFIShareLink span').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+}
+
+// NEWS FEED
+function demetricateNewsfeed() {
+
 
     // STILL NEEDED? - moved to demetricateCommentLikeButton()
     // large comment block counts (e.g. '50 of 152')
@@ -792,6 +800,10 @@ function demetricateNewsfeed() {
                 parsed[3];
             j(this).html(children).append(newtxt);
         }
+    });
+
+    j('.couponPlainText').not('.fbcount').each(function() {
+        wrapNumberInString(this);
     });
 
 
@@ -2494,6 +2506,8 @@ function demetricateMessageMutualFriends() {
 function demetricateAddFriendButtons(jnode) {
     if(!demetricatorON) return;
 
+
+    /*
     // friend list +1 icons in the 'add friend' buttons (but not checkmarks on 'Friends' buttons)
     var txt = jnode.find('span.uiButtonText').text(); 
     //if(!txt.contains('Friends')) {
@@ -2508,11 +2522,16 @@ function demetricateAddFriendButtons(jnode) {
         });
 
     }
+    */
+
+    jnode.find('.addButton i').not('.FriendRequestAdd').hide();
+//    jnode.find('.addButton').not('.FriendRequestAdd').css('padding-left','0px');
 
     if(jnode.hasClass('fbProfileBrowserListItem')) {
         if(jnode.find('input[value="Subscribed"]')) return;
         jnode.find('i').not('.facebookmetric_hideshow').addClass('facebookmetric_hideshow').hide();
     }
+
 }
 
 
