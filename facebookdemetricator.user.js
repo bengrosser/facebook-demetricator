@@ -23,7 +23,7 @@
 // http://terminalapsu.org
 //
 // Version 1.0
-// http://bengrosser.com/projects/facebook-demetricator
+// http://bengrosser.com/projects/facebook-demetricator/
 // -----------------------------------------------------
 
 
@@ -82,6 +82,7 @@ var timelineUnitCount = 0;
 var commentCount = 0;
 var photoGridCount = 0;
 var favoritesCount = 0;
+var friendBrowserCount = 0;
 
 
 // state
@@ -279,7 +280,7 @@ function toggleDemetricator() {
         j('.facebooklink').css('border','0px solid red');
     }
 
-    j('#fbdtoggleindicator').hide();
+    setTimeout(function() { j('#fbdtoggleindicator').hide(); }, 250);
 }
 
 
@@ -305,6 +306,9 @@ function main() {
         if(startURL.contains("ai.php") || startURL.contains("ajax")) return;
     }
     */
+
+    var MYTEST = '2 others';
+    console.log('MYTEST: '+MYTEST.match(/^(\d+(?:,\d+)*)\s+(.*)/));
     
     // console reporting
     console.log("Facebook Demetricator v"+VERSION_NUMBER);
@@ -431,6 +435,7 @@ function launchPolling() {
         var latesttimelineblockcount = j('.fbTimelineUnit').length;
         var latestphotogridcount = j('.fbPhotoStarGridElement').length;
         var latestfavoritescount = j('.uiFavoritesStory').length;
+        //var latestfriendbrowsercount = j('.friendBrowserListUnit').length;
         // track followListItem for subscriber entries
 
         if(lateststorycount > streamStoryCount || 
@@ -438,17 +443,24 @@ function launchPolling() {
            latestfavoritescount > favoritesCount  
            ) 
         {
-            setTimeout(function() { demetricate(); console.log('CALL4'); }, 25);
+            setTimeout(function() { if(demetricatorON) demetricate(); }, 25);
         }
 
         if(latestphotogridcount > photoGridCount) {
-            setTimeout(function() { demetricatePhotoIndex(); }, 250);
+            setTimeout(function() { if(demetricatorON) demetricatePhotoIndex(); }, 250);
         }
+
+        /*
+        if(latestfriendbrowsercount > friendBrowserCount) {
+            setTimeout(function() { demetricateFriendBrowserBlocks(); }, 250);
+        }
+        */
 
         timelineUnitCount = latesttimelineblockcount;
         streamStoryCount = lateststorycount;
         photoGridCount = latestphotogridcount;
         favoritesCount = latestfavoritescount;
+        //friendBrowserCount = latestfriendbrowsercount;
 
     }, 1500);
 
@@ -460,10 +472,13 @@ function launchPolling() {
     }, false);
 
     // likes get updated dynamically
-    waitForKeyElements('.UFILikeSentence', demetricateLikesThis, false);
+    //waitForKeyElements('.UFILikeSentence', demetricateLikesThis, false);
 
     // catches 'View All 4 Comments' when updated dynamically
     waitForKeyElements('.UFIPagerLink span > span', demetricateViewAllComments, false);
+
+    // friend-finder
+    waitForKeyElements('.friendBrowserListUnit', demetricateFriendBrowserBlocks, false);
 
     // browser 'title' tag (e.g. tab title or window title, gets a notification metric: '(2) Facebook')
     setInterval(function() { 
@@ -472,6 +487,8 @@ function launchPolling() {
 
     // deals w/ what happens on an 'unlike' click -- needs a different trigger
     waitForKeyElements('.UFILikeSentence a > span', demetricateLikesThis, false);
+
+
     //waitForKeyElements('.UFILikeSentence span a[rel="dialog"]', demetricateLikesThis, false);
 
     /*
@@ -497,7 +514,6 @@ function launchPolling() {
     setInterval(function() {
         if(!demetricatorON) return;
 
-        //var brokenlikes = j('.UFILikeSentence span a[rel="dialog"] > span:not(:has(span))'); 
         var brokenlikes = j('.demetricatedlike:not(:has(span))'); 
         var num = brokenlikes.length;
 
@@ -530,27 +546,13 @@ function launchPolling() {
             console.log('fixed '+cnum+' broken view all comment(s)');
         }
 
-    }, 1500);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }, 2000);
 
 
 
 
     // friend list +1 icons within 'add friend' buttons
-    waitForKeyElements('.fbProfileBrowserListItem', demetricateAddFriendButtons, false);
+    waitForKeyElements('.fbProfileBrowserListItem, .fbProfileBrowserList', demetricateAddFriendButtons, false);
     waitForKeyElements('.detailedsearch_result', demetricateAddFriendButtons, false);
 
     // search result items
@@ -570,9 +572,9 @@ function launchPolling() {
     // Hovercards are dynamically generated, watch for them
     waitForKeyElements('.uiOverlayContent', demetricateHovercard, false);
 
-    //waitForKeyElements('.uiContextualLayerPositioner', function(jn) {
-    //    console.log('tooltip: '+jn.html()) 
-    //}, false);
+    waitForKeyElements('.uiContextualLayer', function(jn) {
+        console.log('tooltip: '+jn.html()) 
+    }, false);
 
     //waitForKeyElements('#ariaPoliteAlert',demetricateAriaAlert, false);
 }
@@ -586,6 +588,7 @@ function demetricateTitle() {
     var currentTitle = j('title');
     var txt = currentTitle.text();
     var parsed = txt.match(/^(\(\d+(?:,\d+)*\))\s(.*)/);
+    //console.log('dT(): title= '+txt+', parsed='+parsed);
     if(parsed) { 
         currentTitle.text(parsed[2]);
         if(currentTitleText != undefined) currentTitleText = parsed[2];
@@ -646,9 +649,14 @@ function demetricate(callback) {
     demetricateShareCount();
 
     // NEWS FEED
+    /*
     if(j('body.home').length) {
+        console.log('demetricating newsfeed!');
         demetricateNewsfeed();
     }
+    */
+
+    demetricateNewsfeed();
 
     // TIMELINE
     if(j('body.timelineLayout').length) { 
@@ -776,6 +784,7 @@ function demetricateNewsfeed() {
     });
     */
 
+    console.log('here1');
     demetricateEgoSection();
 
 
@@ -806,6 +815,7 @@ function demetricateNewsfeed() {
         wrapNumberInString(this);
     });
 
+    console.log('here2');
 
     // trending articles block counts (range: '1 of 3')
     // TODO preceeding bullet ' . ' should go too
@@ -857,6 +867,7 @@ function demetricateNewsfeed() {
     });
 
 
+    console.log('here3');
     // shared item single-page views (e.g. ' · 157 like this')
     j('.subscribeOrLikeSentence span').not('.fbsingleitemsharecount').
         addClass('fbsingleitemsharecount').each(function() {
@@ -873,6 +884,7 @@ function demetricateNewsfeed() {
             }
     });
 
+    console.log('here3a');
 
     // comment-posted URL attachment like counts
     j('.uiAttachmentDetails').not('.fblikethiscount').
@@ -888,22 +900,37 @@ function demetricateNewsfeed() {
     });
 
 
+    console.log('here3b');
+
     // newsfeed story headlines that contains photos added counts (e.g. 'soandso added 8 new photos.')
     // (was h6, now h5)
     j('.uiStreamStory h5').not('.fbstreamheadline').each(function() {
         j(this).addClass('fbstreamheadline');
         var txt = j(this).text();
-        if(txt.contains('new photo')) {
+        
+    console.log('here3c');
+        // 'added 3 photos'
+        if(txt.contains('added')) {
             //var parsed = txt.match(/^(.*)\s+(\d+(?:,\d+)*)(.*)/);
-            var parsed = txt.match(/^(.*added\s+)(\d+(?:,\d+)*)\s+(new.*)/);
+            //var parsed = txt.match(/^(.*added\s+)(\d+(?:,\d+)*)\s+(new.*)/);
+            var parsed = txt.match(/^(.*added\s+)(\d+(?:,\d+)*)\s+(.*)/);
             if(parsed) {
                 j(this).html(parsed[1]+'<span class="facebookmetric_hideshow" style="display:none;"> '+parsed[2]+
                     ' </span>'+parsed[3]);
             }
         } 
+        
+
+    console.log('here3d');
+        // new style
+        if(txt.contains('photo')) {
+            var pl = j(this).find('.prounoun-link');
+            if(pl) wrapNumberInString(pl);
+        }
 
         // instagram
         else if(txt.contains('took')) {
+    console.log('here3dA');
             txt = j(this).html();
             var parsed = txt.match(/^(.*took\s+)(\d+(?:,\d+)*)\s+(.*)/);
             if(parsed) {
@@ -913,6 +940,7 @@ function demetricateNewsfeed() {
         }
 
         
+    console.log('here3e');
         // a different way of listing the # of photos in a stream story headline (oh fun)
         // a less logical structure than other ways they do it
         var nextitem = j(this).find('span.fcg');
@@ -938,6 +966,7 @@ function demetricateNewsfeed() {
     });
 
 
+    console.log('here4');
     // newsfeed attachment like counts (e.g. 'Someone and 17 others like this')
     j('.uiAttachmentDesc a[data-hover="tooltip"]').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount');
@@ -1152,10 +1181,18 @@ function demetricateTimeline() {
 
 
     // timeline activity block new friends counts ('Dan is friends with John Doe and 6 other people')
-    j('.storyText a[rel="dialog"]').not('fbtimelineblockcounts').each(function() {
+    j('.storyText a[rel="dialog"]').not('.fbtimelineblockcounts').each(function() {
         j(this).addClass('fbtimelineblockcounts');
         wrapNumberInString(this);
     });
+
+
+    // timeline activity block new friends counts (new version)
+    j('.timelineRecentActivityTextBlock a[data-hover="tooltip"]').not('fbtimelineblockcounts').each(function() {
+        j(this).addClass('fbtimelineblockcounts');
+        wrapNumberInString(this);
+    });
+
 
 
     // like lists on timeline blocks ('18 friends also like this')
@@ -1228,6 +1265,14 @@ function demetricateTimeline() {
             '<span style="display:none;" class="facebookmetric_fade">'+j(this).html()+'</span>'
         );
     });
+
+
+    demetricateFriendPageBlocks();
+
+
+    // new friend page meta counts (friends, mutual, recent, high school, etc.)
+    j('#friends_nav_pagelet div._qy').not('.fbfriendcount').
+        addClass('fbfriendcount facebookmetric_opacity').css('opacity','0');
 
 
     // timeline-type mutual friends list counts, photo counts on albums pages, etc.
@@ -1507,6 +1552,17 @@ function demetricateMusic() {
     });
 }
 
+
+// NEW FRIENDS PAGE
+function demetricateFriendPageBlocks() {
+
+    // new friend page mutual friend counts
+    j('#pagelet_friends a.uiLinkSubtle').not('.fbmutualfriends').each(function() {
+        j(this).addClass('fbmutualfriends');
+        var txt = j(this).text();
+        if(txt.contains('mutual friend')) wrapNumberInString(this);
+    });
+}
 
 // APP CENTER
 function demetricateAppCenter() {
@@ -1826,6 +1882,7 @@ function demetricateFriendBrowserBlocks() {
     j('a.uiLinkSubtle[rel="dialog"]').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
 }
 
 
@@ -1834,7 +1891,7 @@ function demetricateSearchResultEntries(jnode) {
     if(!demetricatorON) return;
 
     if(demetricatorON) {
-        j('ul.search li.page').find('.subtext').not('.fbsearchentry').each(function() { 
+        j('ul.search li.page, ul.search li.place').find('.subtext').not('.fbsearchentry').each(function() { 
             j(this).addClass('fbsearchentry');
             j(this).text('people like this · people talk about this'); 
         });
@@ -1867,9 +1924,6 @@ function demetricateLikesThis(jnode) {
     if(!jnode) {var jnode = j('.UFILikeSentence a > span');console.log('no jnode to demetricateLikesThis()'); }
     else console.log('dlt got a jnode');
 
-    //console.log('demetricateLikesThis()');
-    console.log('dlt');
-
     if(!demetricatorON) return;
 
     // timeline entry feedback blocks: like counts
@@ -1895,7 +1949,6 @@ function demetricateLikesThis(jnode) {
 
     }
 
-    /*
     j('.fbTimelineFeedbackComments a').not('.fbtimelineblockcounts').each(function() {
         j(this).addClass('fbtimelineblockcounts');
         var html = j(this).html();
@@ -1907,7 +1960,6 @@ function demetricateLikesThis(jnode) {
             }
         }
     });
-    */
 
     /*
     j('.ufiItem a[title="See who likes this"]').not('.fblikesthis').each(function() { 
@@ -1964,8 +2016,8 @@ function demetricateLikesThis(jnode) {
 
         //j('.UFILikeSentence a span').not('.facebookcount').each(function() {
     jnode.not('.facebookcount').each(function() {
-        j(this).addClass('demetricatedlike');
         wrapNumberInString(this);
+        j(this).addClass('demetricatedlike');
     });
         
 
@@ -1984,7 +2036,15 @@ function demetricatePhotoIndex() {
             addClass('facebookmetric_opacity').
             css('opacity','0');
 
+        // old naming for photo bling box counts --- some logical naming and easy for once
         j('.fbPhotosRedesignLikes,.fbPhotosRedesignComments').not('.facebookcount').each(function() {
+            j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
+                j(this).text() + '</span>');
+        });
+
+        // but only lasted a week until it became a complete clusterfuck of obfuscation ...
+        // i don't think this will last, so I'm leaving above in just in case
+        j('._53n,._53m').not('.facebookcount').each(function() {
             j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
                 j(this).text() + '</span>');
         });
@@ -2278,6 +2338,8 @@ function demetricateTimestamps() {
 }
 
 function demetricateEgoSection(jnode) {
+    if(!demetricatorON) return;
+
         // some newsfeed items, perhaps only those that aren't from a close friend (e.g. friend of
     // friend, or from a liked page/business, etc...) include abbreviated bars of info for
     // likes, shares, and comments.  this should remove all those counts
@@ -2302,10 +2364,12 @@ function demetricateEgoSection(jnode) {
             var txt = j(this).text(); 
             if(txt.contains('mutual friend') || txt.contains('other friend')) {
                 var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+                if(parsed) {
                 //var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
                 var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
                     parsed[1]+'</span> '+parsed[2];  
                 j(this).html(newhtml);
+                }
 
             }
 
@@ -2396,6 +2460,7 @@ function demetricateHovercard(jnode) {
     demetricateHovercardFooter(jnode);
 
     function demetricateHovercardFooter(jnode) {
+        console.log('dhf called');
         var fancount = jnode.find('.fanCount');
         if(fancount) wrapFooterNumber(fancount, 'people');
 
@@ -2403,14 +2468,9 @@ function demetricateHovercard(jnode) {
             if(j(this).text().contains('like')) wrapFooterNumber(j(this),'');
             else if(j(this).text().contains('talking')) wrapFooterNumber(j(this),'');
             else if(j(this).text().contains('here')) wrapFooterNumber(j(this),'');
+            else if(j(this).text().contains('mutual')) wrapNumberInString(j(this));
             else wrapFooterNumber(j(this),'');
 
-            /*
-            if(j(this).text().contains('like')) wrapFooterNumber(j(this),'people');
-            else if(j(this).text().contains('talking')) wrapFooterNumber(j(this),'people are');
-            else if(j(this).text().contains('here')) wrapFooterNumber(j(this),'people');
-            else wrapFooterNumber(j(this),'people');
-            */
         });
 
         function wrapFooterNumber(jnode, languageadd) {
@@ -2433,10 +2493,10 @@ function demetricateHovercard(jnode) {
     }
 
     // some mutual friends counts are different.  this should catch the rest
-    j('a[rel="dialog"]').not('.fbhovercardcount').each(function() {
+    jnode.find('a[rel="dialog"]').not('.fbhovercardcount').each(function() {
         j(this).addClass('fbhovercardcount');
         var txt = j(this).text();
-        if(txt.contains('mutual') || txt.contains('subscribe')) wrapNumberInString(this);
+        if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || txt.contains('other')) wrapNumberInString(this);
         //if(j(this).text().contains('mutual') ) wrapNumberInString(this);
     });
 
@@ -2450,10 +2510,15 @@ function demetricateHovercard(jnode) {
     // in place.  
     function wrapNumberInString(node) {
         var txt = j(node).html();
-        var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
-        if(parsed) {
-            j(node).html(
-                '<span style="display:none;" class="facebookmetric_hideshow">'+parsed[1]+'</span> '+parsed[2]);
+        //txt = txt.replace(/\u200e/g,'');
+        if(txt) {
+            var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+            //var parsed = txt.match(/^(\d+(?:,\d+)*)[\s\u200e]+(.*)/);
+            if(parsed) {
+                j(node).html(
+                    //'<span style="display:none;" class="facebookmetric_hideshow">'+parsed[1]+'</span> '+parsed[2]);
+                    '<span style="display:none;" class="facebookmetric_hideshow">'+parsed[1]+' </span>'+parsed[2]);
+            }
         }
         j(node).addClass('facebookcount');
     }
@@ -2531,6 +2596,9 @@ function demetricateAddFriendButtons(jnode) {
         if(jnode.find('input[value="Subscribed"]')) return;
         jnode.find('i').not('.facebookmetric_hideshow').addClass('facebookmetric_hideshow').hide();
     }
+
+    // they've added some new stuff to friend blocks so catch it here
+    demetricateFriendPageBlocks();
 
 }
 
