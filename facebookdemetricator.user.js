@@ -685,7 +685,7 @@ function demetricate(callback) {
     } 
 
     // EVENTS/CALENDAR
-    if(j('body.fbCalendar').length) {
+    if(j('body.fbCalendar').length || j('body.fbEventPermalink')) {
         demetricateEvents();
     } 
 
@@ -1617,17 +1617,20 @@ function demetricateEvents() {
     });
 
     // Going, Maybe, Invited on Event detail page
-    j('#pagelet_event_guests_going a[rel="dialog"]').not('.facebookcount').each(function() {
-        wrapNumberInString(this);
+    j('#pagelet_event_guests_going a[rel="dialog"], #pagelet_event_guests_maybe [rel="dialog"], #pagelet_event_guests_invited [rel="dialog"]').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        var txt = j(this).html();
+        if(txt) {
+            var parsed = txt.match(/(.*)(\(\d+(?:,\d+)*\))/);
+            if(parsed) {
+                j(this).html(
+                    parsed[1]+' <span class="facebookmetric_fade" style="display:none;">'+
+                    parsed[2]+'</span>'
+                );
+            }
+        }
     });
 
-    j('#pagelet_event_guests_maybe a[rel="dialog"]').not('.facebookcount').each(function() {
-        wrapNumberInString(this);
-    });
-
-    j('#pagelet_event_guests_invited a[rel="dialog"]').not('.facebookcount').each(function() {
-        wrapNumberInString(this);
-    });
 
 }
 
