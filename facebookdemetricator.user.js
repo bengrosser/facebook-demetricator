@@ -1,8 +1,12 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.0
+// @version 1.0.1
 // @namespace facebookdemetricator
-// @description Removes All The Metrics From Facebook
+// @description Removes all the metrics from Facebook
+
+// @updateURL http://bengrosser.com/fbd/facebookdemetricator.meta.js
+// @downloadURL https://bengrosser.com/fbd/facebookdemetricator.user.js
+//
 //
 // @match *://*.facebook.com/*
 // @include *://*.facebook.com/*
@@ -22,7 +26,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.0
+// Version 1.0.1
 // http://bengrosser.com/projects/facebook-demetricator/
 // -----------------------------------------------------
 
@@ -30,6 +34,10 @@
 // THANKS to my beta test team!! 
 // Selina, Hugh, Jeff, Dan B., Dan G., Keith, Ashley, Janelle, Elizabeth, Keri, Kate
 
+// fix for 1.0.2
+// new messages interface metrics
+// individual post view ... just need to trigger demetricator on them somehow
+// event going/maybe/invited broke
 
 // TODO
 // recommended pages (N people like this) (hatcher)
@@ -62,7 +70,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.0';        // used in the console logging
+var VERSION_NUMBER = '1.0.1';        // used in the console logging
 var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -1607,6 +1615,20 @@ function demetricateEvents() {
     j('#pagelet_group_events div.fsm.fwn.fcg a[rel="dialog"]').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
+    // Going, Maybe, Invited on Event detail page
+    j('#pagelet_event_guests_going a[rel="dialog"]').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
+    j('#pagelet_event_guests_maybe a[rel="dialog"]').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
+    j('#pagelet_event_guests_invited a[rel="dialog"]').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
 }
 
 function demetricateCounters() {
