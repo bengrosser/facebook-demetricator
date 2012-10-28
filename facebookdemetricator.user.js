@@ -35,18 +35,9 @@
 // Selina, Hugh, Jeff, Dan B., Dan G., Keith, Ashley, Janelle, Elizabeth, Keri, Kate
 
 // fix for 1.0.2
-// new messages interface metrics
 // individual post view ... just need to trigger demetricator on them somehow
-// event going/maybe/invited broke
 
-// TODO
-// recommended pages (N people like this) (hatcher)
-// reentering a previously viewed ticker popup when toggle changed between doesn't update popup content
-// code cleanup/refactoring
-// 'interests' page
-//
-// TODO search results page broken
-// TODO events ... and 15 other friends
+// TODO fully demetricate new messages interface (have a few quick fixes for now)
 // TODO photoTextSubtitle settings/public icon should stay showing
 // TODO removing entries in people you may know needs to trigger on new entries
 // TODO trigger for demetricateMessageMutualFriends()
@@ -666,12 +657,16 @@ function demetricate(callback) {
         demetricateNewsfeed();
     }
 
-    //demetricateNewsfeed();
-
     // TIMELINE
-    if(j('body.timelineLayout').length) { 
+    if(j('body.timelineLayout').length) {
         demetricateTimeline(); 
     } 
+
+    // permalink posts 
+    if(j('body.permalinkBody').length) {
+        demetricateNewsfeed();
+        demetricateTimeline(); 
+    }
 
     // MUSIC
     demetricateMusic();
@@ -1833,6 +1828,16 @@ function demetricateMessages() {
     
     demetricateMessageMutualFriends();
     setTimeout(demetricateMessageMutualFriends, 8000);
+
+    // gets the categories (Inbox, Other, etc).  need to do more here
+    // but this will do for now
+    demetricateMessageCategoryMetrics();
+
+    // catches timestamps in originally-chosen category, but not new selections
+    // quick fix until I work on new message interface
+    demetricateTimestamps();
+    setTimeout(demetricateTimestamps, 1000);
+
     // MESSAGES
     /*
     if(curURL.contains('messages')) {
@@ -1844,7 +1849,15 @@ function demetricateMessages() {
     j('.unreadCount').not('.facebookcount').addClass('facebookcount facebookmetric_hideshow').hide();
     }
     */
-    // thread counts on messages (e.g. gmail-like number of messages in thread count)
+   
+    
+
+}
+
+function demetricateMessageCategoryMetrics() {
+    // new messages interface, category counts (inbox, other, etc)
+    j('.wmMasterView span.fwn').not('.facebookmetric_hideshow').addClass('facebookmetric_opacity').css('opacity','0');
+    j('._1r').not('.facebookmetric_hideshow').addClass('facebookmetric_opacity').css('opacity','0');
 }
 
 // list of people one subscribes to (timeline)
