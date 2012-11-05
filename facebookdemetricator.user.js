@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.0.1
+// @version 1.0.2
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -12,6 +12,9 @@
 // @include *://*.facebook.com/*
 // @exclude *://*.facebook.com/ai.php*
 // @exclude *://*.facebook.com/ajax/*
+// @exclude *://*.facebook.com/plugins/*
+// @exclude *://*.facebook.com/dialog/*
+// @exclude *://*.facebook.com/connect/*
 //
 // @icon http://bengrosser.com/fbd/fbd-logo-32.png
 //
@@ -26,7 +29,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.0.1
+// Version 1.0.2
 // http://bengrosser.com/projects/facebook-demetricator/
 // -----------------------------------------------------
 
@@ -34,8 +37,6 @@
 // THANKS to my beta test team!! 
 // Selina, Hugh, Jeff, Dan B., Dan G., Keith, Ashley, Janelle, Elizabeth, Keri, Kate
 
-// fix for 1.0.2
-// individual post view ... just need to trigger demetricator on them somehow
 
 // TODO fully demetricate new messages interface (have a few quick fixes for now)
 // TODO photoTextSubtitle settings/public icon should stay showing
@@ -61,14 +62,14 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.0.1';        // used in the console logging
+var VERSION_NUMBER = '1.0.2';        // used in the console logging
 var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
-var IS_FIREFOX_ADDON = false;        // is this a Firefox addon?
-var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
+var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox addon?
+//var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
 
 
@@ -296,12 +297,15 @@ function main() {
     // store away the URL we landed on
     startURL = window.location.href;
 
-    // Firefox Addons don't allow excludes in the URL match, so we do it here.
-    /*
-    if(IS_FIREFOX_ADDON || IS_SAFARI_EXTENSION) {
-        if(startURL.contains("ai.php") || startURL.contains("ajax")) return;
+    // Firefox/Safari Addons don't allow excludes in the URL match, so we do it here.
+    if(IS_SAFARI_OR_FIREFOX_ADDON) {
+        if(startURL.contains("ai.php") || 
+           startURL.contains("/ajax/") ||
+           startURL.contains("/plugins/") || 
+           startURL.contains("/dialog/") ||
+           startURL.contains("/connect/")
+           ) return; 
     }
-    */
 
     // console reporting
     console.log("Facebook Demetricator v"+VERSION_NUMBER);
@@ -311,6 +315,7 @@ function main() {
     j = jQuery.noConflict();
 
     // store current chat count, then hide that count on the chat button
+    //var chatobj = j('.fbNubButton:not("has([aria-label])")');
     var chatobj = j('.fbNubButton');
     currentChatCount = chatobj.find('.count').text();
     chatobj.find('.label').hide();
@@ -979,6 +984,23 @@ function demetricateNewsfeed() {
         j(this).addClass('facebookcount facebookmetric_hideshow').hide();
     });
 
+    // more post pagers ('See 2 more posts from/about')
+    j('.uiStreamShowAll a span').not('.facebookcount').each(function() {
+        j(this).addClass('.facebookcount');
+        var txt = j(this).text();
+        if(txt) {
+            var parsed = txt.match(/^(See)\s+(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                j(this).html(
+                    parsed[1]+
+                    ' <span class="facebookmetric_hideshow" style="display:none;">'+
+                    parsed[2]+
+                    ' </span>'+
+                    parsed[3]
+                    );
+            }
+        }
+    });
 
 } // end demetricateNewsfeed()
 
@@ -1503,6 +1525,27 @@ function demetricateTimeline() {
             j(this).html(children).find('div:last').prepend(newtxt);
         }
     });
+
+    // MAP page
+    j('.fbTimelineMapFilterTagCount').not('.facebookcount').
+        addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+
+    function demetricateMapBubbles() {
+        if(!demetricatorON) return;
+        j('.fbAggregatedMapBubble, .fbAggregatedMapPinText').
+            not('.facebookcount').each(function() {
+            j(this).addClass('facebookcount');
+            j(this).html('<span class="facebookmetric_opacity" style="opacity:0">'+
+                j(this).text()+
+                '</span>'
+                );
+        });
+    }
+
+    // they take a second to come up
+    setTimeout(function() { demetricateMapBubbles(); }, 200 );
+    setTimeout(function() { demetricateMapBubbles(); }, 600 );
+
 } // end demetricateTimeline()
 
 
@@ -2532,9 +2575,17 @@ function demetricateHovercard(jnode) {
     jnode.find('a[rel="dialog"]').not('.fbhovercardcount').each(function() {
         j(this).addClass('fbhovercardcount');
         var txt = j(this).text();
-        if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || txt.contains('other')) wrapNumberInString(this);
+        if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || txt.contains('other') || txt.contains('friends')) 
+        wrapNumberInString(this);
         //if(j(this).text().contains('mutual') ) wrapNumberInString(this);
     });
+
+    // people like this within hovercards (bands, other pages that 
+    // sometimes show up in hovercards via the ticker, etc.)
+    jnode.find('.mvs div.fsm.fwn.fcg').not('.fbhovercardcount').each(function() {
+        wrapNumberInString(this);
+    });
+
 
 
     if(DBUG) console.timeEnd('demetricateHovercard timer');
