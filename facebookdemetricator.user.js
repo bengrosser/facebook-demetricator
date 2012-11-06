@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.0.2
+// @version 1.1.0
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -29,7 +29,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.0.2
+// Version 1.1.0
 // http://bengrosser.com/projects/facebook-demetricator/
 // -----------------------------------------------------
 
@@ -62,7 +62,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.0.2';        // used in the console logging
+var VERSION_NUMBER = '1.1.0';        // used in the console logging
 var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -667,6 +667,11 @@ function demetricate(callback) {
         demetricateTimeline(); 
     } 
 
+    // NEW PAGE/INTERESTS LAYOUT ... hybrid of newsfeed and pages.  arrgh
+    if(j('body.pagesTimelineLayout').length) {
+        demetricateNewsfeed(); 
+    }
+
     // permalink posts 
     if(j('body.permalinkBody').length) {
         demetricateNewsfeed();
@@ -901,6 +906,10 @@ function demetricateNewsfeed() {
                     '<span class="facebookmetric_toggleOFF" style="display:none;">'+txt+'</span> '+
                     '<span class="facebookmetric_toggleON">people like this</span> ';
                 j(this).html(newhtml);
+        }
+
+        else if(txt.match(/\d/)) {
+            j(this).addClass('facebookmetric_hideshow').hide();
         }
     });
 
@@ -1272,6 +1281,13 @@ function demetricateTimeline() {
             j(this).addClass('fbribbonstat').addClass('fbTimelineHeadlineStats').css('opacity','0');
     });
 
+    // new interest page metrics (e.g. pizza)
+    j('#pagelet_vertex_header ._5l6').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+        wrapNumberInString(j(this).find('a'));
+
+    });
+
 
     // timeline-type personal friends list count
     j('#pagelet_friends h3 span:first').not('.fbtimelinefcwrapper').each(function() {
@@ -1545,6 +1561,10 @@ function demetricateTimeline() {
     // they take a second to come up
     setTimeout(function() { demetricateMapBubbles(); }, 200 );
     setTimeout(function() { demetricateMapBubbles(); }, 600 );
+    
+    //bling boxes are now showing up on new interest pages in a 'timeline' style
+    
+   //     j('.UFIBlingBoxText').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
 
 } // end demetricateTimeline()
 
@@ -1683,6 +1703,14 @@ function demetricateCounters() {
     
     // some are marked already with .counter -- easy
         j('.counter').fadeOut(FADE_SPEED);
+
+
+        // testing this out...hides values on left-hand bar but leaves outlines as
+        // newness indicator
+        j('.countValue, .maxCountIndicator').not('.facebookcount').
+            addClass('facebookcount facebookmetric_opacity').
+            css('opacity','0').
+            parent().addClass('facebookcount');
 
     var countclass = j('.count');
 
@@ -2003,7 +2031,7 @@ function demetricateLikesThis(jnode) {
     // EXPERIMENT
     
     
-    if(j('body.timelineLayout').length) {
+    //if(j('body.timelineLayout').length) {
    
         j('.fbTimelineFeedbackLikes a').not('.fbtimelineblockcounts').each(function() {
             j(this).addClass('fbtimelineblockcounts');
@@ -2017,7 +2045,7 @@ function demetricateLikesThis(jnode) {
             }
         });
 
-    }
+    //}
 
     j('.fbTimelineFeedbackComments a').not('.fbtimelineblockcounts').each(function() {
         j(this).addClass('fbtimelineblockcounts');
