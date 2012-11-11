@@ -12,7 +12,6 @@
 // @include *://*.facebook.com/*
 // @exclude *://*.facebook.com/ai.php*
 // @exclude *://*.facebook.com/ajax/*
-// @exclude *://*.facebook.com/plugins/*
 // @exclude *://*.facebook.com/dialog/*
 // @exclude *://*.facebook.com/connect/*
 //
@@ -301,11 +300,13 @@ function main() {
     if(IS_SAFARI_OR_FIREFOX_ADDON) {
         if(startURL.contains("ai.php") || 
            startURL.contains("/ajax/") ||
-           startURL.contains("/plugins/") || 
+           //startURL.contains("/plugins/") || 
            startURL.contains("/dialog/") ||
            startURL.contains("/connect/")
            ) return; 
     }
+
+    if(startURL.contains("/plugins/") && !startURL.contains("bengrosser")) return;
 
     // console reporting
     console.log("Facebook Demetricator v"+VERSION_NUMBER);
@@ -719,6 +720,12 @@ function demetricate(callback) {
     j('.UIImageBlock_Content a.uiLinkSubtle[rel="dialog"]').not('.facebookcount').addClass('facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
+    // like this and talking about this counts on OLD interest page styles 
+    // (still around for some users as of 11/6/2012)
+    j('.uiNumberGiant').not('.facebookcount').
+        addClass('facebookcount facebookmetric_opacity').
+        css('opacity','0');
 
     // CALLBACK for launchPolling()
     if(callback) callback();
@@ -1707,10 +1714,14 @@ function demetricateCounters() {
 
         // testing this out...hides values on left-hand bar but leaves outlines as
         // newness indicator
-        j('.countValue, .maxCountIndicator').not('.facebookcount').
+        j('.countValue').not('.facebookcount').
             addClass('facebookcount facebookmetric_opacity').
             css('opacity','0').
             parent().addClass('facebookcount');
+
+        j('.maxCountIndicator').not('.facebookcount').
+            addClass('facebookcount facebookmetric_hideshow').
+            hide();
 
     var countclass = j('.count');
 
