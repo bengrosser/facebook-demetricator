@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>3</string>
 	<key>Chrome</key>
 	<dict/>
 	<key>Content</key>
@@ -24,12 +24,12 @@
 		<dict>
 			<key>End</key>
 			<array>
-				<string>latest.user.js</string>
+				<string>facebookdemetricator.user.js</string>
 			</array>
 		</dict>
 	</dict>
 	<key>Description</key>
-	<string>Removes All The Metrics From Facebook</string>
+	<string>Hides all the metrics on Facebook</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
@@ -46,7 +46,9 @@
 			<string>Some</string>
 		</dict>
 	</dict>
+	<key>Update Manifest URL</key>
+	<string>http://bengrosser.com/fbd/fbd-safari-update.plist</string>
 	<key>Website</key>
-	<string>http://bengrosser.com</string>
+	<string>http://bengrosser.com/projects/facebook-demetricator/</string>
 </dict>
 </plist>
