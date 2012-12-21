@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.1.0
+// @version 1.1.3
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.1.0
+// Version 1.1.3
 // http://bengrosser.com/projects/facebook-demetricator/
 // -----------------------------------------------------
 
@@ -61,8 +61,8 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.1.0';        // used in the console logging
-var KEY_CONTROL = false;
+var VERSION_NUMBER = '1.1.3';        // used in the console logging
+var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
@@ -584,7 +584,71 @@ function launchPolling() {
     waitForKeyElements('.uiOverlayContent', demetricateHovercard, false);
 
     waitForKeyElements('.uiContextualLayer', function(jn) {
-        console.log('tooltip: '+jn.html()) 
+        //console.log('tooltip: '+jn.html()); 
+        /*
+            var aria = jn.html();
+            var parsed = aria.match(/(.*)\s+(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                jn.html(parsed[1]+
+                        '<span style="display:none;" class="facebookmetric_hideshow"> '+parsed[2]+'</span> '+parsed[3]);
+            }
+        */
+
+        var friendslink = jn.find('._7lo a[rel="dialog"]').not('.HovercardMessagesButton');
+
+        /*
+        if(friendslink && friendslink.not('span.hovercardcount') && friendslink.not('.HovercardMessagesButton')) {
+            console.log('in fl tst');
+            var html = friendslink.html();
+            if(html) {
+                var parsed = html.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+                if(parsed) {
+                    if(demetricatorON) var disp = "display:none;";
+                    else var disp = "";
+                    var newhtml = '<span class="hovercardcount" style="'+disp+'">'+parsed[1]+"</span> "+parsed[2];
+                    friendslink.html(newhtml);
+                }
+            }
+        }
+        */
+
+        jn.find('a[rel="dialog"], div.fsm.fwn.fcg').not('.fbhovercardcount, .HovercardMessagesButton, .uiButton').each(function() {
+            j(this).addClass('fbhovercardcount');
+            var txt = j(this).text();
+            if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || 
+               txt.contains('other') || txt.contains('friends')) 
+            var html = friendslink.html();
+            console.log('fl: '+html);
+            if(html && friendslink.not('.HovercardMessagesButton, .uiButton')) {
+                
+                var parsed = html.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+                if(parsed) {
+                    if(demetricatorON) var disp = "display:none;";
+                    else var disp = "";
+                    var newhtml = '<span class="hovercardcount HERE8" style="'+disp+'">'+parsed[1]+"</span> "+parsed[2];
+                    friendslink.html(newhtml);
+                }
+                //else wrapNumberInString(this);
+                else {
+                         var txt2 = j(this).html();
+        //txt = txt.replace(/\u200e/g,'');
+        if(txt2) {
+            var parsed = txt2.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+            //var parsed = txt.match(/^(\d+(?:,\d+)*)[\s\u200e]+(.*)/);
+            if(parsed) {
+                j(this).html(
+                    //'<span style="display:none;" class="facebookmetric_hideshow">'+parsed[1]+'</span> '+parsed[2]);
+                    '<span style="display:none;" class="hovercardcount HERE9">'+parsed[1]+' </span>'+parsed[2]);
+            }
+        }
+        j(this).addClass('facebookcount');
+                }
+            }
+            // need to implement my own wrapnumber to insert a span like above so demetrication works
+            else wrapNumberInString(this);
+            //if(j(this).text().contains('mutual') ) wrapNumberInString(this);
+        });
+
     }, false);
 
     //waitForKeyElements('#ariaPoliteAlert',demetricateAriaAlert, false);
@@ -702,7 +766,7 @@ function demetricate(callback) {
 
     // MESSAGES
     demetricateMessages();
-    
+
     // HOVERCARD TOGGLE TRIGGERS
     // images that trigger hovercards (such as friend photos on the timeline ribbon)
     j('.hovercard_trigger').mouseenter(toggleHovercards);
@@ -726,6 +790,12 @@ function demetricate(callback) {
     j('.uiNumberGiant').not('.facebookcount').
         addClass('facebookcount facebookmetric_opacity').
         css('opacity','0');
+
+    // reloaded photo pages tag overlays.  show up on ego_page in the body...not sure if i should catch this
+    // here or elsewhere.  this will do for now
+    // tag count on photo tag overlays
+    j('.tagPhotoLink a.uiLinkLightBlue').not('.facebookcount').
+        addClass('facebookcount facebookmetric_hideshow').hide();
 
     // CALLBACK for launchPolling()
     if(callback) callback();
@@ -845,6 +915,12 @@ function demetricateNewsfeed() {
     // trending articles '### people read this'
     j('span.ogSingleStoryStatusContent.rfloat').not('.facebookcount').each(function() {
         wrapNumberInString(this);
+    });
+
+    // trending articles '### people shared this'
+    j('.ogAggregationSubstoryContent .rfloat').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+        j(this).find('.facebookmetric_hideshow').css('color','inherit');
     });
 
 
@@ -1505,6 +1581,10 @@ function demetricateTimeline() {
     // PHOTOS
     demetricatePhotoIndex();
 
+    // tag count on photo tag overlays
+    j('.tagPhotoLink a.uiLinkLightBlue').not('.facebookcount').
+        addClass('facebookcount facebookmetric_hideshow').hide();
+
     // album page individual albums photo counts (facebook.com/username/photos)
     j('.photoText .fsm.fwn.fcg').not('.facebookcount').addClass('facebookcount').css('opacity','0');
 
@@ -1773,9 +1853,27 @@ function demetricatePagers() {
 
     // 'See More (3)' pager controls, occur in multiple views (news feed, photo albums, etc.)
     
+    // NEW pager controls dec 2012
+    j('._4e1').not('.fbtimelinecount').each(function() {
+        j(this).addClass('fbtimelinecount');
+        var html = j(this).html();
+        var parsed = html.match(/(.*See)\s+(\d+(?:,\d+)*)\s+(.*)/);
+        if(parsed) {
+            j(this).html(
+                parsed[1]+
+                '<span style="display:none;" class="facebookmetric_hideshow"> '+parsed[2]+'</span> '+
+                parsed[3]
+            );
+        }
+
+    });
+
+    return;
+
     j('a.uiMorePagerPrimary').not('.fbtimelinecount').each(function() {
             j(this).addClass('fbtimelinecount');
             var txt = j(this).text();
+            //var txt = j(this).html();
 
             if(txt.match(/^\d/) && txt.contains('more')) {
 
@@ -2530,21 +2628,22 @@ function demetricateHovercard(jnode) {
     if(!demetricatorON) return;
 
     if(DBUG) console.time('demetricateHovercard timer');
-    //console.log("hovercard html: "+jnode.parent().parent().parent().parent().tml());
+    //console.log("hovercard html: "+jnode.parent().parent().parent().parent().html());
     //console.log("hovercard html: "+jnode.html());
 
     // first look for a mutual friends link
-    var friendslink = jnode.find('.HovercardContent a[rel="dialog"]');
+    //var friendslink = jnode.find('.HovercardContent a[rel="dialog"]');
+    var friendslink = jnode.find('._7lo a[rel="dialog"]');
 
     // if we have one, and if it hasn't already been demetricated, then demetricate it
-    if(friendslink && friendslink.not('span.hovercardcount')) {
+    if(friendslink && friendslink.not('span.hovercardcount, .HovercardMessagesButton')) {
         var html = friendslink.html();
         if(html) {
             var parsed = html.match(/^(\d+(?:,\d+)*)\s+(.*)/);
             if(parsed) {
                 if(demetricatorON) var disp = "display:none;";
                 else var disp = "";
-                var newhtml = '<span class="hovercardcount" style="'+disp+'">'+parsed[1]+"</span> "+parsed[2];
+                var newhtml = '<span class="hovercardcount HERE4" style="'+disp+'">'+parsed[1]+"</span> "+parsed[2];
                 friendslink.html(newhtml);
             }
         }
@@ -2560,21 +2659,21 @@ function demetricateHovercard(jnode) {
     // mutual friends count
     var altfriendslink = jnode.find('div.mbs a');
 
-    if(altfriendslink && altfriendslink.not('span.hovercardcount')) {
+    if(altfriendslink && altfriendslink.not('span.hovercardcount, .HovercardMessagesButton')) {
         var althtml = altfriendslink.html();
         if(althtml) {
             var altparsed = althtml.match(/^(\d+(?:,\d+)*)\s+(.*)/);
             if(altparsed) {
                 if(demetricatorON) var altdisp = "display:none;";
                 else var altdisp = "";
-                var altnewhtml = '<span class="hovercardcount" style="'+altdisp+'">'+altparsed[1]+"</span> "+altparsed[2];
+                var altnewhtml = '<span class="hovercardcount HERE5" style="'+altdisp+'">'+altparsed[1]+"</span> "+altparsed[2];
                 altfriendslink.html(altnewhtml);
             }
         }
     }
 
     // +1 on add friend buttons
-    j('.FriendRequestAdd i').not('.hovercardcount').addClass('hovercardcount').hide();
+    j('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
 
     demetricateHovercardFooter(jnode);
 
@@ -2600,7 +2699,7 @@ function demetricateHovercard(jnode) {
                 if(parsed) {
                     if(demetricatorON) var disp = "display:none;";
                     else var disp = "";
-                    var newhtml = '<span class="hovercardcount" style="'+disp+'">'+
+                    var newhtml = '<span class="hovercardcount HERE7" style="'+disp+'">'+
                         parsed[1]+"</span> "+languageadd+parsed[2];
                     if(demetricatorON) var disp = "display:none;";
                     jnode.html(newhtml);
@@ -2611,7 +2710,7 @@ function demetricateHovercard(jnode) {
     }
 
     // some mutual friends counts are different.  this should catch the rest
-    jnode.find('a[rel="dialog"]').not('.fbhovercardcount').each(function() {
+    jnode.find('a[rel="dialog"]').not('.fbhovercardcount, .HovercardMessagesButton').each(function() {
         j(this).addClass('fbhovercardcount');
         var txt = j(this).text();
         if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || txt.contains('other') || txt.contains('friends')) 
@@ -2621,7 +2720,7 @@ function demetricateHovercard(jnode) {
 
     // people like this within hovercards (bands, other pages that 
     // sometimes show up in hovercards via the ticker, etc.)
-    jnode.find('.mvs div.fsm.fwn.fcg').not('.fbhovercardcount').each(function() {
+    jnode.find('.mvs div.fsm.fwn.fcg').not('.fbhovercardcount, .HovercardMessagesButton').each(function() {
         wrapNumberInString(this);
     });
 
