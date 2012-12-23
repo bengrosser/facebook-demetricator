@@ -339,7 +339,7 @@ function main() {
 
     // the demetricator menu item and checkbox for the navbar
     var demetricatornavitem = loading2 + 
-        '<li style="float:left;padding:0;margin:0;border:0px solid red;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;"><a style="line-height:29px;margin-top:0px;padding-right:10px;color:#d8dfea;font-weight:bold;" id="demetricatorlink">Demetricator</a></li><li class="navItem firstItem"><a style="margin-left:0px;margin-right:3px"></a></li>';
+        '<li style="float:left;padding:0;margin:0;border:0px solid red;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;"><a style="line-height:29px;margin-top:0px;padding-right:10px;color:#d8dfea;font-weight:bold;" id="demetricatorlink">Demetricator</a></li><li class="navItem firstItem"><a class="navLink" style="margin-left:0px;margin-right:3px"></a></li>';
 
     // insert the navigation control
     j('#pageNav').prepend(demetricatornavitem);
