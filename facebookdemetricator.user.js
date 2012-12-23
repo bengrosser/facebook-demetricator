@@ -589,6 +589,9 @@ function launchPolling() {
     // Hovercards are dynamically generated, watch for them
     waitForKeyElements('.uiOverlayContent', demetricateHovercard, false);
 
+    // chat tabs
+    waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
+
     waitForKeyElements('.uiContextualLayer', function(jn) {
         //console.log('tooltip: '+jn.html()); 
         /*
@@ -1681,6 +1684,13 @@ function demetricateTimeline() {
    //     j('.UFIBlingBoxText').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
 
 } // end demetricateTimeline()
+
+function demetricateChatTab() {
+    j('.fbMercuryChatTab span.numMessages').not('.facebookmetric').each(function() {
+        j(this).addClass('facebookmetric facebookmetric_opacity');
+        j(this).css('opacity','0');
+    });
+}
 
 
 // 2012 year in review page
