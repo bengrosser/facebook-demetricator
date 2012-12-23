@@ -42,9 +42,6 @@
 // TODO removing entries in people you may know needs to trigger on new entries
 // TODO trigger for demetricateMessageMutualFriends()
 // TODO uiTooltipX demetrication for like button popups.  can't figure it out right now
-// TODO demetricate add friend buttons on hovercards (otricky)
-// TODO shorten search bar 
-// TODO vert border b/t demetricator and name menu items
 
 
 // globals
@@ -772,6 +769,10 @@ function demetricate(callback) {
     if(curURL.contains('groups') || startURL.contains('groups')) { 
         demetricateGroups(); 
     } 
+
+    if(curURL.contains('yearinreview') || startURL.contains('yearinreview')) {
+        demetricateYearInReview();
+    }
 
     // MESSAGES
     demetricateMessages();
@@ -1575,6 +1576,23 @@ function demetricateTimeline() {
 
     });
 
+    // year in review
+    j('._16v7').find('div.fsm.fwn.fcg').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        var txt = j(this).text();
+        var parsed = txt.match(/(.*)\s+(20)\s+(.*)/);
+        if(parsed) {
+            j(this).html(
+                parsed[1]+
+                '<span style="display:none;" class="facebookmetric_hideshow"> '+parsed[2]+'</span> '+
+                parsed[3]
+                );
+        }
+    });
+
+
+
+
 
     // END TIMELINE GENERAL
 
@@ -1664,6 +1682,29 @@ function demetricateTimeline() {
 
 } // end demetricateTimeline()
 
+
+// 2012 year in review page
+function demetricateYearInReview() {
+    // year in review popup box
+    j('._krz').find('span.fsl.fcg').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        var txt = j(this).html();
+        var parsed = txt.match(/(.*)\s+(20)\s+(.*)/);
+        if(parsed) {
+            j(this).html(
+                parsed[1]+
+                '<span style="display:none;" class="facebookmetric_hideshow"> '+parsed[2]+'</span> '+
+                parsed[3]
+                );
+        }
+    });
+
+    // year in review pages and friends like counts
+    j('div._wj._lc-').not('.facebookmetric_opacity').addClass('facebookmetric_opacity').css('opacity','0');
+
+    j('.fbFacepileItemMoreText').not('.facebookmetric_opacity').addClass('facebookmetric_opacity').
+        css('opacity','0');
+}
 
 // MUSIC page
 function demetricateMusic() {
