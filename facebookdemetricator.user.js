@@ -42,6 +42,9 @@
 // TODO removing entries in people you may know needs to trigger on new entries
 // TODO trigger for demetricateMessageMutualFriends()
 // TODO uiTooltipX demetrication for like button popups.  can't figure it out right now
+// TODO demetricate add friend buttons on hovercards (otricky)
+// TODO shorten search bar 
+// TODO vert border b/t demetricator and name menu items
 
 
 // globals
@@ -405,6 +408,12 @@ function main() {
         console.log('Demetricator = '+demetricatorON); 
         toggleDemetricator();
     });
+
+    // adjust search bar width to accomodate Demetricator menu item 
+    // (they keep adding things to the default bar so this will create
+    // some breathing room) .  
+    j('#navSearch').css('width','321px');
+    j('#q').css('width','285px');
 
     // remove the metrics from our landing page
     if(demetricatorON) demetricate(launchPolling);
