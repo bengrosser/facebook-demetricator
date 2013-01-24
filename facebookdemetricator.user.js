@@ -70,6 +70,7 @@ var GROSSER_URL = 'http://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox addon?
 //var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
+var HAS_GRAPH_SEARCH = false;       // does the user have graph search?
 
 
 // setInterval element counts
@@ -315,6 +316,12 @@ function main() {
     // setup jQuery on j to avoid any possible conflicts
     j = jQuery.noConflict();
 
+    // check for graph search
+    if(j('body.hasSmurfbar').length) {
+        HAS_GRAPH_SEARCH = true;
+        console.log("Graph Search Detected");
+    }
+
     // store current chat count, then hide that count on the chat button
     //var chatobj = j('.fbNubButton:not("has([aria-label])")');
     var chatobj = j('.fbNubButton');
@@ -334,12 +341,29 @@ function main() {
 
     var loading2 = '<li style="float:left;padding:0;margin:0;margin-top:8px;margin-right:5px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; "></li>';
 
+    // GS loading icon
+    var GSloading2 = '<li style="float:left;padding:0;margin:0;margin-top:5px;margin-right:0px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; "></li>';
+
     // the demetricator menu item and checkbox for the navbar
     var demetricatornavitem = loading2 + 
         '<li style="float:left;padding:0;margin:0;border:0px solid red;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;"><a style="line-height:29px;margin-top:0px;padding-right:10px;color:#d8dfea;font-weight:bold;" id="demetricatorlink">Demetricator</a></li><li class="navItem firstItem"><a class="navLink" style="margin-left:0px;margin-right:3px"></a></li>';
 
-    // insert the navigation control
-    j('#pageNav').prepend(demetricatornavitem);
+
+    // the demetricator menu item and checkbox for the GRAPH SEARCH navbar
+    var GSdemetricatornavitem = GSloading2 + 
+    //var GSdemetricatornavitem =
+        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:10px;line-height:29px;"><a class="navLink" style="padding-left:0px;" id="demetricatorlink">Demetricator</a>';
+
+
+
+    // if we have graph search, insert the new nav item
+    if(HAS_GRAPH_SEARCH) {
+        //j('#navHome .navLink').css('padding-left','0px');
+        j('#navHome').prepend(GSdemetricatornavitem);
+    } else {
+        // insert the navigation control
+        j('#pageNav').prepend(demetricatornavitem);
+    }
 
     // Facebook Like Button for the Demetricator Project Homepage
     var likebutton = 
