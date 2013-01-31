@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.1.5
+// @version 1.2.0
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,13 +28,16 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.1.5
+// Version 1.2.0
 // http://bengrosser.com/projects/facebook-demetricator/
 // -----------------------------------------------------
 
 
 // THANKS to my beta test team!! 
 // Selina, Hugh, Jeff, Dan B., Dan G., Keith, Ashley, Janelle, Elizabeth, Keri, Kate
+//
+// THANKS to my graph search beta test team!
+// Joe, Molly
 
 
 // TODO fully demetricate new messages interface (have a few quick fixes for now)
@@ -61,7 +64,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.1.5';        // used in the console logging
+var VERSION_NUMBER = '1.2.0';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -151,6 +154,12 @@ function toggleDemetricator() {
 
         // re-run demetricate() in case of new content
         demetricate();
+
+        // graph search
+        if(HAS_GRAPH_SEARCH) {
+            demetricateGraphSearchResults();
+            demetricateGraphSearchSelectorOverview();
+        }
 
         // fade out all selectors in fadeClasses
         j.each(fadeClasses, function(index, value) { j(value).fadeOut(); });
@@ -2998,6 +3007,17 @@ function demetricateGraphSearchResults() {
                 j(this).html(newhtml);
             }
 
+        } else if(txt.contains('mutual friend')) {
+            var txt = j(this).text();
+            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                var newhtml = 
+                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+
+                    ' </span>'+parsed[2];
+                j(this).html(newhtml);
+            }
+
+            j(this).addClass('fbgscount');
         }
         
 
