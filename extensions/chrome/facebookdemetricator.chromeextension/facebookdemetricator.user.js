@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.1.5
+// @version 1.2.0
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -20,7 +20,7 @@
 // ==/UserScript==// -----------------------------------------
 
 
-// -----------------------------------------------------
+// -----------------------------------------------------------------
 // Facebook Demetricator
 // by Benjamin Grosser
 // http://bengrosser.com
@@ -28,13 +28,20 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.1.5
+// Version 1.2.0
 // http://bengrosser.com/projects/facebook-demetricator/
-// -----------------------------------------------------
+//
+// Major Exhibitions:
+// Prospectives '12, University of Reno at Nevada
+// The Public Private, Curated by Christiane Paul, at The New School
+// -----------------------------------------------------------------
 
 
 // THANKS to my beta test team!! 
 // Selina, Hugh, Jeff, Dan B., Dan G., Keith, Ashley, Janelle, Elizabeth, Keri, Kate
+//
+// THANKS to my graph search beta test team!
+// Joe, Molly
 
 
 // TODO fully demetricate new messages interface (have a few quick fixes for now)
@@ -61,7 +68,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.1.5';        // used in the console logging
+var VERSION_NUMBER = '1.2.0';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -70,6 +77,7 @@ var GROSSER_URL = 'http://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = false;        // is this a Firefox addon?
 //var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
+var HAS_GRAPH_SEARCH = false;       // does the user have graph search?
 
 
 // setInterval element counts
@@ -80,6 +88,8 @@ var photoGridCount = 0;
 var favoritesCount = 0;
 var friendBrowserCount = 0;
 var notificationItemCount = 0;
+var graphSearchPhotoCount = 0;
+var graphSearchResultCount = 0;
 
 
 // state
@@ -107,7 +117,6 @@ var opacityClasses = [
     '.fbTimelineHeadlineStats',
     '.photoText .fsm.fwn.fcg',
     '.facebookmetric_opacity'
-
 ];
     
 
@@ -148,6 +157,12 @@ function toggleDemetricator() {
 
         // re-run demetricate() in case of new content
         demetricate();
+
+        // graph search
+        if(HAS_GRAPH_SEARCH) {
+            demetricateGraphSearchResults();
+            demetricateGraphSearchSelectorOverview();
+        }
 
         // fade out all selectors in fadeClasses
         j.each(fadeClasses, function(index, value) { j(value).fadeOut(); });
@@ -315,6 +330,14 @@ function main() {
     // setup jQuery on j to avoid any possible conflicts
     j = jQuery.noConflict();
 
+    // check for graph search
+    if(j('body.hasSmurfbar').length) {
+        HAS_GRAPH_SEARCH = true;
+        console.log("Graph Search Detected");
+        demetricateGraphSearchSelectorOverview();
+        demetricateGraphSearchResults();
+    }
+
     // store current chat count, then hide that count on the chat button
     //var chatobj = j('.fbNubButton:not("has([aria-label])")');
     var chatobj = j('.fbNubButton');
@@ -334,12 +357,31 @@ function main() {
 
     var loading2 = '<li style="float:left;padding:0;margin:0;margin-top:8px;margin-right:5px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; "></li>';
 
+    // GS loading icon
+    var GSloading2 = '<li style="float:left;padding:0;margin:0;margin-top:5px;margin-right:0px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; "></li>';
+
     // the demetricator menu item and checkbox for the navbar
     var demetricatornavitem = loading2 + 
         '<li style="float:left;padding:0;margin:0;border:0px solid red;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;"><a style="line-height:29px;margin-top:0px;padding-right:10px;color:#d8dfea;font-weight:bold;" id="demetricatorlink">Demetricator</a></li><li class="navItem firstItem"><a class="navLink" style="margin-left:0px;margin-right:3px"></a></li>';
 
-    // insert the navigation control
-    j('#pageNav').prepend(demetricatornavitem);
+
+    // the demetricator menu item and checkbox for the GRAPH SEARCH navbar
+    var GSdemetricatornavitem = GSloading2 + 
+    //var GSdemetricatornavitem =
+        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:10px;line-height:29px;"><a class="navLink" style="padding-left:0px;" id="demetricatorlink">Demetricator</a>';
+
+
+
+    // if we have graph search, insert the new nav item
+    if(HAS_GRAPH_SEARCH) {
+        //j('#navHome .navLink').css('padding-left','0px');
+        j('#navHome').prepend(GSdemetricatornavitem);
+        j('#navFacebar').css('width','610px');
+        j('.fbFacebar').css('width','580px');
+    } else {
+        // insert the navigation control
+        j('#pageNav').prepend(demetricatornavitem);
+    }
 
     // Facebook Like Button for the Demetricator Project Homepage
     var likebutton = 
@@ -440,6 +482,8 @@ function launchPolling() {
         var latesttimelineblockcount = j('.fbTimelineUnit').length;
         var latestphotogridcount = j('.fbPhotoStarGridElement').length;
         var latestfavoritescount = j('.uiFavoritesStory').length;
+        var latestgraphsearchphotocount = j('._by0').length;
+        var latestgraphsearchresultcount = j('._6a').length;
         //var latestnotificationitemcount = j('.notification').length;
         //var latestfriendbrowsercount = j('.friendBrowserListUnit').length;
         // track followListItem for subscriber entries
@@ -454,6 +498,14 @@ function launchPolling() {
 
         if(latestphotogridcount > photoGridCount) {
             setTimeout(function() { if(demetricatorON) demetricatePhotoIndex(); }, 250);
+        }
+
+        if(latestgraphsearchphotocount > graphSearchPhotoCount) {
+            setTimeout(function() { if(demetricatorON) demetricatePhotoIndex(); }, 250);
+        }
+
+        if(latestgraphsearchresultcount > graphSearchResultCount) {
+            setTimeout(function() { if(demetricatorON) demetricateGraphSearchResults(); }, 250);
         }
 
         /*
@@ -471,11 +523,19 @@ function launchPolling() {
         timelineUnitCount = latesttimelineblockcount;
         streamStoryCount = lateststorycount;
         photoGridCount = latestphotogridcount;
+        graphSearchPhotoCount = latestgraphsearchphotocount;
+        graphSearchResultCount = latestgraphsearchresultcount;
         favoritesCount = latestfavoritescount;
         //notificationItemCount = latestnotificationitemcount;
         //friendBrowserCount = latestfriendbrowsercount;
 
-    }, 1500);
+    }, 800);
+
+    // graph search autosuggest results
+    //if(HAS_GRAPH_SEARCH) waitForKeyElements('#typeahead_list_u_0_2', demetricateGraphSearchAutoSuggest, false); 
+    if(HAS_GRAPH_SEARCH) waitForKeyElements('._21c', demetricateGraphSearchAutoSuggest, false); 
+    //waitForKeyElements('#typeahead_list_u_0_1', demetricateGraphSearchAutoSuggest, false); 
+    //waitForKeyElements('#u_0_3', demetricateGraphSearchAutoSuggest, false); 
 
     // notifications drop down timestamps
     waitForKeyElements('.notification, a.messagesContent', function() {
@@ -1663,17 +1723,7 @@ function demetricateTimeline() {
     j('.fbTimelineMapFilterTagCount').not('.facebookcount').
         addClass('facebookcount facebookmetric_opacity').css('opacity','0');
 
-    function demetricateMapBubbles() {
-        if(!demetricatorON) return;
-        j('.fbAggregatedMapBubble, .fbAggregatedMapPinText').
-            not('.facebookcount').each(function() {
-            j(this).addClass('facebookcount');
-            j(this).html('<span class="facebookmetric_opacity" style="opacity:0">'+
-                j(this).text()+
-                '</span>'
-                );
-        });
-    }
+
 
     // they take a second to come up
     setTimeout(function() { demetricateMapBubbles(); }, 200 );
@@ -2159,7 +2209,8 @@ function demetricateSearchResultEntries(jnode) {
     if(!demetricatorON) return;
 
     if(demetricatorON) {
-        j('ul.search li.page, ul.search li.place').find('.subtext').not('.fbsearchentry').each(function() { 
+        j('ul.search li.page, ul.search li.place, ul.search li.tophit, ul.search li.ownsection').
+            find('.subtext').not('.fbsearchentry').each(function() { 
             j(this).addClass('fbsearchentry');
             j(this).text('people like this · people talk about this'); 
         });
@@ -2885,6 +2936,176 @@ function demetricateAddFriendButtons(jnode) {
     demetricateFriendPageBlocks();
 
 }
+
+// map bubbles get metrics for locations
+function demetricateMapBubbles() {
+    if(!demetricatorON) return;
+
+    j('.fbAggregatedMapBubble, .fbAggregatedMapPinText').
+        not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        j(this).html('<span class="facebookmetric_opacity" style="opacity:0">'+
+            j(this).text()+
+            '</span>'
+            );
+    });
+
+    j('._15oj.fbAggregatedMapControl').not('.fbgscount').each(function() {
+        setTimeout(function() {
+            var target = j('._15oj.fbAggregatedMapControl');
+            target.addClass('fbgscount');
+            target.html(
+                '<span class="facebookmetric_toggleOFF" style="display:none;">'+target.text()+'</span>'+
+                '<span class="facebookmetric_toggleON"> / </span>'
+                );
+            console.log('here');
+        }, 1500);
+    });
+}
+
+
+// -------------------
+// GRAPH SEARCH (beta)
+// -------------------
+
+// removes metrics from both list and grid view graph search results
+function demetricateGraphSearchResults() {
+    demetricateGraphSearchSelectorOverview();
+    demetricateMapBubbles();
+
+    // run through all links that might contain metrics (e.g. '38 mutual friends')
+    j('._-x a').not('.fbgscount').each(function() {
+        var txt = j(this).text();
+        var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
+        if(parsed) {
+            var newhtml = 
+                '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+
+                ' </span>'+parsed[2];
+            j(this).html(newhtml);
+        }
+
+        j(this).addClass('fbgscount');
+
+    });
+
+    // run through all fields that aren't links
+    j('._-x').not('.fbgscount').each(function() {
+        var txt = j(this).text();
+        if(txt.contains('people checked in') || txt.contains('monthly active users') || txt.contains('members')) {
+            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                var newhtml = 
+                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+
+                    ' </span>'+parsed[2];
+                j(this).html(newhtml);
+            }
+        } else if(txt.contains('like this') && !txt.contains('other friends')) { 
+            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                var newhtml =  
+                    '<span class="facebookmetric_toggleOFF" style="display:none;">'+parsed[1]+'</span> '+
+                    '<span class="facebookmetric_toggleON">people</span> '+
+                    parsed[2];  
+                j(this).html(newhtml);
+            }
+        } else if(txt.contains('other albums')) {
+            var parsed = txt.match(/(.*\s+)(\d+(?:,\d+)*)\s+(other albums)/);
+            if(parsed) {
+                var newhtml = parsed[1]+
+                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[2]+
+                    ' </span>'+parsed[3];
+                j(this).html(newhtml);
+            }
+
+        } else if(txt.contains('mutual friend')) {
+            var txt = j(this).text();
+            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                var newhtml = 
+                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+
+                    ' </span>'+parsed[2];
+                j(this).html(newhtml);
+            }
+
+            j(this).addClass('fbgscount');
+        }
+        
+
+        j(this).addClass('fbgscount');
+    });
+
+
+}
+
+
+// catches the overlay selector metrics, such as 'More than 1000 Photos'
+// also catches metrics in the 'still looking' box
+function demetricateGraphSearchSelectorOverview() {
+    j('._a6u, ._gj7').not('.fbgscount').each(function() {
+        var txt = j(this).text();
+        if(txt.contains('More Than') || txt.contains('Fewer Than')) {
+            var parsed = txt.match(/(.*\s)(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                var newhtml = parsed[1] +
+                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[2]+
+                    ' </span>'+parsed[3];
+                j(this).html(newhtml);
+            }
+        } else {
+            //console.log(txt);
+            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+                var newhtml = 
+                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+
+                    ' </span>'+parsed[2];
+                j(this).html(newhtml);
+            }
+        }
+
+        j(this).addClass('fbgscount');
+    });
+
+}
+
+// removes metrics that show up in the autosuggest entries (e.g. '38 people like this')
+function demetricateGraphSearchAutoSuggest() {
+    j('._8ow').not('.fbgscount').each(function() {
+
+        var txt = j(this).text();
+
+        if(txt.contains('like this')) {
+                var parsed = txt.match(/^(.*\s)(\d+(?:,\d+)*)\s+(.*)/);
+                if(parsed) {
+                    var newhtml = parsed[1] + 
+                        '<span class="facebookmetric_toggleOFF" style="display:none;">'+parsed[2]+'</span> '+
+                        '<span class="facebookmetric_toggleON">people</span> '+
+                        parsed[3];  
+                    j(this).html(newhtml);
+                }
+        } else if(txt.contains('monthly users')) {
+                var parsed2 = txt.match(/^(.*\s)(\d+(?:,\d+)*)\+\s+(.*)/);
+                if(parsed2) {
+                    var newhtml = parsed2[1] + 
+                        '<span class="facebookmetric_toggleOFF" style="display:none;">'+parsed2[2]+'</span> '+
+                        '<span class="facebookmetric_toggleON">some</span> '+
+                        parsed2[3];  
+                    j(this).html(newhtml);
+                }
+        } else if(txt.contains('mutual') || txt.contains('members')) {
+                var parsed3 = txt.match(/^(.*\s)(\d+(?:,\d+)*)\s+(.*)/);
+                if(parsed3) {
+                    var newhtml = parsed3[1] + 
+                        '<span class="facebookmetric_toggleOFF" style="display:none;">'+parsed3[2]+'</span> '+
+                        '<span class="facebookmetric_toggleON"></span> '+
+                        parsed3[3];  
+                    j(this).html(newhtml);
+                }
+        }
+
+        j(this).addClass('fbgscount');
+    });
+}
+
 
 
 
