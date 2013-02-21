@@ -2547,8 +2547,9 @@ function demetricateCommentLikeButton() {
 
     
     // COMMENTS - view previous comments pager metrics
-    j('.rfloat span.fcg span').not('.fbcount').each(function() {
-        j(this).addClass('fbcount facebookmetric_hideshow').hide();
+    //`j('.rfloat span.fcg span').not('.fbcount').each(function() {
+    j('.rfloat span.fcg').not('.fbcount').not('.lfloat').not('.fsm').each(function() {
+        j(this).addClass('meblah fbcount facebookmetric_hideshow').hide();
     });
 
     //demetricateTimestamps();
