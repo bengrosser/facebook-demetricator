@@ -8,7 +8,7 @@ This project was the winner of a [Terminal Award](http://terminalapsu.org/), an 
 
 ### Installation
 
-If you're just looking to install Facebook Demetricator, please visit the [installation page](http://bengrosser.com/projects/facebook-demetricator/install/)
+If you're just looking to install Facebook Demetricator, please visit the [installation page](http://bengrosser.com/projects/facebook-demetricator/install/).
 
 ### Files
 
