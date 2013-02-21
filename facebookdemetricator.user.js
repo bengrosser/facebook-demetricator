@@ -1728,6 +1728,10 @@ function demetricateTimeline() {
     // they take a second to come up
     setTimeout(function() { demetricateMapBubbles(); }, 200 );
     setTimeout(function() { demetricateMapBubbles(); }, 600 );
+
+    // follower counts on timeline headers
+    j('._wj').not('.facebookcount').addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+
     
     //bling boxes are now showing up on new interest pages in a 'timeline' style
     
