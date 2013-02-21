@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.2.0
+// @version 1.2.5
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.2.0
+// Version 1.2.5
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -68,7 +68,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.2.0';        // used in the console logging
+var VERSION_NUMBER = '1.2.5';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -177,7 +177,12 @@ function toggleDemetricator() {
         });
 
         // lower right-hand corner chat button
-        j('.chatnumber').fadeOut(FADE_SPEED);
+//        j('.chatnumber').fadeOut(FADE_SPEED);
+
+        // FB changes, 2/20/2012
+        j('.fbNubButton span.label').hide();
+        j('.fbNubButton span.fbdchatlabel').show();
+
 
         // drop-down on the timeline ribbon
         j('.fbTimelineMoreButton').find('.fbTimelineRibbon').find('.text').animate({color:"#fff"}, FADE_SPEED);
@@ -247,8 +252,14 @@ function toggleDemetricator() {
         // chat button count -- need to keep it updated. even though i've
         // hidden the element that FB updates with that info, it's still
         // there so we can query it to get the latest whenever needed
+        /*
         currentChatCount = j('.fbNubButton').find('.count').text();
         j('.chatnumber').text(currentChatCount).fadeIn(FADE_SPEED);
+        */
+
+        // FB changes, 2/20/2012
+        j('.fbNubButton span.fbdchatlabel').hide();
+        j('.fbNubButton span.label').not('.fbdchatlabel').show();
 
         // timeline ribbon dropdown is too much trouble to hide/show due to how
         // FB updates it after clicking, so I instead animate its color for fade in/out
@@ -340,6 +351,7 @@ function main() {
 
     // store current chat count, then hide that count on the chat button
     //var chatobj = j('.fbNubButton:not("has([aria-label])")');
+    /*
     var chatobj = j('.fbNubButton');
     currentChatCount = chatobj.find('.count').text();
     chatobj.find('.label').hide();
@@ -347,6 +359,12 @@ function main() {
         '<span class="chattext"> Chat <span class="chatnumber" style="display:none;">'+
         currentChatCount+'</span>'
     );
+    */
+
+    // FB changes, 2/20/2012
+    j('.fbNubButton').append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
+    j('.fbNubButton span.label').hide();
+    
 
     // debugging checkbox
     if(DBUG) var dbugcb = '<input type="checkbox" name="testcb1"'+
@@ -552,7 +570,9 @@ function launchPolling() {
     //waitForKeyElements('.UFILikeSentence', demetricateLikesThis, false);
 
     // catches 'View All 4 Comments' when updated dynamically
-    waitForKeyElements('.UFIPagerLink span > span', demetricateViewAllComments, false);
+    //waitForKeyElements('.UFIPagerLink span > span', demetricateViewAllComments, false);
+    // FB update 2/20/2012
+    waitForKeyElements('.UFIPagerLink span', demetricateViewAllComments, false);
 
     // friend-finder
     waitForKeyElements('.friendBrowserListUnit', demetricateFriendBrowserBlocks, false);
@@ -563,7 +583,9 @@ function launchPolling() {
     }, 1000);
 
     // deals w/ what happens on an 'unlike' click -- needs a different trigger
-    waitForKeyElements('.UFILikeSentence a > span', demetricateLikesThis, false);
+    //waitForKeyElements('.UFILikeSentence a > span', demetricateLikesThis, false);
+    // FB update 2/20/2012
+    waitForKeyElements('.UFILikeSentence span a[rel="dialog"]', demetricateLikesThis, false);
 
 
     //waitForKeyElements('.UFILikeSentence span a[rel="dialog"]', demetricateLikesThis, false);
@@ -910,7 +932,9 @@ function demetricate(callback) {
 
 function demetricateShareCount() {
     // newsfeed item share counts
-    j('.UFIShareLink span').not('.facebookcount').each(function() {
+    //j('.UFIShareLink span').not('.facebookcount').each(function() {
+    // FB update 2/20/2012
+    j('.UFIShareLink').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
 }
@@ -1933,8 +1957,9 @@ function demetricateCounters() {
             
             // otherwise the count needs to be wrapped for trouble-free jQuery fading
             else {
+                if(j(this).parent().hasClass('label')) return;
                 var n = j(this).text();;
-                j(this).html('<div style="display:none;" class="facebookmetric_fade">'+n+'</div>');
+                j(this).html('<div style="display:none;" class="facebookmetric_fade meblah">'+n+'</div>');
             }
 
         });
@@ -2244,7 +2269,11 @@ function demetricateSearchResultEntries(jnode) {
 
 // all 'XX likes this' links under newsfeed items
 function demetricateLikesThis(jnode) {
-    if(!jnode) {var jnode = j('.UFILikeSentence a > span'); }
+    if(!jnode) { 
+        //var jnode = j('.UFILikeSentence a > span'); 
+        // FB update 2/20/2012
+        var jnode = j('.UFILikeSentence span a[rel="dialog"]');
+    }
 
     if(!demetricatorON) return;
 
@@ -2399,7 +2428,11 @@ function demetricateChatSeparator() {
 
 // 'View all 4 comments'
 function demetricateViewAllComments(jnode) {
-    if(!jnode) jnode = j('.UFIPagerLink span > span');
+    if(!jnode) {
+        //jnode = j('.UFIPagerLink span > span');
+        // FB update 2/20/2012
+        jnode = j('.UFIPagerLink span');
+    }
 
     if(demetricatorON) {
         jnode.not('.facebookmetric').each(function() { 
