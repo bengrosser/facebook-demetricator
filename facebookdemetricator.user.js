@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.2.5
+// @version 1.2.6
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.2.5
+// Version 1.2.6
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -68,7 +68,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.2.5';        // used in the console logging
+var VERSION_NUMBER = '1.2.6';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -394,8 +394,9 @@ function main() {
     if(HAS_GRAPH_SEARCH) {
         //j('#navHome .navLink').css('padding-left','0px');
         j('#navHome').prepend(GSdemetricatornavitem);
-        j('#navFacebar').css('width','610px');
-        j('.fbFacebar').css('width','580px');
+        // fixing for 3/20 FB update
+        j('#navFacebar').css('width','590px');
+        j('.fbFacebar').css('width','560px');
     } else {
         // insert the navigation control
         j('#pageNav').prepend(demetricatornavitem);
@@ -1020,6 +1021,12 @@ function demetricateNewsfeed() {
         j(this).find('.facebookmetric_hideshow').css('color','inherit');
     });
 
+    // like thumbs up counts on 'thing' blocks
+    j('.ogAggregationSubstoryContent ._14a_ span').not('.facebookcount').
+        each(function() {
+            j(this).addClass('facebookcount facebookmetric_hideshow').hide();
+    });
+        
 
     // birthday extras (e.g. John Doe and 3 others)
     j('.fbRemindersTitle').not('.facebookcount').each(function() {
@@ -1072,8 +1079,41 @@ function demetricateNewsfeed() {
                         parsed[3];  
                     j(this).html(newhtml);
                 }
+            } else if(txt.contains('followers')) {
+                parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
+                if(parsed) {
+                    j(this).html(
+                        parsed[1]+' <span class="facebookmetric_hideshow" style="display:none;">'+
+                        parsed[2]+'</span>'+
+                        parsed[3]
+                    );
+                }
             }
     });
+
+    // suggested page people like this metrics
+    j('.socialContext').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        wrapNumberInString(this);
+    });
+
+    // newsfeed event blocks '8 people are going'
+    j('._8m .mtm').not('.facebookcount').each(function() { 
+        j(this).addClass('facebookcount');
+        txt = j(this).html();
+
+        if(txt.contains('people')) {
+            parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
+            if(parsed) {
+                j(this).html(
+                    parsed[1]+' <span class="facebookmetric_hideshow" style="display:none;">'+
+                    parsed[2]+'</span>'+
+                    parsed[3]
+                );
+            }
+        } 
+    });
+
 
 
     // comment-posted URL attachment like counts
@@ -1165,6 +1205,12 @@ function demetricateNewsfeed() {
             j(this).html(
                 '<span style="display:none;" class="facebookmetric_hideshow">'+parsed[1]+'</span> '+parsed[2]);
         }
+    });
+
+
+    // new Page people like this counts
+    j('._508a').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
     });
 
 
