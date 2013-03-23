@@ -2005,7 +2005,7 @@ function demetricateCounters() {
             else {
                 if(j(this).parent().hasClass('label')) return;
                 var n = j(this).text();;
-                j(this).html('<div style="display:none;" class="facebookmetric_fade meblah">'+n+'</div>');
+                j(this).html('<div style="display:none;" class="facebookmetric_fade">'+n+'</div>');
             }
 
         });
@@ -2595,7 +2595,7 @@ function demetricateCommentLikeButton() {
     // COMMENTS - view previous comments pager metrics
     //`j('.rfloat span.fcg span').not('.fbcount').each(function() {
     j('.rfloat span.fcg').not('.fbcount').not('.lfloat').not('.fsm').each(function() {
-        j(this).addClass('meblah fbcount facebookmetric_hideshow').hide();
+        j(this).addClass('fbcount facebookmetric_hideshow').hide();
     });
 
     //demetricateTimestamps();
