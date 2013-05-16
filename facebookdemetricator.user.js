@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.2.6
+// @version 1.3.0
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.2.6
+// Version 1.3.0
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -68,7 +68,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.2.6';        // used in the console logging
+var VERSION_NUMBER = '1.3.0';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -302,7 +302,21 @@ function toggleDemetricator() {
         j('.facebooklink').css('border','0px solid red');
     }
 
-    setTimeout(function() { j('#fbdtoggleindicator').hide(); }, 250);
+    setTimeout(function() { 
+        
+        j('#fbdtoggleindicator').hide(); 
+        // set the GS input bar back to our normal (reduced) width
+        //j('#navFacebar').css('width','590px');
+        //j('.fbFacebar').css('width','560px');
+
+        // adjusting to new changes in nav items and that search results pages are narrower
+
+        j('#navFacebar').css('width','400px');
+        j('.fbFacebar').css('width','400px');
+        console.log('250ms');
+    
+    }, 250);
+
 }
 
 
@@ -376,27 +390,42 @@ function main() {
     var loading2 = '<li style="float:left;padding:0;margin:0;margin-top:8px;margin-right:5px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; "></li>';
 
     // GS loading icon
-    var GSloading2 = '<li style="float:left;padding:0;margin:0;margin-top:5px;margin-right:0px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; "></li>';
+    // added 20px left padding for new GS 5/2013, creates appropriate gap between new jewel left border and icon
+    var GSloading2 = '<li style="float:left;padding:0;margin:0;margin-top:5px;margin-right:0px;"> <img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="margin-right: 5px; display: none; padding-left:20px;"></li>';
 
     // the demetricator menu item and checkbox for the navbar
     var demetricatornavitem = loading2 + 
         '<li style="float:left;padding:0;margin:0;border:0px solid red;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;"><a style="line-height:29px;margin-top:0px;padding-right:10px;color:#d8dfea;font-weight:bold;" id="demetricatorlink">Demetricator</a></li><li class="navItem firstItem"><a class="navLink" style="margin-left:0px;margin-right:3px"></a></li>';
 
 
+    // ADDED 0px left border for latest GS and 'Ben's Timeline' insertion into navbar, 
+    //   -- moved border into jewelsListItem
+    //   -- updated margin-left to 15px for 5/2013 GS changes
+    //   -- updated padding-right on demetricatorlink to 18px for 5/2013 GS changes
     // the demetricator menu item and checkbox for the GRAPH SEARCH navbar
     var GSdemetricatornavitem = GSloading2 + 
     //var GSdemetricatornavitem =
-        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:10px;line-height:29px;"><a class="navLink" style="padding-left:0px;" id="demetricatorlink">Demetricator</a>';
+        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:15px;line-height:29px;"><a class="navLink" style="padding-left:0px;border-left:0px;padding-right:18px;" id="demetricatorlink">Demetricator</a>';
 
 
 
     // if we have graph search, insert the new nav item
     if(HAS_GRAPH_SEARCH) {
         //j('#navHome .navLink').css('padding-left','0px');
+        //`j('#navHome a').css('border-left','0px');
         j('#navHome').prepend(GSdemetricatornavitem);
+        //j('#navHome').before(GSdemetricatornavitem);
+        //j('#jewelsListItem').append(GSdemetricatornavitem);
         // fixing for 3/20 FB update
-        j('#navFacebar').css('width','590px');
-        j('.fbFacebar').css('width','560px');
+        //j('#navFacebar').css('width','590px');
+        //j('.fbFacebar').css('width','560px');
+        
+        // fixing for 5/2013 FB update
+        // add a vertical right-hand border to the jewel buttons to demarcate from Demetricator toggle
+        j('#jewelsListItem').css('border-right','1px solid rgb(77, 104, 167)');
+
+        j('#navFacebar').css('width','400px');
+        j('.fbFacebar').css('width','400px');
     } else {
         // insert the navigation control
         j('#pageNav').prepend(demetricatornavitem);
@@ -442,6 +471,14 @@ function main() {
         else demetricatorON = false;
 
         j('#fbdtoggleindicator').show();
+
+        // need to reduce the width of the GS bar to accommodate
+        // the toggle indicator gif
+        //j('#navFacebar').css('width','560px');
+        //j('.fbFacebar').css('width','530px');
+        // 5/2013 update
+        j('#navFacebar').css('width','400px');
+        j('.fbFacebar').css('width','400px');
 
         setTimeout(function() { toggleDemetricator(); }, 250);
     });
@@ -1239,9 +1276,84 @@ function demetricateNewsfeed() {
 
 } // end demetricateNewsfeed()
 
+function demetricateNewTimeline() {
+
+    // ####
+    // ALL TIMELINE PAGES
+    // ####
+    
+    // timeline header counts (about, photos, etc.)
+    j('.-cx-PRIVATE-fbTimelineNavLight__subLabel').each(function() {
+        j(this).addClass('facebookcount facebookmetric_opacity').
+            css('opacity','0');
+    });
+
+
+    // ####
+    // MAIN TIMELINE PAGE
+    // ####
+
+    // timeline report block counts (e.g. photos, friends, music, etc.)
+    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg').each(function() {
+        j(this).addClass('facebookcount facebookmetric_opacity').
+            css('opacity','0');
+    });
+
+    // 'followed by XX people' in about unit top of timeline
+    j('.-cx-PRIVATE-fbTimelineAboutUnit__title a').each(function() {
+        var txt = j(this).text();
+        if(txt.contains("people")) {
+            wrapNumberInString(this);
+        }
+    });
+
+    // group block report member counts (e.g. '84 members')
+    j('.-cx-PRIVATE-ogAppReport__listView li div div.fcg').each(function() {
+        var txt = j(this).text();
+        if(txt.contains("members")) {
+            wrapNumberInString(this);
+        }
+    });
+
+    // ####
+    // ABOUT TIMELINE PAGE
+    // ####
+    //
+    
+
+    // NEED TO TRIGGER with latestSomethingCount
+
+    // App Block header Counts 
+    // e.g. Friends: (friends, followers, college, recent, etc.)
+    // e.g. Places: (all, life event, recent, etc.)
+    j('.-cx-PRIVATE-fbTimelineAppSection__tabCount').each(function() {
+        j(this).addClass('facebookcount facebookmetric_opacity').
+            css('opacity','0');
+    });
+
+    // Friend Block mutual friend and friend counts
+    j('.-cx-PRIVATE-fbTimelineFriendsCollection__friend a.uiLinkSubtle').each(function() {
+        var txt = j(this).text();
+        if(txt.contains("friend")) {
+            wrapNumberInString(this);
+        }
+    });
+
+    // catches Places map on this page
+    demetricateMapBubbles();
+       
+
+
+
+
+}
 
 // handles all Timeline-type views (profile, photos, subscribers, likes, etc.)
 function demetricateTimeline() {
+
+    // TEMPORARY TODO: find a better location for this
+    demetricateNewTimeline();
+
 
     // ----------------------------------
     // -- TIMELINE STORY BLOCK REPORTS --
