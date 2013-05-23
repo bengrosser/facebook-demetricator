@@ -90,6 +90,8 @@ var friendBrowserCount = 0;
 var notificationItemCount = 0;
 var graphSearchPhotoCount = 0;
 var graphSearchResultCount = 0;
+var appSectionCount = 0;
+var appSectionCountVER2 = 0;
 
 
 // state
@@ -277,6 +279,7 @@ function toggleDemetricator() {
         j('#pagelet_friends span.FriendLink a').css('padding-left','18px');
 
         // newsfeed attachment +1 icons
+        // STILL NEEDED? CONFLICTING WITH NEW PAGELET ESCAPE HATCH ON NEW TIMELINE 5/2013
         j('.addButton i').not('.FriendRequestAdd').show();
         j('.addButton').not('.FriendRequestAdd').css('padding-left','18px');
 
@@ -313,7 +316,6 @@ function toggleDemetricator() {
 
         j('#navFacebar').css('width','400px');
         j('.fbFacebar').css('width','400px');
-        console.log('250ms');
     
     }, 250);
 
@@ -470,7 +472,6 @@ function main() {
         if(j(this).is(':checked')) demetricatorON = true;
         else demetricatorON = false;
 
-        j('#fbdtoggleindicator').show();
 
         // need to reduce the width of the GS bar to accommodate
         // the toggle indicator gif
@@ -479,6 +480,8 @@ function main() {
         // 5/2013 update
         j('#navFacebar').css('width','400px');
         j('.fbFacebar').css('width','400px');
+
+        j('#fbdtoggleindicator').show();
 
         setTimeout(function() { toggleDemetricator(); }, 250);
     });
@@ -540,6 +543,15 @@ function launchPolling() {
         var latestfavoritescount = j('.uiFavoritesStory').length;
         var latestgraphsearchphotocount = j('._by0').length;
         var latestgraphsearchresultcount = j('._6a').length;
+
+        // new timeline
+        var latestappsectioncount = j('.-cx-PRIVATE-fbTimelineAppSection__header').length;
+        var latestappsectioncountVER2 = j('._3cz').length;
+
+        // new timeline friend blocks
+        var latestfriendblockcount = j('.-cx-PRIVATE-fbTimelineFriendsCollection__grid').length;
+        var latestfriendblockcountVER2 = j('._262m').length;
+
         //var latestnotificationitemcount = j('.notification').length;
         //var latestfriendbrowsercount = j('.friendBrowserListUnit').length;
         // track followListItem for subscriber entries
@@ -564,6 +576,27 @@ function launchPolling() {
             setTimeout(function() { if(demetricatorON) demetricateGraphSearchResults(); }, 250);
         }
 
+        if(latestappsectioncount > appSectionCount) {
+            setTimeout(function() { if(demetricatorON) demetricateNewTimeline(); }, 250);
+            // new timeline is SO SLOW that i'm running this again to catch stragglers -- #UGLYHACK
+            setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 2000);
+            setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 3000);
+        }
+
+        if(latestappsectioncountVER2 > appSectionCountVER2) {
+            setTimeout(function() { if(demetricatorON) demetricateNewTimeline(); }, 250);
+            // new timeline is SO SLOW that i'm running this again to catch stragglers -- #UGLYHACK
+            setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 2000);
+            setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 3000);
+        }
+
+        if(latestfriendblockcount > friendBlockCount || latestfriendblockcountVER2 > friendBlockCountVER2) {
+            setTimeout(function() { if(demetricatorON) demetricateNewTimeline(); }, 250);
+            // new timeline is SO SLOW that i'm running this again to catch stragglers -- #UGLYHACK
+            setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 2000);
+            setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 3000);
+        }
+
         /*
         if(latestnotificationitemcount > notificationItemCount) {
             setTimeout(function() { if(demetricatorON) demetricateTimestamps(); }, 250);
@@ -582,6 +615,8 @@ function launchPolling() {
         graphSearchPhotoCount = latestgraphsearchphotocount;
         graphSearchResultCount = latestgraphsearchresultcount;
         favoritesCount = latestfavoritescount;
+        appSectionCount = latestappsectioncount;
+        appSectionCountVER2 = latestappsectioncountVER2;
         //notificationItemCount = latestnotificationitemcount;
         //friendBrowserCount = latestfriendbrowsercount;
 
@@ -692,6 +727,9 @@ function launchPolling() {
     waitForKeyElements('.fbProfileBrowserListItem, .fbProfileBrowserList', demetricateAddFriendButtons, false);
     waitForKeyElements('.detailedsearch_result', demetricateAddFriendButtons, false);
 
+    // new timeline 5/2013
+    waitForKeyElements('.FriendButton', demetricateAddFriendButtons, false);
+
     // search result items
     waitForKeyElements('ul.search li', demetricateSearchResultEntries, false);
 
@@ -741,8 +779,8 @@ function launchPolling() {
         }
         */
 
-        jn.find('a[rel="dialog"], div.fsm.fwn.fcg').not('.fbhovercardcount, .HovercardMessagesButton, .uiButton').each(function() {
-            j(this).addClass('fbhovercardcount');
+        jn.find('a[rel="dialog"], div.fsm.fwn.fcg, div.fsm.fwn.fcg a div').not('.fbhovercardcount, .HovercardMessagesButton, .uiButton').each(function() {
+            j(this).addClass('fbhovercardcount WHAT2');
             var txt = j(this).text();
             if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || 
                txt.contains('other') || txt.contains('friends')) 
@@ -774,7 +812,10 @@ function launchPolling() {
                 }
             }
             // need to implement my own wrapnumber to insert a span like above so demetrication works
-            else wrapNumberInString(this);
+            else { 
+                wrapNumberInString(this);
+                //j(this).addClass('hovercardcount');
+            }
             //if(j(this).text().contains('mutual') ) wrapNumberInString(this);
         });
 
@@ -1283,7 +1324,7 @@ function demetricateNewTimeline() {
     // ####
     
     // timeline header counts (about, photos, etc.)
-    j('.-cx-PRIVATE-fbTimelineNavLight__subLabel').each(function() {
+    j('.-cx-PRIVATE-fbTimelineNavLight__subLabel, ._gs6').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
@@ -1292,15 +1333,18 @@ function demetricateNewTimeline() {
     // ####
     // MAIN TIMELINE PAGE
     // ####
+    //
+    // note the two different queries for each search --- due to my finding that there are 
+    // currently (at least) two different versions of the 'new' timeline coming up right now
 
     // timeline report block counts (e.g. photos, friends, music, etc.)
-    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg').each(function() {
+    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg, ._71u span.fcg').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
 
     // 'followed by XX people' in about unit top of timeline
-    j('.-cx-PRIVATE-fbTimelineAboutUnit__title a').each(function() {
+    j('.-cx-PRIVATE-fbTimelineAboutUnit__title a, ._4_ug a').each(function() {
         var txt = j(this).text();
         if(txt.contains("people")) {
             wrapNumberInString(this);
@@ -1308,7 +1352,7 @@ function demetricateNewTimeline() {
     });
 
     // group block report member counts (e.g. '84 members')
-    j('.-cx-PRIVATE-ogAppReport__listView li div div.fcg').each(function() {
+    j('.-cx-PRIVATE-ogAppReport__listView li div div.fcg, ._1ln2 li div.fcg').each(function() {
         var txt = j(this).text();
         if(txt.contains("members")) {
             wrapNumberInString(this);
@@ -1326,23 +1370,43 @@ function demetricateNewTimeline() {
     // App Block header Counts 
     // e.g. Friends: (friends, followers, college, recent, etc.)
     // e.g. Places: (all, life event, recent, etc.)
-    j('.-cx-PRIVATE-fbTimelineAppSection__tabCount').each(function() {
+    j('.-cx-PRIVATE-fbTimelineAppSection__tabCount, ._3d0').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
 
     // Friend Block mutual friend and friend counts
-    j('.-cx-PRIVATE-fbTimelineFriendsCollection__friend a.uiLinkSubtle').each(function() {
+    j('.-cx-PRIVATE-fbTimelineFriendsCollection__friend a.uiLinkSubtle, ._698 a.uiLinkSubtle').each(function() {
         var txt = j(this).text();
         if(txt.contains("friend")) {
             wrapNumberInString(this);
         }
     });
 
+    // group block member counts
+    j('.-cx-PRIVATE-uiFlexibleBlock__flexibleContent div.mbs.fcg, ._42ef div.mbs.fcg').each(function() {
+        var txt = j(this).text();
+        if(txt.contains("member")) {
+            wrapNumberInString(this);
+        }
+    });
+
+
     // catches Places map on this page
     demetricateMapBubbles();
+
+
+    // 'Do you know Soandso?' boxes at the top of others' timelines may have mutual friend
+    // counts
+    j('#pagelet_escape_hatch a.uiLinkSubtle span.fsl.fcg').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
        
 
+    // friend requests block count (red/white) - new timeline
+    j('.-cx-PRIVATE-uiCountButtonCount__root').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+    });
 
 
 
@@ -1353,6 +1417,7 @@ function demetricateTimeline() {
 
     // TEMPORARY TODO: find a better location for this
     demetricateNewTimeline();
+    //return;
 
 
     // ----------------------------------
@@ -2557,6 +2622,14 @@ function demetricatePhotoIndex() {
             j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
                 j(this).text() + '</span>');
         });
+
+        // new timeline update 5/2013
+        j('.-cx-PRIVATE-fbInlineActions__likes, .-cx-PRIVATE-fbInlineActions__comments').
+            not('.facebookcount').each(function() {
+            j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
+                j(this).text() + '</span>');
+        });
+
 }
 
 
@@ -2755,6 +2828,7 @@ function toggleHovercards() {
             } else {
                 j('.hovercardcount').show(); 
                 j('.FriendRequestAdd i').show();
+                console.log("tH()");
             }
         }, t);
     }
@@ -2905,6 +2979,12 @@ function demetricateEgoSection(jnode) {
             }
         });
 
+        // alternate way of getting to +1 icons on ego section
+        j('.ego_action a').not('.facebookmetric_hideshow_plusone_text').each(function() {
+                j(this).addClass('facebookmetric_hideshow_plusone_text').css('padding-left','0px');
+                j(this).find('i').addClass('facebookmetric_hideshow_plusone_img').hide();
+        });
+
         // some Page like counts, such as '9,234,721 people like this.' under Chocolate Chip Cookies
         egoprofiletemplate.find('div:not(.ego_action)').not('.fblikethis').each(function() {
             j(this).addClass('fblikethis');
@@ -2980,7 +3060,8 @@ function demetricateHovercard(jnode) {
     }
 
     // +1 on add friend buttons
-    j('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
+    //j('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
+    //jnode.find('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
 
     demetricateHovercardFooter(jnode);
 
@@ -3018,7 +3099,7 @@ function demetricateHovercard(jnode) {
 
     // some mutual friends counts are different.  this should catch the rest
     jnode.find('a[rel="dialog"]').not('.fbhovercardcount, .HovercardMessagesButton').each(function() {
-        j(this).addClass('fbhovercardcount');
+        j(this).addClass('fbhovercardcount WHAT1');
         var txt = j(this).text();
         if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || txt.contains('other') || txt.contains('friends')) 
         wrapNumberInString(this);
