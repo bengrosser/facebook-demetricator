@@ -61,6 +61,8 @@ var currentMoreChatCount;
 var currentLikeCount;               // for tracking likes in the dialog
 var currentTitleText;               // current (non-metric) count of $('title')
 var timelineView = false;
+var searchBarWidth = "300px";
+var newSearchBarWidth = 530;
 
 
 // constants
@@ -92,6 +94,8 @@ var graphSearchPhotoCount = 0;
 var graphSearchResultCount = 0;
 var appSectionCount = 0;
 var appSectionCountVER2 = 0;
+var friendBlockCount = 0;
+var friendBlockCountVER2 = 0;
 
 
 // state
@@ -314,8 +318,12 @@ function toggleDemetricator() {
 
         // adjusting to new changes in nav items and that search results pages are narrower
 
-        j('#navFacebar').css('width','400px');
-        j('.fbFacebar').css('width','400px');
+        j('#navFacebar').css('width',searchBarWidth);
+        j('.fbFacebar').css('width',searchBarWidth);
+
+        j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
+        j('._585-').css('width',newSearchBarWidth+"px");
+
     
     }, 250);
 
@@ -426,8 +434,11 @@ function main() {
         // add a vertical right-hand border to the jewel buttons to demarcate from Demetricator toggle
         j('#jewelsListItem').css('border-right','1px solid rgb(77, 104, 167)');
 
-        j('#navFacebar').css('width','400px');
-        j('.fbFacebar').css('width','400px');
+        j('#navFacebar').css('width',searchBarWidth);
+        j('.fbFacebar').css('width',searchBarWidth);
+
+        j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
+        j('._585-').css('width',newSearchBarWidth+"px");
     } else {
         // insert the navigation control
         j('#pageNav').prepend(demetricatornavitem);
@@ -478,8 +489,13 @@ function main() {
         //j('#navFacebar').css('width','560px');
         //j('.fbFacebar').css('width','530px');
         // 5/2013 update
-        j('#navFacebar').css('width','400px');
-        j('.fbFacebar').css('width','400px');
+        j('#navFacebar').css('width',searchBarWidth);
+        j('.fbFacebar').css('width',searchBarWidth);
+
+        j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth-30+"px");
+        j('._585-').css('width',newSearchBarWidth-30+"px");
+
+
 
         j('#fbdtoggleindicator').show();
 
@@ -617,6 +633,8 @@ function launchPolling() {
         favoritesCount = latestfavoritescount;
         appSectionCount = latestappsectioncount;
         appSectionCountVER2 = latestappsectioncountVER2;
+        friendBlockCount = latestfriendblockcount;
+        friendBlockCountVER2 = latestfriendblockcountVER2;
         //notificationItemCount = latestnotificationitemcount;
         //friendBrowserCount = latestfriendbrowsercount;
 
@@ -1324,7 +1342,7 @@ function demetricateNewTimeline() {
     // ####
     
     // timeline header counts (about, photos, etc.)
-    j('.-cx-PRIVATE-fbTimelineNavLight__subLabel, ._gs6').each(function() {
+    j('.-cx-PRIVATE-fbTimelineNavLight__sublabel, ._gs6').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
