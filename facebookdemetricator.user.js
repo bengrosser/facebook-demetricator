@@ -62,7 +62,9 @@ var currentLikeCount;               // for tracking likes in the dialog
 var currentTitleText;               // current (non-metric) count of $('title')
 var timelineView = false;
 var searchBarWidth = "300px";
-var newSearchBarWidth = 530;
+//var newSearchBarWidth = 530;
+var newSearchBarWidth = 480;
+var newSearchBarWidthNarrow = 480;
 
 
 // constants
@@ -321,10 +323,16 @@ function toggleDemetricator() {
         j('#navFacebar').css('width',searchBarWidth);
         j('.fbFacebar').css('width',searchBarWidth);
 
-        j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
-        j('._585-').css('width',newSearchBarWidth+"px");
 
-    
+        // search results pages are narrower than all other pages
+        if(startURL.contains("/search/")) {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
+            j('._585-').css('width',newSearchBarWidthNarrow+"px");
+        } else {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
+            j('._585-').css('width',newSearchBarWidth+"px");
+        }
+
     }, 250);
 
 }
@@ -372,6 +380,8 @@ function main() {
         demetricateGraphSearchSelectorOverview();
         demetricateGraphSearchResults();
     }
+
+
 
     // store current chat count, then hide that count on the chat button
     //var chatobj = j('.fbNubButton:not("has([aria-label])")');
@@ -437,8 +447,20 @@ function main() {
         j('#navFacebar').css('width',searchBarWidth);
         j('.fbFacebar').css('width',searchBarWidth);
 
-        j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
-        j('._585-').css('width',newSearchBarWidth+"px");
+        if(j('#findFriendsNav').length) {
+            newSearchBarWidth -= 100;
+            newSearchBarWidthNarrow -= 100;
+        }
+
+        // search results pages are narrower than all other pages
+        if(startURL.contains("/search/")) {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
+            j('._585-').css('width',newSearchBarWidthNarrow+"px");
+        } else {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
+            j('._585-').css('width',newSearchBarWidth+"px");
+        }
+
     } else {
         // insert the navigation control
         j('#pageNav').prepend(demetricatornavitem);
@@ -492,8 +514,13 @@ function main() {
         j('#navFacebar').css('width',searchBarWidth);
         j('.fbFacebar').css('width',searchBarWidth);
 
-        j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth-30+"px");
-        j('._585-').css('width',newSearchBarWidth-30+"px");
+        if(startURL.contains("/search/")) {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow-40+"px");
+            j('._585-').css('width',newSearchBarWidthNarrow-40+"px");
+        } else {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth-40+"px");
+            j('._585-').css('width',newSearchBarWidth-40+"px");
+        }
 
 
 
@@ -1124,6 +1151,7 @@ function demetricateNewsfeed() {
     });
         
 
+
     // birthday extras (e.g. John Doe and 3 others)
     j('.fbRemindersTitle').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount');
@@ -1370,7 +1398,15 @@ function demetricateNewTimeline() {
     });
 
     // group block report member counts (e.g. '84 members')
-    j('.-cx-PRIVATE-ogAppReport__listView li div div.fcg, ._1ln2 li div.fcg').each(function() {
+    j('.-cx-PRIVATE-ogAppReport__listview li div div.fcg, ._1ln2 li div.fcg').each(function() {
+        var txt = j(this).text();
+        if(txt.contains("members")) {
+            wrapNumberInString(this);
+        }
+    });
+
+    // group block report member counts on the About page (e.g. '84 members')
+    j('.-cx-PRIVATE-fbTimelineMedley__sectionwrapper li div div.fcg, ._1ln2 li div.fcg').each(function() {
         var txt = j(this).text();
         if(txt.contains("members")) {
             wrapNumberInString(this);
@@ -1388,7 +1424,7 @@ function demetricateNewTimeline() {
     // App Block header Counts 
     // e.g. Friends: (friends, followers, college, recent, etc.)
     // e.g. Places: (all, life event, recent, etc.)
-    j('.-cx-PRIVATE-fbTimelineAppSection__tabCount, ._3d0').each(function() {
+    j('.-cx-PRIVATE-fbTimelineAppSection__tabcount, ._3d0').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
@@ -1409,6 +1445,13 @@ function demetricateNewTimeline() {
         }
     });
 
+    // bling counts on Instagram stories
+    j('.-cx-PUBLIC-ogAggregationBling__component span').not('.facebookcount').
+        each(function() {
+            console.log("HERE");
+            j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+    });
+
 
     // catches Places map on this page
     demetricateMapBubbles();
@@ -1426,6 +1469,32 @@ function demetricateNewTimeline() {
         j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
     });
 
+
+        // album page individual albums photo counts (facebook.com/username/photos)
+    j('.photoText .fsm.fwn.fcg').not('.facebookcount').addClass('facebookcount').css('opacity','0');
+    
+    /*
+    j('.photoText .fsm.fwn.fcg').not('.facebookcount').each(function() {
+        wrapNumberInString(j(this));
+    });
+    */
+    
+    /*
+    j('.photoText .fsm.fwn.fcg').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        var txt = j(this).html();
+        var astore = j(this).find('a');
+        console.log("txt: "+txt);
+        console.log("a: "+astore);
+    });
+    */
+
+    // also happens on the new timeline
+    // some newsfeed items, perhaps only those that aren't from a close friend (e.g. friend of
+    // friend, or from a liked page/business, etc...) include abbreviated bars of info for
+    // likes, shares, and comments.  this should remove all those counts
+    j('.uiBlingBox .text').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
+    j('.UFIBlingBoxText').not('.facebookmetric_fade').addClass('facebookmetric_face').css('display','none');
 
 
 }
@@ -1942,6 +2011,22 @@ function demetricateTimeline() {
 
     // album page individual albums photo counts (facebook.com/username/photos)
     j('.photoText .fsm.fwn.fcg').not('.facebookcount').addClass('facebookcount').css('opacity','0');
+    
+    /*
+    j('.photoText .fsm.fwn.fcg').not('.facebookcount').each(function() {
+        wrapNumberInString(j(this));
+    });
+    */
+    
+    /*
+    j('.photoText .fsm.fwn.fcg').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        var txt = j(this).html();
+        var astore = j(this).find('a');
+        console.log("txt: "+txt);
+        console.log("a: "+astore);
+    });
+    */
 
 
     // -------------------------------------------------------------
@@ -2961,6 +3046,7 @@ function demetricateEgoSection(jnode) {
     // friend, or from a liked page/business, etc...) include abbreviated bars of info for
     // likes, shares, and comments.  this should remove all those counts
     j('.uiBlingBox .text').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
+    j('.UFIBlingBoxText').not('.facebookmetric_fade').addClass('facebookmetric_face').css('display','none');
 
         // ad like counts
     // #pagelet_ego_pane span.fbEmuContext
@@ -3417,6 +3503,15 @@ function checkForNewPage() {
         if(demetricatorON) for(var i = 0; i < 2000; i+=250) delayedDemetricate(i); 
 
         startURL = curURL;
+
+        // search results pages are narrower than all other pages
+        if(startURL.contains("/search/")) {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
+            j('._585-').css('width',newSearchBarWidthNarrow+"px");
+        } else {
+            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
+            j('._585-').css('width',newSearchBarWidth+"px");
+        }
 
     }
 
