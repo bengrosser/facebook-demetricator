@@ -44,6 +44,7 @@
 // Joe, Molly
 
 
+// TODO update graph search results demetrication since latest changes
 // TODO fully demetricate new messages interface (have a few quick fixes for now)
 // TODO photoTextSubtitle settings/public icon should stay showing
 // TODO removing entries in people you may know needs to trigger on new entries
@@ -395,9 +396,6 @@ function main() {
     );
     */
 
-    // FB changes, 2/20/2012
-    j('.fbNubButton').append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
-    j('.fbNubButton span.label').hide();
     
 
     // debugging checkbox
@@ -427,6 +425,20 @@ function main() {
     //var GSdemetricatornavitem =
         '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:15px;line-height:29px;"><a class="navLink" style="padding-left:0px;border-left:0px;padding-right:18px;" id="demetricatorlink">Demetricator</a>';
 
+    /*
+     *
+     * insert into bigPadding Home border-left #4e68aa and margin-left:0
+     */
+    // if navDivider is present
+    /*
+        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:15px;line-height:29px;"><a class="navLink" style="padding-left:0px;border-left:0px;padding-right:18px;margin-right:0px;border-right:1px solid #385187" id="demetricatorlink">Demetricator</a>';
+        */
+
+
+    /* if not
+        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:15px;line-height:29px;"><a class="navLink" style="padding-left:0px;border-left:0px;padding-right:18px;" id="demetricatorlink">Demetricator</a>';
+
+        */
 
 
     // if we have graph search, insert the new nav item
@@ -555,6 +567,13 @@ function main() {
     // some breathing room) .  
     j('#navSearch').css('width','321px');
     j('#q').css('width','285px');
+
+
+    // FB changes, 2/20/2012
+    /*
+    j('.fbNubButton').append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
+    j('.fbNubButton span.label').hide();
+    */
 
     // remove the metrics from our landing page
     if(demetricatorON) demetricate(launchPolling);
@@ -793,7 +812,8 @@ function launchPolling() {
     waitForKeyElements('.uiOverlayContent', demetricateHovercard, false);
 
     // chat tabs
-    waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
+    //waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
+    waitForKeyElements('.fbNubButton', demetricateChatTab, false);
 
     waitForKeyElements('.uiContextualLayer', function(jn) {
         //console.log('tooltip: '+jn.html()); 
@@ -1222,7 +1242,7 @@ function demetricateNewsfeed() {
     });
 
     // newsfeed event blocks '8 people are going'
-    j('._8m .mtm').not('.facebookcount').each(function() { 
+    j('._8m .mtm, ._42ef .mtm').not('.facebookcount').each(function() { 
         j(this).addClass('facebookcount');
         txt = j(this).html();
 
@@ -1710,7 +1730,8 @@ function demetricateTimeline() {
 
 
     // like lists on timeline blocks ('18 friends also like this')
-    j('#liked_pages_timeline_unit_list .uiListItem a[rel="dialog"]').not('fbtimelineblockcounts').each(function() {
+    //j('#liked_pages_timeline_unit_list .uiListItem a[rel="dialog"]').not('fbtimelineblockcounts').each(function() {
+    j('#liked_pages_timeline_unit_list li a[rel="dialog"]').not('.fbtimelineblockcounts').each(function() {
         j(this).addClass('fbtimelineblockcounts');
         wrapNumberInString(this);
     });
@@ -2090,9 +2111,17 @@ function demetricateTimeline() {
 } // end demetricateTimeline()
 
 function demetricateChatTab() {
+    /*
     j('.fbMercuryChatTab span.numMessages').not('.facebookmetric').each(function() {
         j(this).addClass('facebookmetric facebookmetric_opacity');
         j(this).css('opacity','0');
+    });
+    */
+
+    j('.fbNubButton').not('.demetricatedchat').each(function() {
+        j(this).addClass('demetricatedchat');
+        j(this).append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
+        j(this).find('span.label').hide();
     });
 }
 
@@ -2431,6 +2460,11 @@ function demetricateGroups() {
             wrapNumberInString(this);
         });
 
+        // alternate way under jun 2013 update
+        fbgroupsidebox.find('#count_text').not('.facebookcount').each(function() {
+            wrapNumberInString(this);
+        });
+
         // group new member counts '(1 new)'
         fbgroupsidebox.find('a.mls').find('span.fwb').not('.facebookcount').each(function() {
             j(this).addClass('facebookcount');
@@ -2743,7 +2777,8 @@ function demetricatePhotoIndex() {
 function demetricateChatSeparator() {
     if(demetricatorON) {
 
-        var chatsep = j('.moreOnlineFriends span.text').not('.fbchatsep');
+        //var chatsep = j('.moreOnlineFriends span.text').not('.fbchatsep');
+        var chatsep = j('.-cx-PRIVATE-fbChatOrderedList__separatortext').not('.fbchatsep');
 
         if(chatsep) {
             chatsep.addClass('fbchatsep');
@@ -2785,6 +2820,19 @@ function demetricateViewAllComments(jnode) {
             } 
 
         });
+
+        // new '6 Replies' metrics, jun 2013
+        j('.UFIReplyList span').not('.facebookmetric').each(function() {
+            j(this).addClass('facebookmetric');
+            var txt = j(this).text();
+            if(txt) {
+                if(txt.contains("Replies") || txt.contains("Reply")) {
+                    wrapNumberInString(this);
+                }
+            }
+        });
+
+
     }
 
 }
@@ -3369,9 +3417,16 @@ function demetricateGraphSearchResults() {
 
     });
 
+    // maybe obsolete now , needs redoing
+
+    //console.log("CHECKING GSR");
+    //j('.-cx-PUBLIC-fbFacebarTypeaheadToken__subtext').not('.fbgscount').each(function() {
+    
     // run through all fields that aren't links
     j('._-x').not('.fbgscount').each(function() {
+
         var txt = j(this).text();
+        console.log("CHECKING: "+txt);
         if(txt.contains('people checked in') || txt.contains('monthly active users') || txt.contains('members')) {
             var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
             if(parsed) {
@@ -3381,6 +3436,7 @@ function demetricateGraphSearchResults() {
                 j(this).html(newhtml);
             }
         } else if(txt.contains('like this') && !txt.contains('other friends')) { 
+            console.log("IN LIKE THIS CHECK");
             var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
             if(parsed) {
                 var newhtml =  
