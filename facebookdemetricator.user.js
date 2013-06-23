@@ -70,7 +70,7 @@ var newSearchBarWidthNarrow = 480;
 
 // constants
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
-var ELEMENT_POLL_SPEED = 1500;       // waitForKeyElements polling interval 
+var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
 var VERSION_NUMBER = '1.3.1';        // used in the console logging
