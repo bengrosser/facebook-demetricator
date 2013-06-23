@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>Benjamin Grosser</string>
 	<key>Builder Version</key>
-	<string>6534.57.2</string>
+	<string>6534.59.8</string>
 	<key>CFBundleDisplayName</key>
 	<string>Facebook Demetricator</string>
 	<key>CFBundleIdentifier</key>
@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2.5</string>
+	<string>1.3.1</string>
 	<key>CFBundleVersion</key>
-	<string>6</string>
+	<string>9</string>
 	<key>Chrome</key>
 	<dict/>
 	<key>Content</key>
