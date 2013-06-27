@@ -2180,6 +2180,15 @@ function demetricateChatTab() {
         j(this).append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
         j(this).find('span.label').hide();
     });
+
+    // individual chat tab metric indicators (gets rid of red/white balloon
+    // metric, but retains blue 'active' color
+    j('.-cx-PRIVATE-fbMercuryChatTab__nummessages').not('.facebookcount').
+        each(function() {
+            j(this).addClass('facebookcount facebookmetric_hideshow');
+            j(this).css('display','none');
+        }
+      );
 }
 
 
