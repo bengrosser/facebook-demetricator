@@ -1291,6 +1291,23 @@ function demetricateNewsfeed() {
             }
     });
 
+    /*
+    j('.fbfollowitem span').not('.facebookcount').each(function() {
+        var txt = j(this).text();
+
+        if(txt.contains('followers')) {
+            parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
+            if(parsed) {
+                j(this).html(
+                    parsed[1]+' <span class="facebookmetric_hideshow" style="display:none;">'+
+                    parsed[2]+'</span>'+
+                    parsed[3]
+                );
+            }
+        }
+    });
+    */
+
     // suggested page people like this metrics
     j('.socialContext').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount');
@@ -2630,7 +2647,7 @@ function demetricateFollowListItem(jnode) {
             j(this).addClass('fbfollowitem');
             txt = j(this).html();
 
-            if(txt.contains('subscriber')) {
+            if(txt.contains('subscriber') || txt.contains('followers')) {
                 parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
                 if(parsed) {
                     j(this).html(
