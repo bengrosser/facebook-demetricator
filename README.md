@@ -1,14 +1,17 @@
-## Facebook Demetricator 
+## Facebook Demetricator + likeeverything
 
-[Facebook Demetricator](http://bengrosser.com/projects/facebook-demetricator/) is a web browser extension that removes all the metrics from the Facebook interface. Under its influence, Facebook no longer foregroudns how many friends you have or how much people like your status. Instead, these numbers are stripped away, inviting you to try the system without these things, to enable a network society that isn't so dependent on quantification. 
+[Facebook Demetricator](http://bengrosser.com/projects/facebook-demetricator/) is a web browser extension that removes all the metrics from the Facebook interface.
 
-Facebook Demetricator runs on Chrome (as an extension distributed via the [Chrome Web Store](https://chrome.google.com/webstore/detail/facebook-demetricator/dbkgglbefgkimiadfjmgnkjmaoahephg)), Safari (as a self-distributed extension), and Firefox (as a self-distributed userscript for use with Greasemonkey).
+While ‘Facebook Demetricator‘ removes all the quantifications that Facebook adds to UI to engage users, slowing down the economy of liking, facebook datamining engine keeps processing data to grow the network of associations and relations by using every implicit and explicit feedback given by users (dividuating?).
 
-This project was the winner of a [Terminal Award](http://terminalapsu.org/), an annual net art award from the Center for Creative Excellence in the Arts.
+likeeverything is an addition to Facebook Demetricator which adds a button to make it possible to like everything within a page at once indiscriminately. By doing so it homogenizes the association probabilities of the edges of the social graph, not only for one who does ‘likeeveything’, since the probabilities propagate.
+
+After all a network gets deprived of information as it gets symmetrical and balanced, not very different from a solid univocity when it becomes a complete uniformly weighted graph.
 
 ### Installation
 
-If you're just looking to install Facebook Demetricator, please visit the [installation page](http://bengrosser.com/projects/facebook-demetricator/install/).
+Please refer to Facebook Demetricator [installation page](http://bengrosser.com/projects/facebook-demetricator/install/) for installation instructions. Note that the likeeverything addition is not merged to the plugin yet so you need to follow the userscript installation instructions.
+
 
 ### Files
 
@@ -28,4 +31,4 @@ If you're just looking to install Facebook Demetricator, please visit the [insta
 
 As Facebook changes its code constantly, I'm interested in pull requests that help me keep up with those changes, and/or performance enhancements. Feel free to send me an email if you want to talk about it. 
 ### Project Homepage
-* [Facebook Demetricator](http://bengrosser.com/projects/facebook-demetricator/)
+* [Facebook Demetricator + ilikeeverything](http://sepans.com/sp/postes/likeeverything/)

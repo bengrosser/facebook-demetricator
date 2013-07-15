@@ -56,7 +56,7 @@
 var startURL;                       // page that loaded the userscript                              
 var curURL = '';                         // supposed url of the current page
 var j;                              // jQuery
-var demetricatorON = true;          // loads ON by default
+var demetricatorON = false;          // loads ON by default
 var currentChatCount;               // tracks the chat count
 var currentMoreChatCount;
 var currentLikeCount;               // for tracking likes in the dialog
@@ -585,7 +585,92 @@ function main() {
     if(demetricatorON) {
         console.log("calling demetricate from main()");
         demetricate(launchPolling);
+        
     }
+    
+    
+    initLikeeverything();
+    
+    
+    
+    
+}
+
+
+function initLikeeverything() {
+
+    console.log('like everything');
+
+
+    var logoLink = j('#pageLogo a');
+    
+    j('._585-').css('width','375px');
+    j('._585-').css('margin-left','102px');
+    
+    logoLink.attr('href','#');
+    logoLink.css('background','none');
+    logoLink.css('textIndent','0');
+    logoLink.css('marginTop','5px');
+
+    logoLink.css('font-weight','normal');  // not working?
+    logoLink.css('font-size','15px');
+
+    logoLink.css('width','109px');
+    logoLink.css('color','#FFF');
+
+    logoLink.text('LikeEverything');
+    
+    
+    logoLink.click(function() { 
+        likeeverthing();
+    });
+    
+
+
+}
+
+function likeeverthing() {
+
+
+        var likes=j('.UFILikeLink');
+        var cfrm = confirm('like everything?');
+        if(cfrm==false)
+            return false;
+        console.log(likes.length);
+        
+        var groupSize = 10;
+        var likepause = 2000;
+        
+        var groups = Math.ceil(likes.length/groupSize);
+        groups = Math.min(groups,5);
+        for(var i = 0; i<groups;i++) {
+            (function(index) {
+               setTimeout( function() {
+                    doliking(index*groupSize,Math.min(likes.length,(index+1)*groupSize));
+                },i*likepause);
+            })(i);
+            
+        }    
+
+        return false;
+
+
+}
+
+function doliking(from, to) {
+        var likes=j('.UFILikeLink');
+        for(var i=from;i<to;i++) {
+            
+            
+           // var linkText = likes[i].childNodes[0].childNodes[0].nodeValue;
+            var linkText = j(likes[i]).text();
+            if(linkText=='Like') {
+                
+                likes[i].click();
+            }
+
+        }
+
 }
 
 
