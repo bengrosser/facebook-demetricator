@@ -2431,6 +2431,11 @@ function demetricateNotifications() {
     j('#fbRequestsList a.uiLinkSubtle').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
+    j('._5ah-, .-cx-PRIVATE-litestandHomeBadge__wrapper').
+        not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount facebookmetric_hideshow').hide();
+    });
 }
 
 // PAGERS
@@ -3252,10 +3257,18 @@ function demetricateEgoSection(jnode) {
     });
 
     // some Page like counts, such as '9,234,721 people like this.' under Chocolate Chip Cookies
+    // added catches for new things showing up in ego section, including
+    // followers, likes this, like her/him, etc.
     egoprofiletemplate.find('div:not(.ego_action)').not('.fblikethis').each(function() {
         j(this).addClass('fblikethis');
         var txt = j(this).text();
-        if(txt.contains('like this') || txt.contains('people play')) {
+        if(txt.contains('like this') || 
+           txt.contains('people play') || 
+           txt.contains('like her') || 
+           txt.contains('like him') || 
+           txt.contains('likes this') || 
+           txt.contains('follower')
+           ) {
             var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
             if(parsed) {
                 var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
