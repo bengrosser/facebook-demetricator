@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.3.1
+// @version 1.3.3
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.3.1
+// Version 1.3.3
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -73,7 +73,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.3.1';        // used in the console logging
+var VERSION_NUMBER = '1.3.3';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -159,12 +159,16 @@ function toggleDemetricator() {
         j('#jewelContainer span.facebookmetricmsg').fadeOut(FADE_SPEED);
         j('#jewelContainer span.facebookmetricnot').fadeOut(FADE_SPEED);
 
+        //
         // after fading the metric, hide its parent
         setTimeout(function() {
             j('.facebookmetricreqp').hide();
             j('.facebookmetricmsgp').hide();
             j('.facebookmetricnotp').hide();
         }, 500);
+
+        // do this here so it happens before searchbar length changes
+        demetricateHomeCount();
 
         // re-run demetricate() in case of new content
         if(FUNCTION_REPORT) console.log("calling demetricate from toggleDemetricator()");
@@ -230,6 +234,10 @@ function toggleDemetricator() {
         j('#jewelContainer span.facebookmetricreqp').removeAttr('style');
         j('#jewelContainer span.facebookmetricmsgp').removeAttr('style');
         j('#jewelContainer span.facebookmetricnotp').removeAttr('style');
+
+
+        // do this here before search bar length changes
+        j('.facebook_homecount').show();
 
         // only if the notification counts are > 0 do we want them to fade in
         // otherwise, remove the style attribute alltogether so it doesn't interfere w/ FB's 
@@ -1291,6 +1299,23 @@ function demetricateNewsfeed() {
             }
     });
 
+    /*
+    j('.fbfollowitem span').not('.facebookcount').each(function() {
+        var txt = j(this).text();
+
+        if(txt.contains('followers')) {
+            parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
+            if(parsed) {
+                j(this).html(
+                    parsed[1]+' <span class="facebookmetric_hideshow" style="display:none;">'+
+                    parsed[2]+'</span>'+
+                    parsed[3]
+                );
+            }
+        }
+    });
+    */
+
     // suggested page people like this metrics
     j('.socialContext').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount');
@@ -2180,6 +2205,15 @@ function demetricateChatTab() {
         j(this).append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
         j(this).find('span.label').hide();
     });
+
+    // individual chat tab metric indicators (gets rid of red/white balloon
+    // metric, but retains blue 'active' color
+    j('.-cx-PRIVATE-fbMercuryChatTab__nummessages').not('.facebookcount').
+        each(function() {
+            j(this).addClass('facebookcount facebookmetric_hideshow');
+            j(this).css('display','none');
+        }
+      );
 }
 
 
@@ -2405,6 +2439,17 @@ function demetricateNotifications() {
     j('#fbRequestsList a.uiLinkSubtle').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
+    // new Home navbar metrics (obnoxious)
+    demetricateHomeCount(); 
+}
+
+function demetricateHomeCount() {
+    // new Home navbar metrics (obnoxious)
+    j('._5ah-, .-cx-PRIVATE-litestandHomeBadge__wrapper').
+        not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount facebook_homecount facebookmetric_hideshow').hide();
+    });
 }
 
 // PAGERS
@@ -2621,7 +2666,7 @@ function demetricateFollowListItem(jnode) {
             j(this).addClass('fbfollowitem');
             txt = j(this).html();
 
-            if(txt.contains('subscriber')) {
+            if(txt.contains('subscriber') || txt.contains('followers')) {
                 parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
                 if(parsed) {
                     j(this).html(
@@ -3011,6 +3056,12 @@ function demetricateCommentLikeButton() {
     
     // COMMENTS - view previous comments pager metrics
     //`j('.rfloat span.fcg span').not('.fbcount').each(function() {
+    //
+    // deals with the next rule incorrectly hiding content on the Timeline
+    // settings page. next rule is kind of an end of the line catchall, so
+    // no big deal to deal with it here
+    if(curURL.contains("/settings")) return;
+
     j('.rfloat span.fcg').not('.fbcount').not('.lfloat').not('.fsm').each(function() {
         j(this).addClass('fbcount facebookmetric_hideshow').hide();
     });
@@ -3226,10 +3277,18 @@ function demetricateEgoSection(jnode) {
     });
 
     // some Page like counts, such as '9,234,721 people like this.' under Chocolate Chip Cookies
+    // added catches for new things showing up in ego section, including
+    // followers, likes this, like her/him, etc.
     egoprofiletemplate.find('div:not(.ego_action)').not('.fblikethis').each(function() {
         j(this).addClass('fblikethis');
         var txt = j(this).text();
-        if(txt.contains('like this') || txt.contains('people play')) {
+        if(txt.contains('like this') || 
+           txt.contains('people play') || 
+           txt.contains('like her') || 
+           txt.contains('like him') || 
+           txt.contains('likes this') || 
+           txt.contains('follower')
+           ) {
             var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
             if(parsed) {
                 var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
