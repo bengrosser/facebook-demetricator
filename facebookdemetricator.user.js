@@ -159,12 +159,16 @@ function toggleDemetricator() {
         j('#jewelContainer span.facebookmetricmsg').fadeOut(FADE_SPEED);
         j('#jewelContainer span.facebookmetricnot').fadeOut(FADE_SPEED);
 
+        //
         // after fading the metric, hide its parent
         setTimeout(function() {
             j('.facebookmetricreqp').hide();
             j('.facebookmetricmsgp').hide();
             j('.facebookmetricnotp').hide();
         }, 500);
+
+        // do this here so it happens before searchbar length changes
+        demetricateHomeCount();
 
         // re-run demetricate() in case of new content
         if(FUNCTION_REPORT) console.log("calling demetricate from toggleDemetricator()");
@@ -230,6 +234,10 @@ function toggleDemetricator() {
         j('#jewelContainer span.facebookmetricreqp').removeAttr('style');
         j('#jewelContainer span.facebookmetricmsgp').removeAttr('style');
         j('#jewelContainer span.facebookmetricnotp').removeAttr('style');
+
+
+        // do this here before search bar length changes
+        j('.facebook_homecount').show();
 
         // only if the notification counts are > 0 do we want them to fade in
         // otherwise, remove the style attribute alltogether so it doesn't interfere w/ FB's 
@@ -2432,9 +2440,15 @@ function demetricateNotifications() {
         wrapNumberInString(this);
     });
 
+    // new Home navbar metrics (obnoxious)
+    demetricateHomeCount(); 
+}
+
+function demetricateHomeCount() {
+    // new Home navbar metrics (obnoxious)
     j('._5ah-, .-cx-PRIVATE-litestandHomeBadge__wrapper').
         not('.facebookcount').each(function() {
-        j(this).addClass('facebookcount facebookmetric_hideshow').hide();
+        j(this).addClass('facebookcount facebook_homecount facebookmetric_hideshow').hide();
     });
 }
 
@@ -3042,6 +3056,12 @@ function demetricateCommentLikeButton() {
     
     // COMMENTS - view previous comments pager metrics
     //`j('.rfloat span.fcg span').not('.fbcount').each(function() {
+    //
+    // deals with the next rule incorrectly hiding content on the Timeline
+    // settings page. next rule is kind of an end of the line catchall, so
+    // no big deal to deal with it here
+    if(curURL.contains("/settings")) return;
+
     j('.rfloat span.fcg').not('.fbcount').not('.lfloat').not('.fsm').each(function() {
         j(this).addClass('fbcount facebookmetric_hideshow').hide();
     });
