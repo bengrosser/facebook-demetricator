@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.3.0
+// @version 1.3.3
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.3.0
+// Version 1.3.3
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -73,15 +73,17 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.3.0';        // used in the console logging
+var VERSION_NUMBER = '1.3.3';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
-var IS_SAFARI_OR_FIREFOX_ADDON = false;        // is this a Firefox addon?
+var IS_SAFARI_OR_FIREFOX_ADDON = false;        // is this a Firefox or Safari addon?
+var IS_FIREFOX_ADDON = false; // is this just Firefox?  Need to adjust some things for FF' slow performance
 //var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
+var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
 var HAS_GRAPH_SEARCH = false;       // does the user have graph search?
 
 
@@ -157,6 +159,7 @@ function toggleDemetricator() {
         j('#jewelContainer span.facebookmetricmsg').fadeOut(FADE_SPEED);
         j('#jewelContainer span.facebookmetricnot').fadeOut(FADE_SPEED);
 
+        //
         // after fading the metric, hide its parent
         setTimeout(function() {
             j('.facebookmetricreqp').hide();
@@ -164,7 +167,11 @@ function toggleDemetricator() {
             j('.facebookmetricnotp').hide();
         }, 500);
 
+        // do this here so it happens before searchbar length changes
+        demetricateHomeCount();
+
         // re-run demetricate() in case of new content
+        if(FUNCTION_REPORT) console.log("calling demetricate from toggleDemetricator()");
         demetricate();
 
         // graph search
@@ -227,6 +234,10 @@ function toggleDemetricator() {
         j('#jewelContainer span.facebookmetricreqp').removeAttr('style');
         j('#jewelContainer span.facebookmetricmsgp').removeAttr('style');
         j('#jewelContainer span.facebookmetricnotp').removeAttr('style');
+
+
+        // do this here before search bar length changes
+        j('.facebook_homecount').show();
 
         // only if the notification counts are > 0 do we want them to fade in
         // otherwise, remove the style attribute alltogether so it doesn't interfere w/ FB's 
@@ -425,6 +436,20 @@ function main() {
     //var GSdemetricatornavitem =
         '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:15px;line-height:29px;"><a class="navLink" style="padding-left:0px;border-left:0px;padding-right:18px;" id="demetricatorlink">Demetricator</a>';
 
+    /*
+     *
+     * insert into bigPadding Home border-left #4e68aa and margin-left:0
+     */
+    // if navDivider is present
+    /*
+        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:15px;line-height:29px;"><a class="navLink" style="padding-left:0px;border-left:0px;padding-right:18px;margin-right:0px;border-right:1px solid #385187" id="demetricatorlink">Demetricator</a>';
+        */
+
+
+    /* if not
+        '<input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;margin-left:15px;line-height:29px;"><a class="navLink" style="padding-left:0px;border-left:0px;padding-right:18px;" id="demetricatorlink">Demetricator</a>';
+
+        */
 
 
     // if we have graph search, insert the new nav item
@@ -540,6 +565,9 @@ function main() {
         //j('.connect_widget_button_count_count').text('');
         j('.pluginCountTextConnected').text('');
         j('.pluginCountTextDisconnected').text('');
+        // if this is the dialog like button iframe, then we've done our job for now
+        // removes an extra call to demetricate() on load
+        return;
     }
 
     if(KEY_CONTROL) j(document).bind('keydown','ctrl+f',function() { 
@@ -562,7 +590,10 @@ function main() {
     */
 
     // remove the metrics from our landing page
-    if(demetricatorON) demetricate(launchPolling);
+    if(demetricatorON) {
+        console.log("calling demetricate from main()");
+        demetricate(launchPolling);
+    }
 }
 
 
@@ -574,6 +605,8 @@ function main() {
 //
 function launchPolling() {
 
+    console.log("main() demetricate done: in launchPolling()");
+
     // watch for new pages so we can recall demetricate as needed
     setInterval(checkForNewPage, ELEMENT_POLL_SPEED);
 
@@ -584,6 +617,11 @@ function launchPolling() {
     // the morepager at the bottom because it catches top stories as well
     // also catches dynamically loaded ticker stories when hovered over (?)
     
+    if(IS_FIREFOX_ADDON) COUNT_INTERVAL = 1500;
+    else COUNT_INTERVAL = 800;
+
+    COUNT_INTERVAL = 800;
+
     setInterval(function() { 
         var lateststorycount = j('.uiStreamStory').length;
         var latesttimelineblockcount = j('.fbTimelineUnit').length;
@@ -591,6 +629,8 @@ function launchPolling() {
         var latestfavoritescount = j('.uiFavoritesStory').length;
         var latestgraphsearchphotocount = j('._by0').length;
         var latestgraphsearchresultcount = j('._6a').length;
+
+    //    console.log("lsc = "+lateststorycount);
 
         // new timeline
         var latestappsectioncount = j('.-cx-PRIVATE-fbTimelineAppSection__header').length;
@@ -604,12 +644,46 @@ function launchPolling() {
         //var latestfriendbrowsercount = j('.friendBrowserListUnit').length;
         // track followListItem for subscriber entries
 
-        if(lateststorycount > streamStoryCount || 
-           latesttimelineblockcount > timelineUnitCount ||
-           latestfavoritescount > favoritesCount  
+        if((
+               lateststorycount > streamStoryCount || 
+               latesttimelineblockcount > timelineUnitCount ||
+               latestfavoritescount > favoritesCount
+               ) 
            ) 
         {
-            setTimeout(function() { if(demetricatorON) demetricate(); }, 25);
+            /*
+            if(streamStoryCount == 0 && timelineUnitCount == 0 && favoritesCount == 0) {
+                console.log("streamStory = timelineUnit = favorites = 0!!");
+            }
+            */
+
+            // Firefox is so slow it chunks in new stories (during scroll) that it triggers
+            // two demetrications when only one is needed.  this insures that if that all stories
+            // from the new chunk haven't loaded yet, we just wait until it's finished. 
+            //
+            // ok, can't do this, this breaks demetrication of emerging stories. need to 
+            // come up with alternative approach for FF
+            //
+            //if(lateststorycount <= streamStoryCount + 6) return;
+
+            /*
+
+            console.log("lateststorycount = " + lateststorycount);
+            console.log("streamStoryCount = " + streamStoryCount);
+            console.log("latesttimelineblockcount = " + latesttimelineblockcount);
+            console.log("timelineUnitCount = " + timelineUnitCount);
+            console.log("latestfavoritescount = " + latestfavoritescount);
+            console.log("favoritesCount = " + favoritesCount);
+            */
+
+            setTimeout(function() { 
+                if(demetricatorON) { 
+                    if(FUNCTION_REPORT) console.log("calling demetricate() from lateststorycount poll"); 
+                    demetricate(function() { 
+                        if(FUNCTION_REPORT) console.log("demetricate from lsc finished."); 
+                    }); 
+                } 
+            }, 25);
         }
 
         if(latestphotogridcount > photoGridCount) {
@@ -670,7 +744,7 @@ function launchPolling() {
         //notificationItemCount = latestnotificationitemcount;
         //friendBrowserCount = latestfriendbrowsercount;
 
-    }, 800);
+    }, COUNT_INTERVAL);
 
     // graph search autosuggest results
     //if(HAS_GRAPH_SEARCH) waitForKeyElements('#typeahead_list_u_0_2', demetricateGraphSearchAutoSuggest, false); 
@@ -836,7 +910,7 @@ function launchPolling() {
             if(txt.contains('mutual') || txt.contains('subscribe') || txt.contains('going') || 
                txt.contains('other') || txt.contains('friends')) 
             var html = friendslink.html();
-            console.log('fl: '+html);
+            
             if(html && friendslink.not('.HovercardMessagesButton, .uiButton')) {
                 
                 var parsed = html.match(/^(\d+(?:,\d+)*)\s+(.*)/);
@@ -905,6 +979,9 @@ function demetricate(callback) {
     if(demetricating) return;
     else demetricating = true;
 
+    curURL = window.location.href;
+
+
     // DBUG
     if(DBUG) console.time('demetricator timer');
 
@@ -965,7 +1042,7 @@ function demetricate(callback) {
     }
 
     // MUSIC
-    demetricateMusic();
+    if(curURL.contains('music')) demetricateMusic();
 
     // SEARCH RESULTS page
     demetricateSearchResult(j('.detailedsearch_result'));
@@ -976,7 +1053,7 @@ function demetricate(callback) {
     } 
 
     // EVENTS/CALENDAR
-    if(j('body.fbCalendar').length || j('body.fbEventPermalink')) {
+    if(j('body.fbCalendar').length || j('body.fbEventPermalink').length) {
         demetricateEvents();
     } 
 
@@ -990,7 +1067,7 @@ function demetricate(callback) {
     }
 
     // MESSAGES
-    demetricateMessages();
+    if(curURL.contains('messages')) demetricateMessages();
 
     // HOVERCARD TOGGLE TRIGGERS
     // images that trigger hovercards (such as friend photos on the timeline ribbon)
@@ -1072,6 +1149,7 @@ function demetricateShareCount() {
 // NEWS FEED
 function demetricateNewsfeed() {
 
+    if(FUNCTION_REPORT) console.log("demetricateNewsfeed()");
 
     // STILL NEEDED? - moved to demetricateCommentLikeButton()
     // large comment block counts (e.g. '50 of 152')
@@ -1220,6 +1298,23 @@ function demetricateNewsfeed() {
                 }
             }
     });
+
+    /*
+    j('.fbfollowitem span').not('.facebookcount').each(function() {
+        var txt = j(this).text();
+
+        if(txt.contains('followers')) {
+            parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
+            if(parsed) {
+                j(this).html(
+                    parsed[1]+' <span class="facebookmetric_hideshow" style="display:none;">'+
+                    parsed[2]+'</span>'+
+                    parsed[3]
+                );
+            }
+        }
+    });
+    */
 
     // suggested page people like this metrics
     j('.socialContext').not('.facebookcount').each(function() {
@@ -1507,6 +1602,7 @@ function demetricateNewTimeline() {
 
 // handles all Timeline-type views (profile, photos, subscribers, likes, etc.)
 function demetricateTimeline() {
+    if(FUNCTION_REPORT) console.log("demetricateTimeline()");
 
     // TEMPORARY TODO: find a better location for this
     demetricateNewTimeline();
@@ -2109,6 +2205,15 @@ function demetricateChatTab() {
         j(this).append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
         j(this).find('span.label').hide();
     });
+
+    // individual chat tab metric indicators (gets rid of red/white balloon
+    // metric, but retains blue 'active' color
+    j('.-cx-PRIVATE-fbMercuryChatTab__nummessages').not('.facebookcount').
+        each(function() {
+            j(this).addClass('facebookcount facebookmetric_hideshow');
+            j(this).css('display','none');
+        }
+      );
 }
 
 
@@ -2137,6 +2242,8 @@ function demetricateYearInReview() {
 
 // MUSIC page
 function demetricateMusic() {
+    if(FUNCTION_REPORT) console.log("demetricateMusic()");
+
     // I'm not going to catch everything here, as each new music service has its own new
     // way of showing metrics and i dont' want to keep up, but i will manage typical FB
     // presentations of metrics here (such as song list pager links)
@@ -2188,6 +2295,8 @@ function demetricateFriendPageBlocks() {
 
 // APP CENTER
 function demetricateAppCenter() {
+    if(FUNCTION_REPORT) console.log("demetricateAppCenter()");
+
             // APP CENTER pages
 
     // app block user counts. erasing the number doesn't leave anything of use, unless there's also some personal friend
@@ -2202,6 +2311,8 @@ function demetricateAppCenter() {
 
 // EVENTS / CALENDAR
 function demetricateEvents() {
+    if(FUNCTION_REPORT) console.log("demetricateEvents()");
+
         // EVENTS page
 
     // red/white number in the 'invites' button on the Calendar tab
@@ -2259,6 +2370,8 @@ function demetricateEvents() {
 }
 
 function demetricateCounters() {
+    if(FUNCTION_REPORT) console.log("demetricateCounters()");
+
         // --------------------------------------------------------
     // -- SIDEBAR COUNTS (TIMELINE, OLD-STYLE PROFILE, ETC.) --
     // --------------------------------------------------------
@@ -2326,6 +2439,17 @@ function demetricateNotifications() {
     j('#fbRequestsList a.uiLinkSubtle').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
+    // new Home navbar metrics (obnoxious)
+    demetricateHomeCount(); 
+}
+
+function demetricateHomeCount() {
+    // new Home navbar metrics (obnoxious)
+    j('._5ah-, .-cx-PRIVATE-litestandHomeBadge__wrapper').
+        not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount facebook_homecount facebookmetric_hideshow').hide();
+    });
 }
 
 // PAGERS
@@ -2381,6 +2505,8 @@ function demetricatePagers() {
 
 // GROUP pages
 function demetricateGroups() {
+    if(FUNCTION_REPORT) console.log("demetricateGroups()");
+
         // ----------------------------------
     // ------- GROUP PAGE METRICS -------
     // ----------------------------------
@@ -2491,6 +2617,8 @@ function demetricateGroups() {
 
 function demetricateMessages() {
     
+    if(FUNCTION_REPORT) console.log("demetricateMessages()");
+
     demetricateMessageMutualFriends();
     setTimeout(demetricateMessageMutualFriends, 8000);
 
@@ -2538,7 +2666,7 @@ function demetricateFollowListItem(jnode) {
             j(this).addClass('fbfollowitem');
             txt = j(this).html();
 
-            if(txt.contains('subscriber')) {
+            if(txt.contains('subscriber') || txt.contains('followers')) {
                 parsed = txt.match(/(.*·)\s+(\d+(?:,\d+)*)(.*)/);
                 if(parsed) {
                     j(this).html(
@@ -2615,13 +2743,16 @@ function demetricateSearchResultEntries(jnode) {
 
 // all 'XX likes this' links under newsfeed items
 function demetricateLikesThis(jnode) {
+
+    if(!demetricatorON) return;
+
+    if(FUNCTION_REPORT) console.log("demetricateLikesThis()");
+
     if(!jnode) { 
         //var jnode = j('.UFILikeSentence a > span'); 
         // FB update 2/20/2012
         var jnode = j('.UFILikeSentence span a[rel="dialog"]');
     }
-
-    if(!demetricatorON) return;
 
     // timeline entry feedback blocks: like counts
     //j('.fbTimelineFeedbackCommentLoader').not('.fbtimelineblockcounts').each(function() {
@@ -2726,6 +2857,8 @@ function redemetricateLike(jnode) {
 }
 
 function demetricatePhotoIndex() {
+    if(FUNCTION_REPORT) console.log("demetricatePhotoIndex()");
+
             // PHOTOS page
         //j('.fbPhotosRedesignNavCount,.fbPhotosRedesignLikes,.fbPhotosRedesignComments').
         j('.fbPhotosRedesignNavCount').
@@ -2762,6 +2895,7 @@ function demetricatePhotoIndex() {
 // chat count (for later demetrication)
 function demetricateChatSeparator() {
     if(demetricatorON) {
+        if(FUNCTION_REPORT) console.log("demetricateChatSeparator()");
 
         //var chatsep = j('.moreOnlineFriends span.text').not('.fbchatsep');
         var chatsep = j('.-cx-PRIVATE-fbChatOrderedList__separatortext').not('.fbchatsep');
@@ -2783,13 +2917,17 @@ function demetricateChatSeparator() {
 
 // 'View all 4 comments'
 function demetricateViewAllComments(jnode) {
+
+    if(demetricatorON) {
+
+        if(FUNCTION_REPORT) console.log("demetricateViewAllComments()");
+
     if(!jnode) {
         //jnode = j('.UFIPagerLink span > span');
         // FB update 2/20/2012
         jnode = j('.UFIPagerLink span');
     }
 
-    if(demetricatorON) {
         jnode.not('.facebookmetric').each(function() { 
             j(this).addClass('facebookmetric');
 
@@ -2893,6 +3031,8 @@ function demetricateCommentLikeButton() {
 
     if(!demetricatorON) return;
 
+    if(FUNCTION_REPORT) console.log("demetricateCommentLikeButton()");
+
     // comment like counts (next to the little thumbs up icon).  currently
     // polling on comment_like_button, may be to narrow (?)
     //j('.comment_like_button').not('.fbcommentlike').each(function() {
@@ -2916,6 +3056,12 @@ function demetricateCommentLikeButton() {
     
     // COMMENTS - view previous comments pager metrics
     //`j('.rfloat span.fcg span').not('.fbcount').each(function() {
+    //
+    // deals with the next rule incorrectly hiding content on the Timeline
+    // settings page. next rule is kind of an end of the line catchall, so
+    // no big deal to deal with it here
+    if(curURL.contains("/settings")) return;
+
     j('.rfloat span.fcg').not('.fbcount').not('.lfloat').not('.fsm').each(function() {
         j(this).addClass('fbcount facebookmetric_hideshow').hide();
     });
@@ -2982,6 +3128,7 @@ function toggleTickerOverlay() {
 // here they get converted to either 'recently' or 'a while ago'
 function demetricateTimestamps() {
     if(!demetricatorON) return;
+    if(FUNCTION_REPORT) console.log("demetricateTimestamps()");
     // adjusts all timestamps to remove the counts of those time segments 
     // (e.g. '8 minutes ago' becomes 'minutes ago')
     j('abbr, .timestamp').not('.fbtimestamp').each(function() {
@@ -3079,7 +3226,9 @@ function demetricateEgoSection(jnode) {
         // some newsfeed items, perhaps only those that aren't from a close friend (e.g. friend of
     // friend, or from a liked page/business, etc...) include abbreviated bars of info for
     // likes, shares, and comments.  this should remove all those counts
-    j('.uiBlingBox .text').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
+
+    // OLD STYLE? 6/13 
+    // j('.uiBlingBox .text').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
     j('.UFIBlingBoxText').not('.facebookmetric_fade').addClass('facebookmetric_face').css('display','none');
 
         // ad like counts
@@ -3088,54 +3237,66 @@ function demetricateEgoSection(jnode) {
         wrapNumberInString(this);
     });
 
-        // small link counts, such as '10 mutual friends' in the 'People You May Know' box
+    // small link counts, such as '10 mutual friends' in the 'People You May Know' box
+    // OLD STYLE? 6/13
+    /*
     j('.home_right_column a.uiLinkSubtle').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+    */
 
-        var egoprofiletemplate = j('.egoProfileTemplate');
+    // small link counts, such as '10 mutual friends' in the 'People You May Know' box
+    var egoprofiletemplate = j('.egoProfileTemplate');
 
-        // 'Recommended Pages' mutual friend counts
-        // and +1 icons on recommended friend boxes (a little tricky)
-        egoprofiletemplate.find('a').not('.fbmutualfriends').addClass('fbmutualfriends').each(function() { 
-            var txt = j(this).text(); 
-            if(txt.contains('mutual friend') || txt.contains('other friend')) {
-                var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
-                if(parsed) {
-                //var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
+    // 'Recommended Pages' mutual friend counts
+    // and +1 icons on recommended friend boxes (a little tricky)
+    egoprofiletemplate.find('a').not('.fbmutualfriends').addClass('fbmutualfriends').each(function() { 
+        var txt = j(this).text(); 
+        if(txt.contains('mutual friend') || txt.contains('other friend')) {
+            var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
+            //var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
+            var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
+                parsed[1]+'</span> '+parsed[2];  
+            j(this).html(newhtml);
+            }
+
+        }
+
+        // handles the +1 icons next to 'Add Friend' text on recommended frirend list
+        if(txt.contains('Add Friend')) {
+            j(this).addClass('facebookmetric_hideshow_plusone_text').css('padding-left','0px');
+            j(this).find('i').addClass('facebookmetric_hideshow_plusone_img').hide();
+        }
+    });
+
+    // alternate way of getting to +1 icons on ego section
+    j('.ego_action a').not('.facebookmetric_hideshow_plusone_text').each(function() {
+            j(this).addClass('facebookmetric_hideshow_plusone_text').css('padding-left','0px');
+            j(this).find('i').addClass('facebookmetric_hideshow_plusone_img').hide();
+    });
+
+    // some Page like counts, such as '9,234,721 people like this.' under Chocolate Chip Cookies
+    // added catches for new things showing up in ego section, including
+    // followers, likes this, like her/him, etc.
+    egoprofiletemplate.find('div:not(.ego_action)').not('.fblikethis').each(function() {
+        j(this).addClass('fblikethis');
+        var txt = j(this).text();
+        if(txt.contains('like this') || 
+           txt.contains('people play') || 
+           txt.contains('like her') || 
+           txt.contains('like him') || 
+           txt.contains('likes this') || 
+           txt.contains('follower')
+           ) {
+            var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+            if(parsed) {
                 var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
                     parsed[1]+'</span> '+parsed[2];  
                 j(this).html(newhtml);
-                }
-
             }
-
-            // handles the +1 icons next to 'Add Friend' text on recommended frirend list
-            if(txt.contains('Add Friend')) {
-                j(this).addClass('facebookmetric_hideshow_plusone_text').css('padding-left','0px');
-                j(this).find('i').addClass('facebookmetric_hideshow_plusone_img').hide();
-            }
-        });
-
-        // alternate way of getting to +1 icons on ego section
-        j('.ego_action a').not('.facebookmetric_hideshow_plusone_text').each(function() {
-                j(this).addClass('facebookmetric_hideshow_plusone_text').css('padding-left','0px');
-                j(this).find('i').addClass('facebookmetric_hideshow_plusone_img').hide();
-        });
-
-        // some Page like counts, such as '9,234,721 people like this.' under Chocolate Chip Cookies
-        egoprofiletemplate.find('div:not(.ego_action)').not('.fblikethis').each(function() {
-            j(this).addClass('fblikethis');
-            var txt = j(this).text();
-            if(txt.contains('like this') || txt.contains('people play')) {
-                var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
-                if(parsed) {
-                    var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
-                        parsed[1]+'</span> '+parsed[2];  
-                    j(this).html(newhtml);
-                }
-            }
-        });
+        }
+    });
 
 
     // friend finder counts (e.g. 'These 3 friends found their friends using...')
@@ -3283,6 +3444,7 @@ function newContentLoaded(jnode) {
 
         //console.log('timelineView = '+timelineView);
 
+        if(FUNCTION_REPORT) console.log("calling demetricate from newContentLoaded()");
         demetricate();
     }
 }
@@ -3560,6 +3722,7 @@ function checkForNewPage() {
     function delayedDemetricate(t) {
         setTimeout(function() { 
             if(demetricatorON) {
+                console.log("calling demetricate from delayedDemetricate()");
                 demetricate();
             }
         }, t);
