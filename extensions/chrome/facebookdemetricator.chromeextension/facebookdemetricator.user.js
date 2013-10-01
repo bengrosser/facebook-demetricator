@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.3.3
+// @version 1.3.4
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,12 +28,14 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.3.3
+// Version 1.3.4
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
-// Prospectives '12, University of Reno at Nevada
-// The Public Private, Curated by Christiane Paul, at The New School
+// 2012  Prospectives '12, University of Reno at Nevada
+// 2013  The Public Private, Curated by Christiane Paul, at The New School
+// 2013  MFA Thesis Exhibition, Krannert Art Museum, Champaign, IL
+// 2013  Public Assembly, The White Building, London, UK
 // -----------------------------------------------------------------
 
 
@@ -73,7 +75,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.3.3';        // used in the console logging
+var VERSION_NUMBER = '1.3.4';        // used in the console logging
 var KEY_CONTROL = true;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -376,7 +378,8 @@ function main() {
            ) return; 
     }
 
-    if(startURL.contains("/plugins/") && !startURL.contains("bengrosser")) return;
+    // added catch for the like button on my scaremail project dialog box, which was triggering demetricator
+    if((startURL.contains("/plugins/") && !startURL.contains("bengrosser")) || startURL.contains("scaremail")) return;
 
     // console reporting
     console.log("Facebook Demetricator v"+VERSION_NUMBER);
@@ -3278,6 +3281,7 @@ function demetricateEgoSection(jnode) {
 
     // some Page like counts, such as '9,234,721 people like this.' under Chocolate Chip Cookies
     // added catches for new things showing up in ego section, including
+    // added members for groups
     // followers, likes this, like her/him, etc.
     egoprofiletemplate.find('div:not(.ego_action)').not('.fblikethis').each(function() {
         j(this).addClass('fblikethis');
@@ -3287,6 +3291,7 @@ function demetricateEgoSection(jnode) {
            txt.contains('like her') || 
            txt.contains('like him') || 
            txt.contains('likes this') || 
+           txt.contains('member') || 
            txt.contains('follower')
            ) {
             var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
