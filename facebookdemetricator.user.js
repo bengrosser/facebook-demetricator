@@ -644,7 +644,7 @@ function launchPolling() {
     COUNT_INTERVAL = 800;
 
     setInterval(function() { 
-        var lateststorycount = j('.uiStreamStory').length;
+        var lateststorycount = j('.uiStreamStory, ._5jmm').length;
         var latesttimelineblockcount = j('.fbTimelineUnit').length;
         var latestphotogridcount = j('.fbPhotoStarGridElement').length;
         var latestfavoritescount = j('.uiFavoritesStory').length;
@@ -899,6 +899,11 @@ function launchPolling() {
     // chat tabs
     //waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
     waitForKeyElements('.fbNubButton', demetricateChatTab, false);
+
+    // new 'related' boxes that show up after you click a link on the new new newsfeed
+    waitForKeyElements('._5d73', function(jn) {
+        jn.find('._4pp').not('.facebookcount').addClass('facebookcount facebookmetric_hideshow').hide();
+    }, false);
 
     waitForKeyElements('.uiContextualLayer', function(jn) {
         //console.log('tooltip: '+jn.html()); 
@@ -1388,7 +1393,8 @@ function demetricateNewsfeed() {
 
     // newsfeed story headlines that contains photos added counts (e.g. 'soandso added 8 new photos.')
     // (was h6, now h5)
-    j('.uiStreamStory h5').not('.fbstreamheadline').each(function() {
+    // ._5jmm new new newsfeed
+    j('.uiStreamStory h5, ._5jmm h5').not('.fbstreamheadline').each(function() {
         j(this).addClass('fbstreamheadline');
         var txt = j(this).text();
         
@@ -1494,6 +1500,7 @@ function demetricateNewsfeed() {
     });
 
 } // end demetricateNewsfeed()
+
 
 function demetricateNewTimeline() {
 
