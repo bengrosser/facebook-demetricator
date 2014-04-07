@@ -667,7 +667,7 @@ function launchPolling() {
 
         // TODO
         // streamStoryCount isn't getting triggered anymore b/c they changed the class
-        //
+        
        
         if((
                lateststorycount > streamStoryCount || 
