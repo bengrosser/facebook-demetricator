@@ -36,7 +36,9 @@
 // 2013  The Public Private, Curated by Christiane Paul, at The New School
 // 2013  MFA Thesis Exhibition, Krannert Art Museum, Champaign, IL
 // 2013  Public Assembly, The White Building, London, UK
-// -----------------------------------------------------------------
+// 2014  Arte Laguna Finalist Exhibition, Telecom Italia Future Centre, Venice, Italy
+// 2014  Theorizing the Web, Windmill Studios, Brooklyn, NY
+// ------------------------------------------------------------------------------------
 
 
 // THANKS to my beta test team!! 
@@ -44,6 +46,7 @@
 //
 // THANKS to my graph search beta test team!
 // Joe, Molly
+//
 
 
 // TODO update graph search results demetrication since latest changes
@@ -2630,9 +2633,15 @@ function demetricateGroups() {
 
     });
 
+    // _4--q new new newsfeed update
+    j('a._4--q').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
     var fbgroupsidebox = j('.groupsAddMemberSideBox');
 
         // group member counts top-right ('9 members')
+        // _4--q new new newsfeed update
         fbgroupsidebox.find('a.uiLinkSubtle').not('.facebookcount').each(function() {
             wrapNumberInString(this);
         });
