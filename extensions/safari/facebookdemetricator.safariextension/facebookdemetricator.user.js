@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.3.4
+// @version 1.5.0
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.3.4
+// Version 1.5.0
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -36,7 +36,9 @@
 // 2013  The Public Private, Curated by Christiane Paul, at The New School
 // 2013  MFA Thesis Exhibition, Krannert Art Museum, Champaign, IL
 // 2013  Public Assembly, The White Building, London, UK
-// -----------------------------------------------------------------
+// 2014  Arte Laguna Finalist Exhibition, Telecom Italia Future Centre, Venice, Italy
+// 2014  Theorizing the Web, Windmill Studios, Brooklyn, NY
+// ------------------------------------------------------------------------------------
 
 
 // THANKS to my beta test team!! 
@@ -44,6 +46,7 @@
 //
 // THANKS to my graph search beta test team!
 // Joe, Molly
+//
 
 
 // TODO update graph search results demetrication since latest changes
@@ -66,8 +69,8 @@ var currentTitleText;               // current (non-metric) count of $('title')
 var timelineView = false;
 var searchBarWidth = "300px";
 //var newSearchBarWidth = 530;
-var newSearchBarWidth = 480;
-var newSearchBarWidthNarrow = 480;
+var newSearchBarWidth = 400;
+var newSearchBarWidthNarrow = 400;
 
 
 // constants
@@ -75,14 +78,14 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.3.4';        // used in the console logging
-var KEY_CONTROL = true;
+var VERSION_NUMBER = '1.5.0';        // used in the console logging
+var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox or Safari addon?
-var IS_FIREFOX_ADDON = false; // is this just Firefox?  Need to adjust some things for FF' slow performance
+var IS_FIREFOX_ADDON = true; // is this just Firefox?  Need to adjust some things for FF' slow performance
 //var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
 var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
@@ -391,7 +394,7 @@ function main() {
     // check for graph search
     if(j('body.hasSmurfbar').length) {
         HAS_GRAPH_SEARCH = true;
-        console.log("Graph Search Detected");
+        //console.log("Graph Search Detected");
         demetricateGraphSearchSelectorOverview();
         demetricateGraphSearchResults();
     }
@@ -430,6 +433,7 @@ function main() {
         '<li style="float:left;padding:0;margin:0;border:0px solid red;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;"><a style="line-height:29px;margin-top:0px;padding-right:10px;color:#d8dfea;font-weight:bold;" id="demetricatorlink">Demetricator</a></li><li class="navItem firstItem"><a class="navLink" style="margin-left:0px;margin-right:3px"></a></li>';
 
 
+
     // ADDED 0px left border for latest GS and 'Ben's Timeline' insertion into navbar, 
     //   -- moved border into jewelsListItem
     //   -- updated margin-left to 15px for 5/2013 GS changes
@@ -455,11 +459,18 @@ function main() {
         */
 
 
+
+    // NEW NEW navbar - something like this
+    var newnewnavbarTRY1 = '<li class="navItem middleItem _55bi litestandNavItem _55bh"><img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:5px 5px 0 10px;"><a id="demetricatorlink" class="navLink bigPadding"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:5px;margin-right:5px;line-height:29px;margin-left:0px;">Demetricator<div class="_5ah- _5ahy"><div class="_5ahz"></div></div></a></li>';
+
+    var newnewnavbar = '<li class="navItem middleItem _55bi litestandNavItem _55bh"><img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:5px 5px 0 10px;"><a id="demetricatorlink" class="navLink bigPadding" style="padding-left:4px;"><label id="demetricatortogglelabel" style="padding:5px;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:0px;margin-right:0px;line-height:29px;margin-left:0px;z-index:100;"></label>Demetricator</a></div></li>';
+
     // if we have graph search, insert the new nav item
     if(HAS_GRAPH_SEARCH) {
         //j('#navHome .navLink').css('padding-left','0px');
         //`j('#navHome a').css('border-left','0px');
-        j('#navHome').prepend(GSdemetricatornavitem);
+    // LATEST Before 1.5    j('#navHome').prepend(GSdemetricatornavitem);
+        j('#navHome').before(newnewnavbar);
         //j('#navHome').before(GSdemetricatornavitem);
         //j('#jewelsListItem').append(GSdemetricatornavitem);
         // fixing for 3/20 FB update
@@ -498,17 +509,17 @@ function main() {
 
     // HTML for the dialog box
     var dialoghtml = 
-        '<div style="display:none; width: 330px; height: 230px; margin: 0px auto; background-color: white;" class="-cx-PUBLIC-uiDialog__border" id="modaldialog">'+
+        '<div style="display:none; width: 350px; height: 244px; margin: 0px auto; background-color: white;border:1px solid #e5e6e9;border-radius:3px;" class="-cx-PUBLIC-uiDialog__border" id="modaldialog">'+
         '<div style="margin:5px;" id="modalheader"> <label style="margin:5px;float:right;" class="simplemodal-close uiCloseButton"></label><br><br> </div> <center> <h1><a href="'+DEMETRICATOR_HOME_URL+'" target="_blank">Facebook Demetricator</a></h1> <span class="messageBody">Hides all the metrics on Facebook</span><br/>'
         +likebutton+
-        '<h3><span class="fcg" style="font-weight:normal">by</span> Benjamin Grosser</h3> <span class="fsm fcg"><a href="'+GROSSER_URL+'" target="_blank">bengrosser.com</a></span> </center> <div id="modalfooter" style="margin:15px;"> <p style="float:left;" class="fcg">version '+VERSION_NUMBER+'</p> <p style="float:right;" class="fcg"><a href="'+DEMETRICATOR_HOME_URL+'" target="_blank">More info/feedback...</a></p> </div> </div>';
+        '<h3><span class="fcg" style="font-weight:normal">by</span> Benjamin Grosser</h3> <span class="fsm fcg"><a href="'+GROSSER_URL+'" target="_blank">bengrosser.com</a></span> </center> <div id="modalfooter" style="margin:15px 25px 25px 25px;"> <p style="float:left;" class="fcg">version '+VERSION_NUMBER+'</p> <p style="float:right;" class="fcg"><a href="'+DEMETRICATOR_HOME_URL+'" target="_blank">More info/feedback...</a></p> </div> </div>';
 
     // insert the dialog into the page
     j('body').append(dialoghtml);
     
-
     // setup demetrication of the like button to activate whenever the dialog is loaded
     j('#demetricatorlink').click(function() {
+        console.log("demetricator link click");
         if(demetricatorON) {
             var oldsrc = j('#fbd_like_button').attr('src');
             var newsrc = oldsrc.replace('FBD_TOGGLE_STATE_OFF','FBD_TOGGLE_STATE_ON');
@@ -525,6 +536,9 @@ function main() {
             overlayCss: {backgroundColor:"#000"}
         });
     });
+
+    // keeps clicks on checkbox from triggering surrounding 'a' click
+    j('#demetricatortogglelabel').click(function(event) { event.stopPropagation(); });
 
     // bind toggleDemetricator() to the checkbox
     j('#demetricatortoggle').change(function() {
@@ -548,11 +562,12 @@ function main() {
             j('._585-').css('width',newSearchBarWidth-40+"px");
         }
 
-
-
         j('#fbdtoggleindicator').show();
 
-        setTimeout(function() { toggleDemetricator(); }, 250);
+        setTimeout(function() { 
+            togglebeingchecked = false;
+            toggleDemetricator(); 
+        }, 250);
     });
 
     // debugging checkbox
@@ -566,8 +581,14 @@ function main() {
     // facilitates demetrication of the like button in the Demetricator dialog box
     if(startURL.contains('FBD_TOGGLE_STATE_ON')) {
         //j('.connect_widget_button_count_count').text('');
-        j('.pluginCountTextConnected').text('');
-        j('.pluginCountTextDisconnected').text('');
+        
+       // j('.pluginCountTextConnected').text('');
+        //j('.pluginCountTextDisconnected').text('');
+        //
+        // works better with latest changes, should have done this in first place
+        j('.pluginCountTextConnected').css('opacity','0');
+        j('.pluginCountTextDisconnected').css('opacity','0');
+
         // if this is the dialog like button iframe, then we've done our job for now
         // removes an extra call to demetricate() on load
         return;
@@ -594,7 +615,7 @@ function main() {
 
     // remove the metrics from our landing page
     if(demetricatorON) {
-        console.log("calling demetricate from main()");
+        //console.log("calling demetricate from main()");
         demetricate(launchPolling);
     }
 }
@@ -608,7 +629,7 @@ function main() {
 //
 function launchPolling() {
 
-    console.log("main() demetricate done: in launchPolling()");
+    //console.log("main() demetricate done: in launchPolling()");
 
     // watch for new pages so we can recall demetricate as needed
     setInterval(checkForNewPage, ELEMENT_POLL_SPEED);
@@ -626,7 +647,7 @@ function launchPolling() {
     COUNT_INTERVAL = 800;
 
     setInterval(function() { 
-        var lateststorycount = j('.uiStreamStory').length;
+        var lateststorycount = j('.uiStreamStory, ._5jmm').length;
         var latesttimelineblockcount = j('.fbTimelineUnit').length;
         var latestphotogridcount = j('.fbPhotoStarGridElement').length;
         var latestfavoritescount = j('.uiFavoritesStory').length;
@@ -647,6 +668,10 @@ function launchPolling() {
         //var latestfriendbrowsercount = j('.friendBrowserListUnit').length;
         // track followListItem for subscriber entries
 
+        // TODO
+        // streamStoryCount isn't getting triggered anymore b/c they changed the class
+        
+       
         if((
                lateststorycount > streamStoryCount || 
                latesttimelineblockcount > timelineUnitCount ||
@@ -777,10 +802,13 @@ function launchPolling() {
     // friend-finder
     waitForKeyElements('.friendBrowserListUnit', demetricateFriendBrowserBlocks, false);
 
+    //waitForKeyElements('title', demetricateTitle, false);
     // browser 'title' tag (e.g. tab title or window title, gets a notification metric: '(2) Facebook')
-    setInterval(function() { 
-        if(demetricatorON) demetricateTitle();
-    }, 1000);
+    if(j('title').length) {
+        setInterval(function() { 
+            if(demetricatorON) demetricateTitle();
+        }, 1000);
+    }
 
     // deals w/ what happens on an 'unlike' click -- needs a different trigger
     //waitForKeyElements('.UFILikeSentence a > span', demetricateLikesThis, false);
@@ -877,6 +905,11 @@ function launchPolling() {
     // chat tabs
     //waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
     waitForKeyElements('.fbNubButton', demetricateChatTab, false);
+
+    // new 'related' boxes that show up after you click a link on the new new newsfeed
+    waitForKeyElements('._5d73', function(jn) {
+        jn.find('._4pp').not('.facebookcount').addClass('facebookcount facebookmetric_hideshow').hide();
+    }, false);
 
     waitForKeyElements('.uiContextualLayer', function(jn) {
         //console.log('tooltip: '+jn.html()); 
@@ -1055,8 +1088,9 @@ function demetricate(callback) {
         demetricateAppCenter();
     } 
 
-    // EVENTS/CALENDAR
-    if(j('body.fbCalendar').length || j('body.fbEventPermalink').length) {
+    // EVENTS/CALENDAR 
+    // new new event_navigation_header ... seems event pages lost body classes for ID
+    if(j('body.fbCalendar').length || j('body.fbEventPermalink').length || j('#event_navigation_header').length) {
         demetricateEvents();
     } 
 
@@ -1365,7 +1399,8 @@ function demetricateNewsfeed() {
 
     // newsfeed story headlines that contains photos added counts (e.g. 'soandso added 8 new photos.')
     // (was h6, now h5)
-    j('.uiStreamStory h5').not('.fbstreamheadline').each(function() {
+    // ._5jmm new new newsfeed
+    j('.uiStreamStory h5, ._5jmm h5').not('.fbstreamheadline').each(function() {
         j(this).addClass('fbstreamheadline');
         var txt = j(this).text();
         
@@ -1441,6 +1476,11 @@ function demetricateNewsfeed() {
         wrapNumberInString(this);
     });
 
+    // new new event pages in newsfeed get going counts
+    j('.__cz a._6ld').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
 
     // facebook questions stats
     j('.fbQuestionsBlingBox span.fsm').not('.facebookcount').each(function() {
@@ -1467,6 +1507,7 @@ function demetricateNewsfeed() {
 
 } // end demetricateNewsfeed()
 
+
 function demetricateNewTimeline() {
 
     // ####
@@ -1488,9 +1529,14 @@ function demetricateNewTimeline() {
     // currently (at least) two different versions of the 'new' timeline coming up right now
 
     // timeline report block counts (e.g. photos, friends, music, etc.)
-    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg, ._71u span.fcg').each(function() {
+    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg, ._71u span.fcg, span._71u a.uiLinkSubtle').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
+    });
+
+    // timeline query pending items
+    j('span._5m6z').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
     });
 
     // 'followed by XX people' in about unit top of timeline
@@ -2203,7 +2249,7 @@ function demetricateChatTab() {
     });
     */
 
-    j('.fbNubButton').not('.demetricatedchat').each(function() {
+    j('#BuddylistPagelet .fbNubButton').not('.demetricatedchat').each(function() {
         j(this).addClass('demetricatedchat');
         j(this).append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
         j(this).find('span.label').hide();
@@ -2212,6 +2258,15 @@ function demetricateChatTab() {
     // individual chat tab metric indicators (gets rid of red/white balloon
     // metric, but retains blue 'active' color
     j('.-cx-PRIVATE-fbMercuryChatTab__nummessages').not('.facebookcount').
+        each(function() {
+            j(this).addClass('facebookcount facebookmetric_hideshow');
+            j(this).css('display','none');
+        }
+      );
+
+
+    // new new chattab metric
+    j('#ChatTabsPagelet .fbChatTab ._51jx').not('.facebookcount').
         each(function() {
             j(this).addClass('facebookcount facebookmetric_hideshow');
             j(this).css('display','none');
@@ -2354,6 +2409,11 @@ function demetricateEvents() {
         wrapNumberInString(this);
     });
 
+    // new new related events going counts
+    j('#event_related_events div._5x5k').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
     // Going, Maybe, Invited on Event detail page
     j('#pagelet_event_guests_going a[rel="dialog"], #pagelet_event_guests_maybe [rel="dialog"], #pagelet_event_guests_invited [rel="dialog"]').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount');
@@ -2368,6 +2428,13 @@ function demetricateEvents() {
             }
         }
     });
+
+
+    // new new guest metrics
+    j('._3eni').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+    });
+
 
 
 }
@@ -2445,6 +2512,12 @@ function demetricateNotifications() {
 
     // new Home navbar metrics (obnoxious)
     demetricateHomeCount(); 
+
+
+    // new new notification count popup (4 notifications from x, y, z, etc)
+    j('._53ii ._5bov ._42ef._8u span:first').not('.facebookcount').addClass('facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
 }
 
 function demetricateHomeCount() {
@@ -2568,9 +2641,15 @@ function demetricateGroups() {
 
     });
 
+    // _4--q new new newsfeed update
+    j('a._4--q').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
     var fbgroupsidebox = j('.groupsAddMemberSideBox');
 
         // group member counts top-right ('9 members')
+        // _4--q new new newsfeed update
         fbgroupsidebox.find('a.uiLinkSubtle').not('.facebookcount').each(function() {
             wrapNumberInString(this);
         });
@@ -2901,7 +2980,7 @@ function demetricateChatSeparator() {
         if(FUNCTION_REPORT) console.log("demetricateChatSeparator()");
 
         //var chatsep = j('.moreOnlineFriends span.text').not('.fbchatsep');
-        var chatsep = j('.-cx-PRIVATE-fbChatOrderedList__separatortext').not('.fbchatsep');
+        var chatsep = j('._554p, .-cx-PRIVATE-fbChatOrderedList__separatortext').not('.fbchatsep');
 
         if(chatsep) {
             chatsep.addClass('fbchatsep');
@@ -3147,6 +3226,11 @@ function demetricateTimestamps() {
             t.contains('about a minute ago') ||
             t.contains('at') ||
 
+            t.contains('min') ||
+            t.contains('sec') ||
+            t.contains('hr') ||
+
+
             t.contains('Yesterday') ||
             t.contains('yesterday') ||
 
@@ -3236,7 +3320,8 @@ function demetricateEgoSection(jnode) {
 
         // ad like counts
     // #pagelet_ego_pane span.fbEmuContext
-    j('.fbEmuContext').not('.facebookcount').each(function() {
+    // _5vwd newnew
+    j('.fbEmuContext, ._5vwd').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
 
@@ -3366,6 +3451,19 @@ function demetricateHovercard(jnode) {
     // +1 on add friend buttons
     //j('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
     //jnode.find('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
+    //
+    // followers counts on hovercards
+    //console.log("in hovercard");
+    j('.pageByline li').not('.facebookcount').each(function() {
+        var txt = j(this).text();
+    console.log("caught tst");
+        if(txt.contains("follower")) {
+    console.log("contains");
+            wrapNumberInString(this);
+        } else {
+            j(this).addClass("facebookcount");
+        }
+    });
 
     demetricateHovercardFooter(jnode);
 
@@ -3556,7 +3654,7 @@ function demetricateGraphSearchResults() {
     demetricateMapBubbles();
 
     // run through all links that might contain metrics (e.g. '38 mutual friends')
-    j('._-x a').not('.fbgscount').each(function() {
+    j('._-x a, ._52eh a').not('.fbgscount').each(function() {
         var txt = j(this).text();
         var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
         if(parsed) {
@@ -3727,7 +3825,7 @@ function checkForNewPage() {
     function delayedDemetricate(t) {
         setTimeout(function() { 
             if(demetricatorON) {
-                console.log("calling demetricate from delayedDemetricate()");
+                //console.log("calling demetricate from delayedDemetricate()");
                 demetricate();
             }
         }, t);
