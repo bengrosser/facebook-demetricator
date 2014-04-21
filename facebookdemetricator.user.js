@@ -79,16 +79,16 @@ var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
 var VERSION_NUMBER = '1.5.0';        // used in the console logging
-var KEY_CONTROL = true;
+var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
-var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox or Safari addon?
+var IS_SAFARI_OR_FIREFOX_ADDON = false;        // is this a Firefox or Safari addon?
 var IS_FIREFOX_ADDON = true; // is this just Firefox?  Need to adjust some things for FF' slow performance
 //var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
-var FUNCTION_REPORT = true;        // rudimentary function reporting to the console
+var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
 var HAS_GRAPH_SEARCH = false;       // does the user have graph search?
 
 
@@ -394,7 +394,7 @@ function main() {
     // check for graph search
     if(j('body.hasSmurfbar').length) {
         HAS_GRAPH_SEARCH = true;
-        console.log("Graph Search Detected");
+        //console.log("Graph Search Detected");
         demetricateGraphSearchSelectorOverview();
         demetricateGraphSearchResults();
     }
@@ -615,7 +615,7 @@ function main() {
 
     // remove the metrics from our landing page
     if(demetricatorON) {
-        console.log("calling demetricate from main()");
+        //console.log("calling demetricate from main()");
         demetricate(launchPolling);
     }
 }
@@ -629,7 +629,7 @@ function main() {
 //
 function launchPolling() {
 
-    console.log("main() demetricate done: in launchPolling()");
+    //console.log("main() demetricate done: in launchPolling()");
 
     // watch for new pages so we can recall demetricate as needed
     setInterval(checkForNewPage, ELEMENT_POLL_SPEED);
@@ -802,10 +802,13 @@ function launchPolling() {
     // friend-finder
     waitForKeyElements('.friendBrowserListUnit', demetricateFriendBrowserBlocks, false);
 
+    //waitForKeyElements('title', demetricateTitle, false);
     // browser 'title' tag (e.g. tab title or window title, gets a notification metric: '(2) Facebook')
-    setInterval(function() { 
-        if(demetricatorON) demetricateTitle();
-    }, 1000);
+    if(j('title').length) {
+        setInterval(function() { 
+            if(demetricatorON) demetricateTitle();
+        }, 1000);
+    }
 
     // deals w/ what happens on an 'unlike' click -- needs a different trigger
     //waitForKeyElements('.UFILikeSentence a > span', demetricateLikesThis, false);
@@ -1526,9 +1529,14 @@ function demetricateNewTimeline() {
     // currently (at least) two different versions of the 'new' timeline coming up right now
 
     // timeline report block counts (e.g. photos, friends, music, etc.)
-    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg, ._71u span.fcg').each(function() {
+    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg, ._71u span.fcg, span._71u a.uiLinkSubtle').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
+    });
+
+    // timeline query pending items
+    j('span._5m6z').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
     });
 
     // 'followed by XX people' in about unit top of timeline
@@ -3443,6 +3451,19 @@ function demetricateHovercard(jnode) {
     // +1 on add friend buttons
     //j('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
     //jnode.find('.FriendRequestAdd i').not('.hovercardcount, .HovercardMessagesButton').addClass('hovercardcount HERE6').hide();
+    //
+    // followers counts on hovercards
+    //console.log("in hovercard");
+    j('.pageByline li').not('.facebookcount').each(function() {
+        var txt = j(this).text();
+    console.log("caught tst");
+        if(txt.contains("follower")) {
+    console.log("contains");
+            wrapNumberInString(this);
+        } else {
+            j(this).addClass("facebookcount");
+        }
+    });
 
     demetricateHovercardFooter(jnode);
 
@@ -3633,7 +3654,7 @@ function demetricateGraphSearchResults() {
     demetricateMapBubbles();
 
     // run through all links that might contain metrics (e.g. '38 mutual friends')
-    j('._-x a').not('.fbgscount').each(function() {
+    j('._-x a, ._52eh a').not('.fbgscount').each(function() {
         var txt = j(this).text();
         var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
         if(parsed) {
@@ -3804,7 +3825,7 @@ function checkForNewPage() {
     function delayedDemetricate(t) {
         setTimeout(function() { 
             if(demetricatorON) {
-                console.log("calling demetricate from delayedDemetricate()");
+                //console.log("calling demetricate from delayedDemetricate()");
                 demetricate();
             }
         }, t);
