@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.5.0
+// @version 1.5.1
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.5.0
+// Version 1.5.1
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -67,10 +67,10 @@ var currentMoreChatCount;
 var currentLikeCount;               // for tracking likes in the dialog
 var currentTitleText;               // current (non-metric) count of $('title')
 var timelineView = false;
-var searchBarWidth = "300px";
+var searchBarWidth = "350px";
 //var newSearchBarWidth = 530;
-var newSearchBarWidth = 400;
-var newSearchBarWidthNarrow = 400;
+var newSearchBarWidth = 350;
+var newSearchBarWidthNarrow = 350;
 
 
 // constants
@@ -78,14 +78,14 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.5.0';        // used in the console logging
+var VERSION_NUMBER = '1.5.1';        // used in the console logging
 var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox or Safari addon?
-var IS_FIREFOX_ADDON = true; // is this just Firefox?  Need to adjust some things for FF' slow performance
+var IS_FIREFOX_ADDON = false; // is this just Firefox?  Need to adjust some things for FF' slow performance
 //var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
 var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
@@ -342,6 +342,7 @@ function toggleDemetricator() {
 
 
         // search results pages are narrower than all other pages
+        /*
         if(startURL.contains("/search/")) {
             j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
             j('._585-').css('width',newSearchBarWidthNarrow+"px");
@@ -349,6 +350,8 @@ function toggleDemetricator() {
             j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
             j('._585-').css('width',newSearchBarWidth+"px");
         }
+        */
+            j('._585-').css('width',newSearchBarWidth+"px");
 
     }, 250);
 
@@ -392,12 +395,15 @@ function main() {
     j = jQuery.noConflict();
 
     // check for graph search
-    if(j('body.hasSmurfbar').length) {
-        HAS_GRAPH_SEARCH = true;
-        //console.log("Graph Search Detected");
-        demetricateGraphSearchSelectorOverview();
-        demetricateGraphSearchResults();
-    }
+    // aug 2014 -- everyone has graph search now (I think!!)
+    //if(j('body.hasSmurfbar').length) {
+    
+    HAS_GRAPH_SEARCH = true;
+    //console.log("Graph Search Detected");
+    demetricateGraphSearchSelectorOverview();
+    demetricateGraphSearchResults();
+
+    //}
 
 
 
@@ -465,12 +471,18 @@ function main() {
 
     var newnewnavbar = '<li class="navItem middleItem _55bi litestandNavItem _55bh"><img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:5px 5px 0 10px;"><a id="demetricatorlink" class="navLink bigPadding" style="padding-left:4px;"><label id="demetricatortogglelabel" style="padding:5px;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:0px;margin-right:0px;line-height:29px;margin-left:0px;z-index:100;"></label>Demetricator</a></div></li>';
 
+    var navbaraug2014TEST = '<li class="_3zm- _55bi _2pdh"><img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:5px 5px 0 10px;"><a id="demetricatorlink" class="_1ayn" style="margin:4px 5px 0 0;"><label id="demetricatortogglelabel" style="padding:5px;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin-top:0px;margin-right:0px;line-height:29px;margin-left:0px;z-index:100;"></label>Demetricator</a></div></li>';
+
+    var navbaraug2014 = '<li class="_3zm- _55bi _2pdh"><img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:5px 5px 0 10px;"><a id="demetricatorlink" class="_1ayn" style="padding-left:5px;"><label id="demetricatortogglelabel" style="padding:5px;"><input id="demetricatortoggle" type="checkbox" checked="checked" name="demetricatordb" style="margin:0;z-index:100;"></label>Demetricator</a></div></li>';
+
     // if we have graph search, insert the new nav item
     if(HAS_GRAPH_SEARCH) {
         //j('#navHome .navLink').css('padding-left','0px');
         //`j('#navHome a').css('border-left','0px');
     // LATEST Before 1.5    j('#navHome').prepend(GSdemetricatornavitem);
-        j('#navHome').before(newnewnavbar);
+    // old aug 2014
+        //j('#navHome').before(newnewnavbar);
+        
         //j('#navHome').before(GSdemetricatornavitem);
         //j('#jewelsListItem').append(GSdemetricatornavitem);
         // fixing for 3/20 FB update
@@ -479,24 +491,31 @@ function main() {
         
         // fixing for 5/2013 FB update
         // add a vertical right-hand border to the jewel buttons to demarcate from Demetricator toggle
-        j('#jewelsListItem').css('border-right','1px solid rgb(77, 104, 167)');
+        // old aug 2014
+        //j('#jewelsListItem').css('border-right','1px solid rgb(77, 104, 167)');
 
-        j('#navFacebar').css('width',searchBarWidth);
-        j('.fbFacebar').css('width',searchBarWidth);
+        // OLD NOW
+        //j('#navFacebar').css('width',searchBarWidth);
+        //j('.fbFacebar').css('width',searchBarWidth);
+        //
 
+        j('._585-').css('width',searchBarWidth);
+        navbar = j('#pagelet_bluebar ul li a[accesskey=1]').parent().parent().not('.fbd_modified');
+        navbar.addClass('fbd_modified');
+        navbar.prepend(navbaraug2014);
+        namelink = j('._4fn6');
+        namelink.addClass('_55bh');
+        namelink.css("padding","0px 8px 0px 8px");
+        
+
+        /*
+         * adjusted search bar width to work for findFriends by default
         if(j('#findFriendsNav').length) {
             newSearchBarWidth -= 100;
             newSearchBarWidthNarrow -= 100;
         }
+        */
 
-        // search results pages are narrower than all other pages
-        if(startURL.contains("/search/")) {
-            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
-            j('._585-').css('width',newSearchBarWidthNarrow+"px");
-        } else {
-            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
-            j('._585-').css('width',newSearchBarWidth+"px");
-        }
 
     } else {
         // insert the navigation control
@@ -551,16 +570,20 @@ function main() {
         //j('#navFacebar').css('width','560px');
         //j('.fbFacebar').css('width','530px');
         // 5/2013 update
-        j('#navFacebar').css('width',searchBarWidth);
-        j('.fbFacebar').css('width',searchBarWidth);
+        // old aug 2014
+        //j('#navFacebar').css('width',searchBarWidth);
+        //j('.fbFacebar').css('width',searchBarWidth);
+        //
+        // old aug 2014
 
-        if(startURL.contains("/search/")) {
-            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow-40+"px");
-            j('._585-').css('width',newSearchBarWidthNarrow-40+"px");
-        } else {
-            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth-40+"px");
-            j('._585-').css('width',newSearchBarWidth-40+"px");
-        }
+        //if(startURL.contains("/search/")) {
+        //    //j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow-40+"px");
+        //    j('._585-').css('width',newSearchBarWidthNarrow-40+"px");
+        //} else {
+        //    //j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth-40+"px");
+        //   j('._585-').css('width',newSearchBarWidth-40+"px");
+        //}
+        j('._585-').css('width',newSearchBarWidth-40+"px");
 
         j('#fbdtoggleindicator').show();
 
@@ -1615,7 +1638,12 @@ function demetricateNewTimeline() {
        
 
     // friend requests block count (red/white) - new timeline
+    // old aug 2014
     j('.-cx-PRIVATE-uiCountButtonCount__root').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+    });
+
+    j('#pagelet_timeline_medley_friends span a span').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
     });
 
@@ -2956,17 +2984,24 @@ function demetricatePhotoIndex() {
 
         // but only lasted a week until it became a complete clusterfuck of obfuscation ...
         // i don't think this will last, so I'm leaving above in just in case
-        j('._53n,._53m').not('.facebookcount').each(function() {
+        // OLD aug 2014
+        //j('._53n,._53m').not('.facebookcount').each(function() {
+        //    j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
+        //        j(this).text() + '</span>');
+        //});
+
+        j('._5gm1,._5gl_').not('.facebookcount').each(function() {
             j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
                 j(this).text() + '</span>');
         });
 
         // new timeline update 5/2013
-        j('.-cx-PRIVATE-fbInlineActions__likes, .-cx-PRIVATE-fbInlineActions__comments').
-            not('.facebookcount').each(function() {
-            j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
-                j(this).text() + '</span>');
-        });
+        // old aug 2014
+        //j('.-cx-PRIVATE-fbInlineActions__likes, .-cx-PRIVATE-fbInlineActions__comments').
+        //    not('.facebookcount').each(function() {
+        //    j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
+        //        j(this).text() + '</span>');
+        //});
 
 }
 
@@ -3812,13 +3847,14 @@ function checkForNewPage() {
         startURL = curURL;
 
         // search results pages are narrower than all other pages
-        if(startURL.contains("/search/")) {
-            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
-            j('._585-').css('width',newSearchBarWidthNarrow+"px");
-        } else {
-            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
-            j('._585-').css('width',newSearchBarWidth+"px");
-        }
+        // old aug 2014
+//        if(startURL.contains("/search/")) {
+//            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
+//            j('._585-').css('width',newSearchBarWidthNarrow+"px");
+//        } else {
+//            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
+//            j('._585-').css('width',newSearchBarWidth+"px");
+//        }
 
     }
 
