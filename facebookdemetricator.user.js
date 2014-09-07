@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.5.1
+// @version 1.5.2
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -28,7 +28,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.5.1
+// Version 1.5.2
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -78,7 +78,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.5.1';        // used in the console logging
+var VERSION_NUMBER = '1.5.2';        // used in the console logging
 var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -2495,7 +2495,7 @@ function demetricateCounters() {
 
     var countclass = j('.count');
 
-    if(countclass.length) {
+    if(countclass.length && false) {
         countclass.not('.facebookcount').each(function() {
 
             j(this).addClass('facebookcount');
@@ -3228,7 +3228,6 @@ function toggleHovercards() {
             } else {
                 j('.hovercardcount').show(); 
                 j('.FriendRequestAdd i').show();
-                console.log("tH()");
             }
         }, t);
     }
