@@ -74,6 +74,7 @@ var newSearchBarWidthNarrow = 350;
 
 
 // constants
+var DEMETRICATED_SIDEBAR_TEXT = "new"; // used as a replacement text for the values hidden in the sidebar
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
@@ -225,6 +226,8 @@ function toggleDemetricator() {
         // event and timeline activity counts (possibly elsewhere)
         j('.counter').fadeOut(FADE_SPEED);
 
+        j('.demetricatedSideBarValue').hide();
+
         if(DBUG) console.timeEnd('demetricatorON timer');
 
 
@@ -315,6 +318,7 @@ function toggleDemetricator() {
             if(cnt) j(this).fadeIn(FADE_SPEED);
         });
 
+        j('.demetricatedSideBarValue').show();
 
         if(DBUG) console.timeEnd('demetricatorOFF timer');
 
@@ -2485,8 +2489,9 @@ function demetricateCounters() {
         // testing this out...hides values on left-hand bar but leaves outlines as
         // newness indicator
         j('.countValue').not('.facebookcount').
-            addClass('facebookcount facebookmetric_opacity').
-            css('opacity','0').
+            addClass('facebookcount facebookmetric_hideshow').
+            hide().
+            before('<span class="demetricatedSideBarValue fss facebookcount">'+DEMETRICATED_SIDEBAR_TEXT+'</span>').
             parent().addClass('facebookcount');
 
         j('.maxCountIndicator').not('.facebookcount').
