@@ -1,6 +1,6 @@
 ## Facebook Demetricator 
 
-[Facebook Demetricator](http://bengrosser.com/projects/facebook-demetricator/) is a web browser extension that removes all the metrics from the Facebook interface. Under its influence, Facebook no longer foregroudns how many friends you have or how much people like your status. Instead, these numbers are stripped away, inviting you to try the system without these things, to enable a network society that isn't so dependent on quantification. 
+[Facebook Demetricator](http://bengrosser.com/projects/facebook-demetricator/) is a web browser extension that removes all the metrics from the Facebook interface. Under its influence, Facebook no longer foregrounds how many friends you have or how many people like your status. Instead, these numbers are stripped away, inviting you to try the system without these things, to enable a network society that isn't so dependent on quantification. 
 
 Facebook Demetricator runs on Chrome (as an extension distributed via the [Chrome Web Store](https://chrome.google.com/webstore/detail/facebook-demetricator/dbkgglbefgkimiadfjmgnkjmaoahephg)), Safari (as a self-distributed extension), and Firefox (as a self-distributed userscript for use with Scriptish).
 
