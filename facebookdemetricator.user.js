@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.6.0
+// @version 1.6.1
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -29,7 +29,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.6.0
+// Version 1.6.1
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -81,7 +81,7 @@ var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity
 var LINK_HIGHLIGHT_ON = false;      // debugging
-var VERSION_NUMBER = '1.6.0';        // used in the console logging
+var VERSION_NUMBER = '1.6.1';        // used in the console logging
 var KEY_CONTROL = false;
 var FAN_PAGE_URL = 'http://bengrosser.com';
 //var DEMETRICATOR_HOME_URL = 'http%3A%2F%2Fbengrosser.com/projects/facebook-demetricator/';
@@ -2817,7 +2817,7 @@ function demetricateHomeCount() {
     // feb2016 fix
     //j('._5ah-, .-cx-PRIVATE-litestandHomeBadge__wrapper').
     
-    j('#u_0_k').
+    j('._4u91').
         not('.facebookcount').each(function() {
         j(this).addClass('facebookcount facebook_homecount facebookmetric_hideshow').hide();
     });
