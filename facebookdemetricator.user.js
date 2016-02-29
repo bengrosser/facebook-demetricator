@@ -163,9 +163,9 @@ function toggleDemetricator() {
         if(DBUG) console.time('demetricatorON timer');
 
         // red/white top-left notification icons
-        j('#jewelContainer span.facebookmetricreq').fadeOut(FADE_SPEED);
-        j('#jewelContainer span.facebookmetricmsg').fadeOut(FADE_SPEED);
-        j('#jewelContainer span.facebookmetricnot').fadeOut(FADE_SPEED);
+        j('#u_0_1 span.facebookmetricreq').fadeOut(FADE_SPEED);
+        j('#u_0_1 span.facebookmetricmsg').fadeOut(FADE_SPEED);
+        j('#u_0_1 span.facebookmetricnot').fadeOut(FADE_SPEED);
 
         //
         // after fading the metric, hide its parent
@@ -239,9 +239,9 @@ function toggleDemetricator() {
 
         // removing the style attr on the parents enables care-free automatic updating 
         // of the notification numbers.  
-        j('#jewelContainer span.facebookmetricreqp').removeAttr('style');
-        j('#jewelContainer span.facebookmetricmsgp').removeAttr('style');
-        j('#jewelContainer span.facebookmetricnotp').removeAttr('style');
+        j('#u_0_1 span.facebookmetricreqp').removeAttr('style');
+        j('#u_0_1 span.facebookmetricmsgp').removeAttr('style');
+        j('#u_0_1 span.facebookmetricnotp').removeAttr('style');
 
 
         // do this here before search bar length changes
@@ -772,7 +772,7 @@ function launchPolling() {
         // feb2016 var latestfriendblockcount = j('.-cx-PRIVATE-fbTimelineFriendsCollection__grid').length;
         var latestfriendblockcountVER2 = j('._262m').length;
 
-        //var latestnotificationitemcount = j('.notification').length;
+        var latestnotificationitemcount = j('._33c').length;
         //var latestfriendbrowsercount = j('.friendBrowserListUnit').length;
         // track followListItem for subscriber entries
 
@@ -858,11 +858,9 @@ function launchPolling() {
         }
 */
 
-        /*
         if(latestnotificationitemcount > notificationItemCount) {
             setTimeout(function() { if(demetricatorON) demetricateTimestamps(); }, 250);
         }
-        */
 
         /*
         if(latestfriendbrowsercount > friendBrowserCount) {
@@ -880,7 +878,7 @@ function launchPolling() {
         appSectionCountVER2 = latestappsectioncountVER2;
         //friendBlockCount = latestfriendblockcount;
         friendBlockCountVER2 = latestfriendblockcountVER2;
-        //notificationItemCount = latestnotificationitemcount;
+        notificationItemCount = latestnotificationitemcount;
         //friendBrowserCount = latestfriendbrowsercount;
 
     }, COUNT_INTERVAL);
@@ -930,6 +928,22 @@ function launchPolling() {
     // reaction metric like sentence updates
     //waitForKeyElements('.fbd_origLikeSentence span', updateLikeSentence, false);
     waitForKeyElements('._3t53:not(".facebookcount")', attachReactionDemetricator, false);
+
+
+	// pop up notifications to tell you about your notifications (yes, seriously)
+	waitForKeyElements('._53ii ._5bov ._42ef._8u', function() {
+		var s = j(this).find('span:first');
+		if(s.hasClass('facebookcount')) {
+			s.addClass('facebookcount');
+			wrapNumberInString(s);
+		}
+	}, false);
+
+	// messages counter getting updated on sidebar
+	waitForKeyElements('.countValue:not(".facebookcount")', function() {
+		j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+		j(this).parent().addClass("facebookmetric_opacity").css("opacity",'0'); 
+	}, false);
 
     //waitForKeyElements('.UFILikeSentence span a[rel="dialog"]', demetricateLikesThis, false);
 
@@ -1015,7 +1029,7 @@ function launchPolling() {
     waitForKeyElements('.ego_column', demetricateEgoSection, false);
 
     // chat list (e.g. 'MORE ONLINE FRIENDS (8)')
-    waitForKeyElements('.moreOnlineFriends', function() { 
+    waitForKeyElements('._55oc', function() { 
         setTimeout(function() { demetricateChatSeparator(); }, 50);
     }, false);
     
@@ -1111,7 +1125,7 @@ function launchPolling() {
 // removes the parenthetic prefix on the 'title' tag
 // stores the rest of the title for later restoration
 function demetricateTitle() {
-    var currentTitle = j('title');
+    var currentTitle = j('#pageTitle');
     var txt = currentTitle.text();
     var parsed = txt.match(/^(\(\d+(?:,\d+)*\))\s(.*)/);
     //console.log('dT(): title= '+txt+', parsed='+parsed);
@@ -1273,7 +1287,8 @@ function attachReactionDemetricator(p) {
     var olsn = p.find('._4arz');
 
     // find the metric tracker in this cluster p, tag and hide
-	p.find('._1g5v').css('opacity','0').addClass('facebookmetric_opacity');
+	//p.find('._1g5v').css('opacity','0').addClass('facebookmetric_opacity');
+	p.find('._1g5v').css('opacity','0');
 
     // clone the lsn for future demetrication toggling as a demetricated like sentence node (dlsn)
 	var dlsn = olsn.clone();
@@ -1306,7 +1321,7 @@ function removeMetricFromLikeSentence(txt) {
     var result = "";
 
     // if this is a traditional like sentence like "You, Kate, and 8 others"
-    if(txt.contains("other")) {
+    if(txt.contains("other") || txt.contains(",")) {
 	    var parsed = txt.match(/^(.*)\s+(\d+(?:,\d+)*[K|M|k|m]?)\s+(.*)/);
         if(parsed) result = parsed[1] + ' ' + parsed[3];
         else {
@@ -1380,6 +1395,12 @@ function demetricateNewsfeed() {
     // likes, shares, and comments.  this should remove all those counts
     // moved to egosection
     //j('.uiBlingBox .text').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
+
+	// feb 2016 occasional blingbox
+	j('a._ipm, a._ipm span').not('.facebookcount').each(function() {
+		j(this).addClass('facebookcount');
+		wrapNumberInString(j(this));
+	});
 
 
     // a new way they do it, may be able to remove above
@@ -1697,7 +1718,7 @@ function demetricateNewTimeline() {
     // ####
     
     // timeline header counts (about, photos, etc.)
-    j('.-cx-PRIVATE-fbTimelineNavLight__sublabel, ._gs6').each(function() {
+    j('._gs6').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
@@ -1711,7 +1732,7 @@ function demetricateNewTimeline() {
     // currently (at least) two different versions of the 'new' timeline coming up right now
 
     // timeline report block counts (e.g. photos, friends, music, etc.)
-    j('.-cx-PRIVATE-fbTimelineLightReportHeader__text span.fcg, ._71u span.fcg, span._71u a.uiLinkSubtle').each(function() {
+    j('._71u span.fcg, span._71u a.uiLinkSubtle').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
@@ -1732,7 +1753,7 @@ function demetricateNewTimeline() {
     });
 
     // group block report member counts (e.g. '84 members')
-    j('.-cx-PRIVATE-ogAppReport__listview li div div.fcg, ._1ln2 li div.fcg').each(function() {
+    j('._1ln2 li div.fcg').each(function() {
         var txt = j(this).text();
         if(txt.contains("members")) {
             wrapNumberInString(this);
@@ -1740,7 +1761,7 @@ function demetricateNewTimeline() {
     });
 
     // group block report member counts on the About page (e.g. '84 members')
-    j('.-cx-PRIVATE-fbTimelineMedley__sectionwrapper li div div.fcg, ._1ln2 li div.fcg').each(function() {
+    j('._1ln2 li div.fcg').each(function() {
         var txt = j(this).text();
         if(txt.contains("members")) {
             wrapNumberInString(this);
@@ -1758,13 +1779,13 @@ function demetricateNewTimeline() {
     // App Block header Counts 
     // e.g. Friends: (friends, followers, college, recent, etc.)
     // e.g. Places: (all, life event, recent, etc.)
-    j('.-cx-PRIVATE-fbTimelineAppSection__tabcount, ._3d0').each(function() {
+    j('._3d0').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
 
     // Friend Block mutual friend and friend counts
-    j('.-cx-PRIVATE-fbTimelineFriendsCollection__friend a.uiLinkSubtle, ._698 a.uiLinkSubtle').each(function() {
+    j('._698 a.uiLinkSubtle').each(function() {
         var txt = j(this).text();
         if(txt.contains("friend")) {
             wrapNumberInString(this);
@@ -1781,7 +1802,7 @@ function demetricateNewTimeline() {
     });
 
     // group block member counts
-    j('.-cx-PRIVATE-uiFlexibleBlock__flexibleContent div.mbs.fcg, ._42ef div.mbs.fcg').each(function() {
+    j('._42ef div.mbs.fcg').each(function() {
         var txt = j(this).text();
         if(txt.contains("member")) {
             wrapNumberInString(this);
@@ -1789,11 +1810,13 @@ function demetricateNewTimeline() {
     });
 
     // bling counts on Instagram stories
+/*
     j('.-cx-PUBLIC-ogAggregationBling__component span').not('.facebookcount').
         each(function() {
             console.log("HERE");
             j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
     });
+*/
 
 
     // catches Places map on this page
@@ -1809,9 +1832,11 @@ function demetricateNewTimeline() {
 
     // friend requests block count (red/white) - new timeline
     // old aug 2014
+/*
     j('.-cx-PRIVATE-uiCountButtonCount__root').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
     });
+*/
 
     j('#pagelet_timeline_medley_friends span a span').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
@@ -2360,9 +2385,11 @@ function demetricateTimeline() {
 
     // FRIENDS PAGE
     // vanished
+/*
     j('.-cx-PRIVATE-friendsTabNav__count').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
     });
+*/
 
 
     // PHOTOS
@@ -2468,13 +2495,18 @@ function demetricateChatTab() {
 
     // individual chat tab metric indicators (gets rid of red/white balloon
     // metric, but retains blue 'active' color
+/*
     j('.-cx-PRIVATE-fbMercuryChatTab__nummessages').not('.facebookcount').
         each(function() {
             j(this).addClass('facebookcount facebookmetric_hideshow');
             j(this).css('display','none');
         }
       );
+*/
 
+	// feb 2016 updated chat nub metrics
+	j('.messagesIcon').parent().find('span').
+		not('.facebookcount').addClass('facebookcount facebookmetric_opacity').css('opacity','0');
 
     // new new chattab metric
     j('#ChatTabsPagelet .fbChatTab ._51jx').not('.facebookcount').
@@ -2708,10 +2740,19 @@ function demetricateNotifications() {
     // 
     // these catch the red/white notification icons in the top menu.  they each get their own
     // class so I can individually query them later to make sure they're not 0 before revealing them
-    j('#fbRequestsJewel').find('.jewelCount').not('.facebookmetricreqp').addClass('facebookmetricreqp').hide();
-    j('#fbMessagesJewel').find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
+
+	// feb 2016 attempt 1
+	//var newmsgjewel = j('#fbNotificationsJewel').parent().parent().find('._4kny:eq(2)');
+    //newmsgjewel.find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
+
+    //j('#fbMessagesJewel').find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
+    ///j('#fbMessagesJewel').find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
     
+    j('#fbRequestsJewel').find('.jewelCount').not('.facebookmetricreqp').addClass('facebookmetricreqp').hide();
     j('#requestsCountValue').not('.facebookmetricnot').addClass('facebookmetricnot').hide();
+
+	// u_0_f feb 2016 WHY WHY
+    j('#u_0_f').find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
     j('#mercurymessagesCountValue').not('.facebookmetricnot').addClass('facebookmetricnot').hide();
 
     j('#notificationsCountValue').not('.facebookmetricnot').addClass('facebookmetricnot').hide();
@@ -2730,6 +2771,11 @@ function demetricateNotifications() {
     j('._53ii ._5bov ._42ef._8u span:first').not('.facebookcount').addClass('facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
+//    j('._53ii ._5bov ._42ef._8u').find('span:first').not('.facebookcount').
+//		addClass('facebookcount').each(function() {
+// also fix title bug
+
 }
 
 function demetricateHomeCount() {
@@ -3210,18 +3256,18 @@ function demetricateChatSeparator() {
         if(FUNCTION_REPORT) console.log("demetricateChatSeparator()");
 
         //var chatsep = j('.moreOnlineFriends span.text').not('.fbchatsep');
-        var chatsep = j('._554p, .-cx-PRIVATE-fbChatOrderedList__separatortext').not('.fbchatsep');
-
-        if(chatsep) {
-            chatsep.addClass('fbchatsep');
+        var chatsep = j('._55oc:eq(1)').not('.fbchatsep');
+		if(chatsep) {
+			chatsep.addClass('fbchatsep');
             var txt = chatsep.text();
-            var parsed = txt.match(/^(.*)\s+(\(\d+(?:,\d+)*\))/);
-
-            if(parsed) {
-                chatsep.html(
+			if(txt.contains("MORE")) {
+            	var parsed = txt.match(/^(.*)\s+(\(\d+(?:,\d+)*\))/);
+            	if(parsed) {
+                	chatsep.html(
                     parsed[1]+' <span class="facebookmetric_hideshow" style="display:none;">'+parsed[2]+'</span>'
-                );
-            }
+                	);
+            	}
+			}
 
         }
     }
