@@ -88,7 +88,7 @@ var FAN_PAGE_URL = 'http://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = false;        // is this a Firefox or Safari addon?
-var IS_FIREFOX_ADDON = true; // is this just Firefox?  Need to adjust some things for FF' slow performance
+var IS_FIREFOX_ADDON = false; // is this just Firefox?  Need to adjust some things for FF' slow performance
 //var IS_SAFARI_EXTENSION = false;        // is this a Safari addon?
 var DBUG = false;                   // more debugging
 var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
@@ -163,9 +163,22 @@ function toggleDemetricator() {
         if(DBUG) console.time('demetricatorON timer');
 
         // red/white top-left notification icons
+/*
         j('#u_0_1 span.facebookmetricreq').fadeOut(FADE_SPEED);
         j('#u_0_1 span.facebookmetricmsg').fadeOut(FADE_SPEED);
         j('#u_0_1 span.facebookmetricnot').fadeOut(FADE_SPEED);
+*/
+/*
+
+        j('div[role="navigation"]._2t-f span.facebookmetricreq').fadeOut(FADE_SPEED);
+        j('div[role="navigation"]._2t-f span.facebookmetricmsg').fadeOut(FADE_SPEED);
+        j('div[role="navigation"]._2t-f span.facebookmetricnot').fadeOut(FADE_SPEED);
+*/
+
+        j('span.facebookmetricreq').fadeOut(FADE_SPEED);
+        j('span.facebookmetricmsg').fadeOut(FADE_SPEED);
+        j('span.facebookmetricnot').fadeOut(FADE_SPEED);
+
 
         //
         // after fading the metric, hide its parent
@@ -239,9 +252,9 @@ function toggleDemetricator() {
 
         // removing the style attr on the parents enables care-free automatic updating 
         // of the notification numbers.  
-        j('#u_0_1 span.facebookmetricreqp').removeAttr('style');
-        j('#u_0_1 span.facebookmetricmsgp').removeAttr('style');
-        j('#u_0_1 span.facebookmetricnotp').removeAttr('style');
+        j('span.facebookmetricreqp').removeAttr('style');
+        j('span.facebookmetricmsgp').removeAttr('style');
+        j('span.facebookmetricnotp').removeAttr('style');
 
 
         // do this here before search bar length changes
@@ -572,7 +585,11 @@ function main() {
     /* comment feb 2016 
           if(true){
           */
-              var latestnav = j('#u_0_1').not('.pluginCountConnected');
+              //var latestnav = j('#u_0_1').not('.pluginCountConnected');
+              //var latestnav = j('div[role="navigation"]._2t-f');
+
+			  // safest???
+              var latestnav = j('div[role="navigation"]:not("#sideNav")');
               /*
         j('#u_0_1').not('.pluginCountConnected').addClass('fbd_modified');
         j('#u_0_1 div:first').addClass("_2s24");
@@ -1351,6 +1368,8 @@ function removeMetricFromLikeSentence(txt) {
         result = "";
     }
 
+	else result = txt;
+
     return result;
 }
 
@@ -1757,6 +1776,25 @@ function demetricateNewTimeline() {
             css('opacity','0');
     });
 
+	// timeline like counts for people/orgs/etc
+	j('._75e').not('.facebookcount').each(function() {
+		j(this).addClass('facebookcount');
+		wrapNumberInString(j(this));
+	});
+
+	// timeline org/page/etc friend likes this page counts
+	j('._75k').not('.facebookcount').each(function() {
+		j(this).addClass('facebookcount');
+		var txt = j(this).text();
+		var parsed = txt.match(/(.*\s)(\d+(?:,\d+)*)\s+(.*)/); 
+		if(parsed) {
+			var newtxt = 
+ 				parsed[1]+ '<span style="display:none;" class="facebookmetric_hideshow"> '+
+                parsed[2]+'</span> '+
+                parsed[3];
+			j(this).html(newtxt);
+		}
+	});
 
     // ####
     // MAIN TIMELINE PAGE
@@ -2786,7 +2824,8 @@ function demetricateNotifications() {
     j('#requestsCountValue').not('.facebookmetricnot').addClass('facebookmetricnot').hide();
 
 	// u_0_f feb 2016 WHY WHY
-    j('#u_0_f').find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
+    //j('#u_0_f').find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
+    j('div._4kny div._1z4y').find('.jewelCount').not('.facebookmetricmsgp').addClass('facebookmetricmsgp').hide();
     j('#mercurymessagesCountValue').not('.facebookmetricnot').addClass('facebookmetricnot').hide();
 
     j('#notificationsCountValue').not('.facebookmetricnot').addClass('facebookmetricnot').hide();
@@ -2882,6 +2921,11 @@ function demetricateGroups() {
     // ------- GROUP PAGE METRICS -------
     // ----------------------------------
    
+	// feb 2016
+	j('#count_text').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+	});
+
     // group member counts (when you aren't a member)
     j('.groupsJumpInfoArea div.fsm.fwn.fcg').not('.facebookcount').each(function() {
         wrapNumberInString(this);
@@ -3836,7 +3880,7 @@ function demetricateHovercard(jnode) {
         var txt = j(node).html();
         //txt = txt.replace(/\u200e/g,'');
         if(txt) {
-            var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
+            var parsed = txt.match(/^(\d+(?:[,|.]\d+)*[K|M|k|m]?)\s+(.*)/);
             //var parsed = txt.match(/^(\d+(?:,\d+)*)[\s\u200e]+(.*)/);
             if(parsed) {
                 j(node).html(
