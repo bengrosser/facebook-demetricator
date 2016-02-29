@@ -939,6 +939,21 @@ function launchPolling() {
 		}
 	}, false);
 
+
+	// suggested pages bling box feb 2016
+	waitForKeyElements('._58cy div.fsm.fwn.fcg:not(".facebookcount")', function() {
+		j(this).addClass('facebookcount');
+		var txt = j(this).text();
+		var parsed = txt.match(/(.*\s·\s)(\d+(?:,\d+)*)\s+(.*)/); 
+		if(parsed) {
+			var newtxt = 
+ 				parsed[1]+ '<span style="display:none;" class="facebookmetric_hideshow"> '+
+                parsed[2]+'</span> '+
+                parsed[3];
+			j(this).html(newtxt);
+		}
+	});
+
 	// messages counter getting updated on sidebar
 	waitForKeyElements('.countValue:not(".facebookcount")', function() {
 		j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
@@ -1402,6 +1417,20 @@ function demetricateNewsfeed() {
 		wrapNumberInString(j(this));
 	});
 
+	// feb 2016 suggested pages box
+	j('._58cy div.fsm.fwn.fcg:not(".facebookcount")').each(function() {
+		j(this).addClass('facebookcount');
+		var txt = j(this).text();
+		var parsed = txt.match(/(.*\s·\s)(\d+(?:,\d+)*)\s+(.*)/); 
+		if(parsed) {
+			var newtxt = 
+ 				parsed[1]+ '<span style="display:none;" class="facebookmetric_hideshow"> '+
+                parsed[2]+'</span> '+
+                parsed[3];
+			j(this).html(newtxt);
+		}
+	});
+
 
     // a new way they do it, may be able to remove above
     j('.UFIBlingBoxText').not('.facebookmetric_fade').addClass('facebookmetric_fade').css('display','none');
@@ -1707,6 +1736,11 @@ function demetricateNewsfeed() {
             }
         }
     });
+
+	// big + numbers on photo thumbs, like "+19"
+	j('._52db').not('.facebookcount').each(function() {
+		j(this).addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+	});
 
 } // end demetricateNewsfeed()
 
