@@ -1149,6 +1149,12 @@ function launchPolling() {
     }, false);
 
     //waitForKeyElements('#ariaPoliteAlert',demetricateAriaAlert, false);
+    waitForKeyElements('.injectedSearchSuggestion div', function(jn) {
+        if(jn.not('.facebookcount')) {
+            jn.addClass('facebookcount');
+            wrapNumberInString(jn);
+        }
+    }, true);
 }
 
 
@@ -1326,7 +1332,8 @@ function attachReactionDemetricator(p) {
 	var dlsn = olsn.clone();
     var dlsnspan = dlsn.find('span');
 	dlsn.css('margin-left','-100px').addClass('facebookmetric_toggleON');
-	dlsnspan.removeAttr('data-tooltip-uri id').addClass('fbd_demetricatedLikeSentence');
+	//dlsnspan.removeAttr('data-tooltip-uri id').addClass('fbd_demetricatedLikeSentence');
+	dlsnspan.removeAttr('id').addClass('fbd_demetricatedLikeSentence');
 
     // demetricate the clone's like sentence text
 	cloneSentence = dlsnspan.text();
@@ -1354,7 +1361,7 @@ function removeMetricFromLikeSentence(txt) {
 
     // if this is a traditional like sentence like "You, Kate, and 8 others"
     if(txt.contains("other") || txt.contains(",")) {
-	    var parsed = txt.match(/^(.*)\s+(\d+(?:,\d+)*[K|M|k|m]?)\s+(.*)/);
+	    var parsed = txt.match(/^(.*)\s+(\d+(?:[,,.]\d+)*[K|M|k|m]?)\s+(.*)/);
         if(parsed) result = parsed[1] + ' ' + parsed[3];
         else {
             console.log("ERROR ON like sentence metric removal");
