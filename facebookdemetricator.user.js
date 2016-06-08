@@ -626,7 +626,7 @@ function launchPolling() {
     waitForKeyElements('._3t53:not(".facebookcount")', attachReactionDemetricator, false);
 
     // tooltips (maybe use this same thing for other overlays like hovercards?
-    waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked, #__sizzle__")', attachTooltipDemetricator, false);
+    waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked, #__sizzle__")', attachTooltipDemetricator, true);
 
 
 
@@ -939,60 +939,58 @@ function attachTooltipDemetricator(n) {
     n.addClass('fbd_tracked');
 
     n.bind("DOMSubtreeModified",function() {
-        console.log("aTD: "+j(this).html());
-
-        //var ttText = j(this).find('.tooltipText span').not('.demetricated');
-        var ttText = j('.tooltipText span').not('.demetricated');
+        var ttText = j('.tooltipText span');
 
         if(ttText) {
-            ttText.addClass('demetricated');
-
             var h = ttText.html();
-            //var parsed = h.match(/(.*<br>)(.*)/);
 
             if(h) {
-                var parsed = h.match(/(.*<br>)(and\s)(\d\s)(.*)/);
+                //var parsed = h.match(/(.*<br>)(and\s)(\d\s)(.*)/);
+                var parsed = h.match(/(.*<br>)(and\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
                 if(parsed) {
 
-                    var newh = parsed[1]+parsed[2]+ 
-                        "<span class='facebookmetric_hideshow'>"+
-                        parsed[3]+"</span>"+parsed[4];
-
-                    ttText.html(newh);
-
                     if(j('#demetricatortoggle').is(':checked')) {
-                        ttText.find('.facebookmetric_hideshow').hide();
+                        var s = "<span class='facebookmetric_hideshow' style='display:none;'>";
+                    } else {
+                        var s = "<span class='facebookmetric_hideshow'>";
                     }
+
+                    var newh = parsed[1]+parsed[2]+s+parsed[3]+"</span>"+parsed[4];
+                    ttText.html(newh);
                 }
             }
         } 
         
         // try other tooltip types like reacton tooltips
-        //var ttContent = j(this).find('.tooltipContent div[data-reactroot]').not('.demetricated');
-        var ttContent = j('.tooltipContent div[data-reactroot]').not('.demetricated');
+        var ttContent = j('.tooltipContent div[data-reactroot]');
 
         if(ttContent) {
-            ttContent.addClass('demetricated');
             var h = ttContent.html();
+
             if(h) {
-                var parsed = h.match(/(.*-->and\s)(\d+\s)(.*)/);
+                var parsed = h.match(/(.*-->and\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
                 if(parsed) {
 
-                    var newh = parsed[1]+ 
-                        "<span class='facebookmetric_hideshow'>"+
-                       parsed[2]+"</span>"+parsed[3];
-
-                    ttContent.html(newh);
-
                     if(j('#demetricatortoggle').is(':checked')) {
-                        ttContent.find('.facebookmetric_hideshow').hide();
+                        var s = "<span class='facebookmetric_hideshow' style='display:none;'>";
+                    } else {
+                        var s = "<span class='facebookmetric_hideshow'>";
                     }
+
+                    var newh = parsed[1]+s+parsed[2]+"</span>"+parsed[3];
+                    ttContent.html(newh);
                 }
-                
             }
         }
 
-
+        // recheck toggle state and manage show/hide on the tooltip
+        if(j('#demetricatortoggle').is(':checked')) {
+            ttText.find('.facebookmetric_hideshow').hide();
+            ttContent.find('.facebookmetric_hideshow').hide();
+        } else {
+            ttText.find('.facebookmetric_hideshow').show();
+            ttContent.find('.facebookmetric_hideshow').show();
+        }
 
     });
 }
@@ -1013,7 +1011,8 @@ function attachReactionDemetricator(p) {
     // clone the lsn for future demetrication toggling as a demetricated like sentence node (dlsn)
 	var dlsn = olsn.clone();
     var dlsnspan = dlsn.find('span');
-	dlsn.css('margin-left','-100px').addClass('facebookmetric_toggleON');
+    // was -100px
+	dlsn.css('margin-left','0px').addClass('facebookmetric_toggleON');
 	//dlsnspan.removeAttr('data-tooltip-uri id').addClass('fbd_demetricatedLikeSentence');
 	dlsnspan.removeAttr('id').addClass('fbd_demetricatedLikeSentence');
 
@@ -1025,8 +1024,11 @@ function attachReactionDemetricator(p) {
     olsn.addClass('facebookmetric_toggleOFF').hide();
     olsn.find('span').addClass('fbd_origLikeSentence');
 
+    // change order of elements so original tracking obj doesn't break tooltip link
+    olsn.insertBefore(olsn.parent().find('._1g5v'));
+
     // append the clone to the DOM underneath the original
-	olsn.parent().append(dlsn);
+	olsn.parent().prepend(dlsn);
 
     // bind a listener adjust the cloned like sentence on any metric tracker updates
 	olsn.bind("DOMSubtreeModified", function() {
@@ -1095,7 +1097,7 @@ function removeMetricFromLikeSentence(txt) {
 
 function demetricateShareCount() {
     // newsfeed item share counts
-    j('.UFIShareLink').not('.facebookcount').each(function() {
+    j('.UFIShareLink, .UFIShareRow span._2w0q').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
 }
@@ -3174,9 +3176,13 @@ function demetricateEgoSection(jnode) {
 
     // alternate way of getting to +1 icons on ego section
     j('.ego_action a').not('.facebookmetric_hideshow_plusone_text').each(function() {
+        var txt = j(this).text();
+        if(txt.contains('Friend')) {
             j(this).addClass('facebookmetric_hideshow_plusone_text').css('padding-left','0px');
             j(this).find('i').addClass('facebookmetric_hideshow_plusone_img').hide();
+        }
     });
+   
 
     // some Page like counts, such as '9,234,721 people like this.' under Chocolate Chip Cookies
     // added catches for new things showing up in ego section, including
@@ -3207,6 +3213,49 @@ function demetricateEgoSection(jnode) {
     j('div.ego_contact_importer div.mvs').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
+
+
+    // friend/member/counts on ego units
+    j('.ego_unit').find('div._2tet div.fsm.fwn.fcg').each(function() {
+        var txt = j(this).text();
+        var parsed = txt.match(/(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)(·\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+        if(parsed) {
+            var newhtml = '<span class="facebookmetric_hideshow" style="display:none;">'+
+                          parsed[1]+'</span>'+parsed[2]+parsed[3]+
+                          '<span class="facebookmetric_hideshow" style="display:none;">'+
+                          parsed[4]+'</span>'+parsed[5];
+            j(this).html(newhtml);
+        }
+    });
+
+    j('.ego_unit a._42ft').each(function() {
+        var txt = j(this).text();
+        if(txt.contains("Join")) {
+            j(this).find('i').addClass('facebookmetric_hideshow').hide();
+        }
+    });
+
+    j('.ego_unit ._sxb').each(function() {
+        var alink = j(this).find('a').not('.facebookcount');
+        // if it has a linked metric (e.g. '1 friend is going')
+        if(alink.length > 0) {
+            wrapNumberInString(alink);
+        } 
+
+        // else it's just reporting, such as '14 guests'
+        else {
+            var s = j(this).find('span');
+            var txt = s.text();
+            var parsed = txt.match(/(.*)(·\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+            if(parsed) {
+                var newhtml = parsed[1]+parsed[2]+
+                          '<span class="facebookmetric_hideshow" style="display:none;">'+
+                          parsed[3]+'</span>'+parsed[4];
+                s.html(newhtml);
+            }
+        }
+    });
+
 
 }
 
