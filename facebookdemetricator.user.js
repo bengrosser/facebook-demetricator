@@ -6,15 +6,20 @@
 
 // @updateURL http://bengrosser.com/fbd/facebookdemetricator.meta.js
 // @downloadURL https://bengrosser.com/fbd/facebookdemetricator.user.js
-//
-//
+
 // @match *://*.facebook.com/*
 // @include *://*.facebook.com/*
+// @include *://*.facebookcorewwwi.onion/*
 // @exclude *://*.facebook.com/ai.php*
 // @exclude *://*.facebook.com/ajax/*
 // @exclude *://*.facebook.com/dialog/*
 // @exclude *://*.facebook.com/connect/*
 // @exclude *://*.facebook.com/xti.php*
+// @exclude *://*.facebookcorewwwi.onion/ai.php*
+// @exclude *://*.facebookcorewwwi.onion/ajax/*
+// @exclude *://*.facebookcorewwwi.onion/dialog/*
+// @exclude *://*.facebookcorewwwi.onion/connect/*
+// @exclude *://*.facebookcorewwwi.onion/xti.php*
 //
 // @icon http://bengrosser.com/fbd/fbd-logo-32.png
 //
