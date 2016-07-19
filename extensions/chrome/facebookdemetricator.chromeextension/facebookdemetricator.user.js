@@ -65,7 +65,7 @@
 
 // globals
 var startURL;                       // page that loaded the userscript                              
-var curURL = '';                         // supposed url of the current page
+var curURL = '';                    // supposed url of the current page
 var j;                              // jQuery
 var demetricatorON = true;          // loads ON by default
 var currentChatCount;               // tracks the chat count
@@ -81,14 +81,13 @@ var newSearchBarWidthNarrow = 350;
 // constants
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
-//var RIBBON_TEXT_COLOR = "rgb(59,89,152)"; // TODO change this to opacity // REMOVE 1.7.0
 var VERSION_NUMBER = '1.7.0';       // used in the console logging
 var KEY_CONTROL = true;             // debug kb control
 var FAN_PAGE_URL = 'http://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = false;        // is this a Firefox or Safari addon?
-var IS_FIREFOX_ADDON = false; // is this just Firefox?  Need to adjust some things for FF' slow performance
+var IS_FIREFOX_ADDON = false;       // is this just Firefox?  Need to adjust some things for FF' slow performance
 var DBUG = false;                   // more debugging
 var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
 var HAS_GRAPH_SEARCH = true;        // does the user have graph search?
@@ -124,9 +123,6 @@ var fadeClasses = [
 var hideShowClasses = [
     '.facebookmetric_hideshow'
 ];
-
-//    '.FriendRequestIncoming i',      // +1 part of '+1 Respond to Friend Request' buttons   --- REMOVE 1.7.0
-//    '.FriendRequestOutgoing i'      // +1 part of '+1 Respond to Friend Request' buttons   --- REMOVE 1.7.0
 
 
 // some metrics need to be set to opacity:0 instead of hidden, so that the space 
@@ -266,20 +262,20 @@ function toggleDemetricator() {
                 parseInt(j('#mercurymessagesCountValue').text()) +
                 parseInt(j('#notificationsCountValue').text());
         } else {
-            console.log("1: "+notificationsTotal);
+            //console.log("1: "+notificationsTotal);
             j('.facebookmetricnot').each(function() {
                 notificationsTotal += parseInt(j(this).text());
-                console.log("2: "+notificationsTotal);
-                console.log("in else, txt = "+parseInt(j(this).text()));
+                //console.log("2: "+notificationsTotal);
+                //console.log("in else, txt = "+parseInt(j(this).text()));
             });
         }
 
         if(notificationsTotal) {
             j('title').text('('+notificationsTotal+') '+currentTitleText);
-            console.log("notT if: "+notificationsTotal);
+            //console.log("notT if: "+notificationsTotal);
         } else {
             j('title').text(currentTitleText);
-            console.log("notT else: "+notificationsTotal);
+            //console.log("notT else: "+notificationsTotal);
         }
 
         // fade in all fadeClasses
@@ -420,7 +416,7 @@ function main() {
 
      var fbdtoggleblockmar2016 = '<li class="_3zm-"><img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:4px 8px 0 10px;"></li>';
 
-     var navbarfeb2016 = '<div class="_1uh-"><div class="_4kny"> <div class="_4q39"><input id="demetricatortoggle" name="demetricatordb" type="checkbox" checked="checked" style="margin-top:7px;margin-right:-2px;"><a id="demetricatorlink" class="_2s25 _5yf" style="color:white;padding-left:6px;">Demetricator</a></div></div></div>'; 
+     var navbarfeb2016 = '<div class="_1uh-"><div class="_4kny"> <div class="_4q39"><input id="demetricatortoggle" name="demetricatordb" type="checkbox" checked="checked" style="margin-top:8px;margin-right:-2px;"><a id="demetricatorlink" class="_2s25 _5yf" style="color:white;padding-left:6px;">Demetricator</a></div></div></div>'; 
 
      var navbarmar2016 = '<li class="_3zm-"><input id="demetricatortoggle" name="demetricatordb" type="checkbox" checked="checked" style="margin-top:3px;margin-right:0;"><a id="demetricatorlink" class="_1ayn" style="padding-left:6px;">Demetricator</a></li><li class="_2wnm _56lq"></li>'; 
 
@@ -653,7 +649,10 @@ function launchPolling() {
     waitForKeyElements('._3t53:not(".facebookcount")', attachReactionDemetricator, false);
 
     // tooltips
-    waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked, #__sizzle__", :contains("#facebar_typeahead_view_list"))', attachTooltipDemetricator, false);
+    //waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked, #__sizzle__", :contains("#facebar_typeahead_view_list"))', attachTooltipDemetricator, false);
+    //waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked, #__sizzle__", :contains(".uiTooltipX"))', attachTooltipDemetricator, false);
+
+    //waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked", :contains("#facebar_typeahead_view_list"))', function(n) { console.log(n.html()); }, false);
     //waitForKeyElements('.uiContextualLayerPositioner:not("#__sizzle__")', attachTooltipDemetricator, true);
 
     // reaction metric dialogs
@@ -680,45 +679,6 @@ function launchPolling() {
 		j(this).parent().addClass("facebookmetric_opacity").css("opacity",'0'); 
 	}, false);
 
-
-    /* REMOVE 1.7?
-    setInterval(function() {
-        if(!demetricatorON) return;
-
-        var brokenlikes = j('.demetricatedlike:not(:has(span))'); 
-        var num = brokenlikes.length;
-
-        if(num) {
-
-            brokenlikes.each(function() {
-                wrapNumberInString(this);
-            });
-
-        }
-
-        var brokencomments = j('.demetricatedviewall:not(:has(span))');
-        var cnum = brokencomments.length;
-
-        if(cnum) {
-
-            brokencomments.each(function() {
-                var txt = j(this).text();
-                var parsed = txt.match(/(.*)\s+(\d+(?:,\d+)*)\s+(.*)/);
-                if(parsed) {
-                    j(this).html(
-                        parsed[1] + '<span class="facebookmetric_hideshow facebookmetric" style="display:none"> '+
-                        parsed[2] + '</span> ' +
-                        parsed[3]
-                        );
-                } 
-            });
-
-        }
-
-    }, 2000);
-    */
-
-    console.log("yaasss 6");
 
     // friend list +1 icons within 'add friend' buttons
     waitForKeyElements('.fbProfileBrowserListItem, .fbProfileBrowserList', demetricateAddFriendButtons, false);
@@ -828,19 +788,15 @@ var bodyObserver = new MutationObserver(function(mutations) {
         var nl = mutation.addedNodes;
 
         if(nl.length > 0) {
-            console.log("X: len > 0");
             for(var i = 0; i < nl.length; ++i) {
-                var nlc = nl[i].getAttribute("class");
 
-                console.log("X: nlc -->"+nlc);
+                var nlc = nl[i].getAttribute("class");
 
                 if(nlc) {
                     if(nlc.contains("fbPhotoSnowlift")) {
-                console.log("X: contains fbPhotoSnowlift");
                         var photoOverlayNode = nl[i].getElementsByClassName('fbPhotoSnowliftContainer')[0];
                         if(photoOverlayNode) hovercardObserver.observe(photoOverlayNode, observerConfig);
                     } else if(nlc.contains("uiContextualLayerPositioner")) {
-                        //var searchResultsNode = nl[i].getElementsByClassName('uiContextualLayer')[0];
                         var searchResultsNode = nl[i];
                         if(searchResultsNode) {
                             /*
@@ -854,16 +810,6 @@ var bodyObserver = new MutationObserver(function(mutations) {
 
                             hovercardObserver.observe(searchResultsNode, {childList: true, subtree: true});
                         }
-
-                        /*
-                console.log("X: contains uiCon...");
-                        console.log('YES: '+j(nl[i]).html());
-                        console.log("YES LENGTH: "+j(nl[i]).find('._53ab span').length);
-                        j(nl[i]).find('._53ab span').each(function() {
-                            console.log("YES AGAIN: "+j(this).html());
-                            wrapNumberInString(j(this));
-                        });
-                        */
                     }
                 }
             }
@@ -960,7 +906,6 @@ var hovercardObserver = new MutationObserver(function(mutations) {
                     */
                 }
 
-           // hasAttribute()??? 
                 // get the classes of this node
                 var nlc = nl[i].getAttribute("class");
 
@@ -975,7 +920,10 @@ var hovercardObserver = new MutationObserver(function(mutations) {
                 // if this node has uiContextualLayerPositioner then it's a hovercard
                 if(nlc.contains("uiContextualLayerPositioner")) {
 
-                    //console.log("FOUND uiCLP");
+                    // tooltips with metrics
+                    if(j(nl[i]).find('.uiTooltipX') && !nlc.contains("fbd_tracked")) {
+                        attachTooltipDemetricator(j(nl[i]));
+                    }
 
                     // covers most metrics in a hovercard when metric starts the line
                     j(nl[i]).find('._c24._50f3, a[data-hover], .pageByline li, div.mts._7lo div.fsm.fwn.fcg').
@@ -1110,7 +1058,7 @@ var hovercardObserver = new MutationObserver(function(mutations) {
 
                                 var n;
 
-                                console.log("match parse tst 2");
+                                //console.log("match parse tst 2");
                                 
                                 // maybe it's a just a leading number, such as
                                 // '97,131 people like this' in a primary search result
@@ -1441,10 +1389,10 @@ function demetricate(callback) {
 
     // HOVERCARD TOGGLE TRIGGERS
     // images that trigger hovercards (such as friend photos on the timeline ribbon)
-    j('.hovercard_trigger').mouseenter(toggleHovercards);
+    //j('.hovercard_trigger').mouseenter(toggleHovercards);
 
     // links also trigger hovercards (such as lists of friends in the old-style profile) 
-    j('a[data-hovercard]').mouseenter(toggleHovercards);
+    //j('a[data-hovercard]').mouseenter(toggleHovercards);
     
     // DEBUG
     if(DBUG) console.timeEnd('demetricator timer');
@@ -1477,8 +1425,8 @@ function demetricate(callback) {
 
 function attachReactionDialogDemetricator(n) {
     n.addClass('fbd_tracked');
-    console.log("reaction dialog-->");
-    console.log(n.html()+"\n\n");
+    //console.log("reaction dialog-->");
+    //console.log(n.html()+"\n\n");
 
 
     // work on top metrics first
@@ -1757,7 +1705,7 @@ function removeMetricFromLikeSentence(txt) {
 	    var parsed = txt.match(/^(.*)\s+(\d+(?:[,,.]\d+)*[K|M|k|m]?)\s+(.*)/);
         if(parsed) result = parsed[1] + ' ' + parsed[3];
         else {
-            console.log("ERROR ON like sentence metric removal");
+            //console.log("ERROR ON like sentence metric removal");
             result = txt;
         }
     } 
@@ -1948,7 +1896,7 @@ function demetricateNewsfeed() {
     // might need a new function to handle that job, but this is giving hte right visual for hte moment
     j('.uiStreamMessage').find('a[data-hover="tooltip"]').not('.facebookcount').each(function() {
         wrapNumberInString(this);
-        console.log("HERE???? 999");
+        //console.log("HERE???? 999");
     });
 
 
@@ -2032,17 +1980,20 @@ function demetricateNewsfeed() {
         
         // 'added 3 photos'
         if(hl.contains('added')) {
-            console.log("found added");
-            console.log("updated?");
+            //console.log("found added");
+            //console.log("updated?");
             var l = j(this).find('a:not(".profileLink")');
             var lh = l.html();
-            console.log(lh);
-            var parsed = lh.match(/(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
-            if(parsed) {
-                var newh = 
-                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+'</span>'+
-                    parsed[2];
-                l.html(newh);
+            //console.log(lh);
+
+            if(lh) {
+                var parsed = lh.match(/(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+                if(parsed) {
+                    var newh = 
+                        '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+'</span>'+
+                        parsed[2];
+                    l.html(newh);
+                }
             }
 
             /*
@@ -2165,7 +2116,7 @@ function demetricateNewsfeed() {
     // stream headline metrics (e.g. "Ben and 2 others shared a link")
     j(this).find('a[data-hover="tooltip"]').each(function() {
         wrapNumberInString(j(this));
-        console.log("HERE???? 10000");
+        //console.log("HERE???? 10000");
 
 
     });
@@ -3173,11 +3124,11 @@ function demetricateCounters() {
     // pages counter top right sidebar
     j('._bsv span').each(function() {
         //console.log("YES WAS HERE");
-        //console.log("LKJSDF: "+h);
        
         var h = j(this).html();
         
         if(h.contains("Post")) {
+            //console.log("LKJSDF: "+h);
             wrapNumberInString(j(this));
         }
         //j(this).html('<span style="opacity:0;" class="facebookmetric_opacity">'+num+'</span>');
@@ -3584,12 +3535,6 @@ function demetricateLikesThis(jnode) {
 
 }
 
-
-function redemetricateLike(jnode) {
-    console.log('rdl: '+jnode.text());
-    console.log('rdl-p: '+jnode.parent().text());
-}
-
 function demetricatePhotoIndex() {
     if(FUNCTION_REPORT) console.log("demetricatePhotoIndex()");
 
@@ -3848,32 +3793,11 @@ function demetricateCommentLikeButton() {
 }
 
 
-// the dropdown for more items on the timeline ribbon, has a metric
-// that indicates how many more blocks are available to see
-// need to fade it's color to match the background so it doesn't collapse
-// (taking the down arrow w/ it)
-function demetricateRibbonDropdown() {
-    j('.fbTimelineMoreButton').find('.fbTimelineRibbon').find('.text').
-        not('.fbribboncounts').each(function() {
-            j(this).addClass('fbribboncounts');
-            var txt = j(this).text();
-            console.log('got here. txt = '+txt);
-            j(this).html('<span class="fbRibbonDropdown" style="color:#fff">'+txt+'</span>');
-    });
-}
-
-function limitedSetTimeout(interval, count, max) {
-    console.log("round: "+count);
-    count++;
-    if(count > max) return;
-    else setTimeout(function() {
-        limitedSetTimeout(interval, count, max);
-    }, interval);
-}
-
 
 // toggles the demetrication of hovercards, those overlays that popup
 // for individuals/pages showing name, cover image, mutual friend counts, etc.
+// REMOVE 1.7?
+/*
 function toggleHovercards() {
     
     for(var i = 0; i < 2000; i+=50) {
@@ -3893,6 +3817,7 @@ function toggleHovercards() {
         }, t);
     }
 }
+*/
 
 // same as above but for overlays from the ticker
 function toggleTickerOverlay() {
@@ -4324,67 +4249,6 @@ function demetricateGraphSearchResults() {
         j(this).addClass('fbgscount');
 
     });
-
-    // maybe obsolete now , needs redoing
-
-    //console.log("CHECKING GSR");
-    //j('.-cx-PUBLIC-fbFacebarTypeaheadToken__subtext').not('.fbgscount').each(function() {
-    
-    // run through all fields that aren't links
-    // --- REMOVE entire function below 1.7.0
-    // may have useful code, but _-x no longer functional
-    /*
-    j('._-x').not('.fbgscount').each(function() {
-        console.log("dGSR: j-2");
-
-        var txt = j(this).text();
-        console.log("CHECKING: "+txt);
-        if(txt.contains('people checked in') || txt.contains('monthly active users') || txt.contains('members')) {
-            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
-            if(parsed) {
-                var newhtml = 
-                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+
-                    ' </span>'+parsed[2];
-                j(this).html(newhtml);
-            }
-        } else if(txt.contains('like this') && !txt.contains('other friends')) { 
-            console.log("IN LIKE THIS CHECK");
-            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
-            if(parsed) {
-                var newhtml =  
-                    '<span class="facebookmetric_toggleOFF" style="display:none;">'+parsed[1]+'</span> '+
-                    '<span class="facebookmetric_toggleON">people</span> '+
-                    parsed[2];  
-                j(this).html(newhtml);
-            }
-        } else if(txt.contains('other albums')) {
-            var parsed = txt.match(/(.*\s+)(\d+(?:,\d+)*)\s+(other albums)/);
-            if(parsed) {
-                var newhtml = parsed[1]+
-                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[2]+
-                    ' </span>'+parsed[3];
-                j(this).html(newhtml);
-            }
-
-        } else if(txt.contains('mutual friend')) {
-            var txt = j(this).text();
-            var parsed = txt.match(/(\d+(?:,\d+)*)\s+(.*)/);
-            if(parsed) {
-                var newhtml = 
-                    '<span class="facebookmetric_hideshow" style="display:none;">'+parsed[1]+
-                    ' </span>'+parsed[2];
-                j(this).html(newhtml);
-            }
-
-            j(this).addClass('fbgscount');
-        }
-        
-
-        j(this).addClass('fbgscount');
-    });
-    */
-
-
 }
 
 
@@ -4477,23 +4341,11 @@ function checkForNewPage() {
         if(demetricatorON) for(var i = 0; i < 2000; i+=250) delayedDemetricate(i); 
 
         startURL = curURL;
-
-        // search results pages are narrower than all other pages
-        // old aug 2014
-//        if(startURL.contains("/search/")) {
-//            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidthNarrow+"px");
-//            j('._585-').css('width',newSearchBarWidthNarrow+"px");
-//        } else {
-//            j('.-cx-PUBLIC-fbFacebar__root').css('width',newSearchBarWidth+"px");
-//            j('._585-').css('width',newSearchBarWidth+"px");
-//        }
-
     }
 
     function delayedDemetricate(t) {
         setTimeout(function() { 
             if(demetricatorON) {
-                //console.log("calling demetricate from delayedDemetricate()");
                 demetricate();
             }
         }, t);
