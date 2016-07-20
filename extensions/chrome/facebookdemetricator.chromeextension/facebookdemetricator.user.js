@@ -38,12 +38,11 @@
 //
 // Major Exhibitions:
 // 2012  Prospectives '12, University of Reno at Nevada
-// 2013  The Public Private, Curated by Christiane Paul, at The New School
-// 2013  MFA Thesis Exhibition, Krannert Art Museum, Champaign, IL
+// 2013  The Public Private, New School, NY, NY
 // 2013  Public Assembly, The White Building, London, UK
 // 2014  Arte Laguna Finalist Exhibition, Telecom Italia Future Centre, Venice, Italy
 // 2014  Theorizing the Web, Windmill Studios, Brooklyn, NY
-// 2014  Suggestions for Art That Could Be Called Red, Museum of Contemporary Cuts
+// 2014  Suggestions for Art That Could Be Called Red, Museum of Contemporary Cuts, online
 // 2015  #nfcdab digital.art.biennale, Wroclaw, Poland
 // 2015  Systems Under Liberty, Galerie Charlot, Paris, France
 // 2016  Unlike, Chapelle des Augustins, Poitiers, France
@@ -82,7 +81,7 @@ var newSearchBarWidthNarrow = 350;
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
 var VERSION_NUMBER = '1.7.0';       // used in the console logging
-var KEY_CONTROL = true;             // debug kb control
+var KEY_CONTROL = false;             // debug kb control
 var FAN_PAGE_URL = 'http://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'http://bengrosser.com/';
@@ -528,15 +527,20 @@ function launchPolling() {
         // feb2016 var lateststorycount = j('.uiStreamStory, ._5jmm').length;
         // feb2016 var latestfavoritescount = j('.uiFavoritesStory').length;
         
-        var lateststorycount = j('._5jmm').length;
+        // ._4ikz --- substream section??
+        
+        //var lateststorycount = j('._5jmm').length;
+        
+        var lateststorycount = j('._4ikz').length;
         var latesttimelineblockcount = j('.fbTimelineUnit').length;
         var latestphotogridcount = j('.fbPhotoStarGridElement').length;
-        var latestgraphsearchphotocount = j('._by0').length;
-        var latestgraphsearchresultcount = j('._6a').length;
+
+// REMOVE 1.7?        //var latestgraphsearchphotocount = j('._by0').length;
+// REMOVE 1.7?        //var latestgraphsearchresultcount = j('._6a').length;
 
         // new timeline
         // feb2016 var latestappsectioncount = j('.-cx-PRIVATE-fbTimelineAppSection__header').length;
-        var latestappsectioncountVER2 = j('._3cz').length;
+// REMOVE 1.7?        var latestappsectioncountVER2 = j('._3cz').length;
 
         // new timeline friend blocks
         // feb2016 var latestfriendblockcount = j('.-cx-PRIVATE-fbTimelineFriendsCollection__grid').length;
@@ -544,7 +548,7 @@ function launchPolling() {
         // jul 2016 change
         var latestfriendblockcountVER2 = j('._262m').length;
 
-        var latestnotificationitemcount = j('._33c').length;
+// REMOVE 1.7        var latestnotificationitemcount = j('._33c').length;
         //var latestfriendbrowsercount = j('.friendBrowserListUnit').length;
         // track followListItem for subscriber entries
 
@@ -573,6 +577,7 @@ function launchPolling() {
             setTimeout(function() { if(demetricatorON) demetricatePhotoIndex(); }, 250);
         }
 
+        /*
         if(latestgraphsearchphotocount > graphSearchPhotoCount) {
             setTimeout(function() { if(demetricatorON) demetricatePhotoIndex(); }, 250);
         }
@@ -580,36 +585,41 @@ function launchPolling() {
         if(latestgraphsearchresultcount > graphSearchResultCount) {
             setTimeout(function() { if(demetricatorON) demetricateGraphSearchResults(); }, 250);
         }
+        */
 
 
 
+        /*
         if(latestappsectioncountVER2 > appSectionCountVER2) {
             setTimeout(function() { if(demetricatorON) demetricateNewTimeline(); }, 250);
-            // new timeline is SO SLOW that i'm running this again to catch stragglers -- #UGLYHACK
             setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 2000);
             setTimeout(function() { if(demetricatorON) { demetricateNewTimeline(); } }, 3000);
         }
+        */
 
 
 
+        /*
         if(latestnotificationitemcount > notificationItemCount) {
             setTimeout(function() { if(demetricatorON) demetricateTimestamps(); }, 250);
         }
+        */
 
+        /*
         if(latestfriendblockcountVER2 > friendBlockCountVER2) {
-            console.log("attempting to demetricate friend block");
             setTimeout(function() { if(demetricatorON) demetricateFriendPageBlocks(); }, 250);
         }
+        */
 
 
         timelineUnitCount = latesttimelineblockcount;
         streamStoryCount = lateststorycount;
         photoGridCount = latestphotogridcount;
-        graphSearchPhotoCount = latestgraphsearchphotocount;
-        graphSearchResultCount = latestgraphsearchresultcount;
-        appSectionCountVER2 = latestappsectioncountVER2;
+       // graphSearchPhotoCount = latestgraphsearchphotocount;
+       // graphSearchResultCount = latestgraphsearchresultcount;
+       // appSectionCountVER2 = latestappsectioncountVER2;
         friendBlockCountVER2 = latestfriendblockcountVER2;
-        notificationItemCount = latestnotificationitemcount;
+       // notificationItemCount = latestnotificationitemcount;
 
     }, COUNT_INTERVAL);
 
@@ -617,9 +627,12 @@ function launchPolling() {
     waitForKeyElements('._21c', demetricateGraphSearchAutoSuggest, false); 
 
     // notifications drop down timestamps
+    // REMOVE  1.7
+    /*
     waitForKeyElements('a.messagesContent', function() {
         demetricateTimestamps();
     }, false);
+    */
 
     // dynamic comment changes (insertions, likes, timestamps)
     waitForKeyElements('.UFIComment', function() {
@@ -631,7 +644,8 @@ function launchPolling() {
     waitForKeyElements('.UFIPagerLink span', demetricateViewAllComments, false);
 
     // friend-finder
-    waitForKeyElements('.friendBrowserListUnit', demetricateFriendBrowserBlocks, false);
+    // not operating, need to redo or abandon jul 2016
+    //waitForKeyElements('.friendBrowserListUnit', demetricateFriendBrowserBlocks, false);
 
     //waitForKeyElements('title', demetricateTitle, false);
     // browser 'title' tag (e.g. tab title or window title, gets a notification metric: '(2) Facebook')
@@ -643,7 +657,8 @@ function launchPolling() {
 
     // deals w/ what happens on an 'unlike' click -- needs a different trigger
     // FB update 2/20/2012
-    waitForKeyElements('.UFILikeSentence span a[rel="dialog"]', demetricateLikesThis, false);
+    // pretty sure inoperable in jul 2016 ... REMOVE 1.7?
+    // waitForKeyElements('.UFILikeSentence span a[rel="dialog"]', demetricateLikesThis, false);
 
     // reaction metric like sentence updates
     waitForKeyElements('._3t53:not(".facebookcount")', attachReactionDemetricator, false);
@@ -681,14 +696,16 @@ function launchPolling() {
 
 
     // friend list +1 icons within 'add friend' buttons
-    waitForKeyElements('.fbProfileBrowserListItem, .fbProfileBrowserList', demetricateAddFriendButtons, false);
-    waitForKeyElements('.detailedsearch_result', demetricateAddFriendButtons, false);
+    // REMOVE 1.7 or fix?
+   // waitForKeyElements('.fbProfileBrowserListItem, .fbProfileBrowserList', demetricateAddFriendButtons, false);
+   // waitForKeyElements('.detailedsearch_result', demetricateAddFriendButtons, false);
 
     // new timeline 5/2013
     waitForKeyElements('.FriendButton', demetricateAddFriendButtons, false);
 
     // search result items
-    waitForKeyElements('ul.search li', demetricateSearchResultEntries, false);
+    // needs work
+    //waitForKeyElements('ul.search li', demetricateSearchResultEntries, false);
 
     // thumbs-up like counts on comments
     waitForKeyElements('.UFICommentLikeButton', demetricateCommentLikeButton, false);
@@ -706,9 +723,40 @@ function launchPolling() {
     waitForKeyElements('.fbNubButton', demetricateChatTab, false);
 
     // new 'related' boxes that show up after you click a link on the new new newsfeed
-    waitForKeyElements('._5d73', function(jn) {
-        jn.find('._4pp').not('.facebookcount').addClass('facebookcount facebookmetric_hideshow').hide();
-    }, false);
+    //waitForKeyElements('._5d73', function(jn) {
+    //waitForKeyElements('._4_ck', function(jn) {
+    //waitForKeyElements('ul._5h5a', function(jn) {
+    //    jn.find('._4pp').not('.facebookcount').addClass('facebookcount facebookmetric_hideshow').hide();
+    //}, false);
+
+    waitForKeyElements('._3lkn', function(jn) {
+        console.log("HERljkasdlfkjasdfj");
+        console.log("--> "+jn.html());
+
+        setTimeout(function() {
+        // related/suggested items SHARED counts
+        jn.find('div.mts span span').not('.facebookcount').each(function() {
+            wrapNumberInString(j(this));
+        });
+        
+        // suggested videos VIEWED counts
+        jn.find('div.mts span').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+            var h = j(this).html();
+            if(h) {
+                var parsed = h.match(/(\s·\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+                if(parsed) {
+                    var newh = parsed[1]+
+                        "<span class='facebookmetric_hideshow' style='display:none;'>"+parsed[2]+"</span>"+
+                        parsed[3];
+                    j(this).html(newh);
+                }
+            }
+        });
+        }, 500);
+    });
+
+    
 
 
     // new metrics in the search bar 2016
@@ -795,21 +843,51 @@ var bodyObserver = new MutationObserver(function(mutations) {
                 if(nlc) {
                     if(nlc.contains("fbPhotoSnowlift")) {
                         var photoOverlayNode = nl[i].getElementsByClassName('fbPhotoSnowliftContainer')[0];
-                        if(photoOverlayNode) hovercardObserver.observe(photoOverlayNode, observerConfig);
+                        //if(photoOverlayNode) hovercardObserver.observe(photoOverlayNode, observerConfig);
                     } else if(nlc.contains("uiContextualLayerPositioner")) {
-                        var searchResultsNode = nl[i];
-                        if(searchResultsNode) {
-                            /*
-                            console.log("launching observer for SR");
-                            console.log(searchResultsNode.nodeType);
-                            console.log(searchResultsNode.nodeName);
-                            console.log(searchResultsNode.nodeValue);
-                            console.log(searchResultsNode.baseURI);
-                            console.log(searchResultsNode.getAttribute("class"));
-                            */
 
-                            hovercardObserver.observe(searchResultsNode, {childList: true, subtree: true});
+                        // notification popup notifications (seriously wtf)
+                        var notificationPopup = j(nl[i]).find('._42ef._8u');
+
+                        if(notificationPopup.length > 0) {
+
+                            notificationPopup.each(function() {
+
+                                j(this).addClass('facebookcount');
+
+                                console.log("found a notification popup notification -->");
+                                console.log(j(this).html());
+
+                                var h = j(this).html();
+
+                                if(h) {
+                                    var parsed = h.match(/(.*-->)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(notification.*)/);
+                                    if(parsed) {
+                                        var n = 
+                                            parsed[1]+
+                                            '<span style="display:none;" class="facebookmetric_hideshow">'+parsed[2]+'</span>'+
+                                            parsed[3];
+                                        j(this).html(n);
+                                    }
+                                }
+                            });
+                        } else {
+
+                            var searchResultsNode = nl[i];
+                            if(searchResultsNode) {
+                                /*
+                                console.log("launching observer for SR");
+                                console.log(searchResultsNode.nodeType);
+                                console.log(searchResultsNode.nodeName);
+                                console.log(searchResultsNode.nodeValue);
+                                console.log(searchResultsNode.baseURI);
+                                console.log(searchResultsNode.getAttribute("class"));
+                                */
+
+                                hovercardObserver.observe(searchResultsNode, {childList: true, subtree: true});
+                            }
                         }
+
                     }
                 }
             }
@@ -834,7 +912,7 @@ var notificationsObserverLauncher = new MutationObserver(function(mutations) {
                     j(nl[i]).find('li').each(function() { demetricateNotificationItem(j(this)); });
 
                     // start an observer to watch for additional li's (on scroll)
-                    notificationsObserver.observe(nl[i], observerConfig);
+                   // notificationsObserver.observe(nl[i], observerConfig);
 
                     // disconnect the launcher observer
                     notificationsObserverLauncher.disconnect();
@@ -883,7 +961,7 @@ function demetricateNotificationItem(n) {
 var hovercardObserver = new MutationObserver(function(mutations) {
 
 	mutations.forEach(function(mutation) {
-        // console.log("got mutation");
+        //console.log("got mutation");
 
         var nl = mutation.addedNodes;
 
@@ -995,12 +1073,15 @@ var hovercardObserver = new MutationObserver(function(mutations) {
                     });
 
                     // notification popup notifications (seriously wtf)
+                    // moved to body with different format late jul 2016
+                    /*
                     j(nl[i]).find('._42ef._8u').each(function() {
-                        //console.log("found a notification popup notification -->");
-                        //console.log(j(this).html());
+                        console.log("found a notification popup notification -->");
+                        console.log(j(this).html());
                         j(this).addClass('facebookcount');
                         wrapNumberInString(j(this));
                     });
+                    */
 
 
                     //  e.g. '282 members · 29 friends'
@@ -1424,6 +1505,8 @@ function demetricate(callback) {
 
 
 function attachReactionDialogDemetricator(n) {
+    if(!demetricatorON) return; // maybe fix toggle state on these?
+
     n.addClass('fbd_tracked');
     //console.log("reaction dialog-->");
     //console.log(n.html()+"\n\n");
@@ -2113,12 +2196,32 @@ function demetricateNewsfeed() {
         wrapNumberInString(j(this));
     });
 
+    // suggested videos VIEWED counts
+    j('._3lkn div.mts span').not('.facebookcount').each(function() {
+        j(this).addClass('facebookcount');
+        var h = j(this).html();
+        if(h) {
+            var parsed = h.match(/(\s·\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+            if(parsed) {
+                var newh = parsed[1]+
+                    "<span class='facebookmetric_hideshow' style='display:none;'>"+parsed[2]+"</span>"+
+                    parsed[3];
+                j(this).html(newh);
+            }
+        }
+    });
+
     // stream headline metrics (e.g. "Ben and 2 others shared a link")
     j(this).find('a[data-hover="tooltip"]').each(function() {
         wrapNumberInString(j(this));
         //console.log("HERE???? 10000");
 
 
+    });
+
+        // live video "views"
+    j('._1t6k span.fcg, ._3x-2 div._3-8n div._50f8').not('.facebookcount').each(function() {
+	    wrapNumberInString(this);
     });
 
     
@@ -2296,10 +2399,7 @@ j('._34mw').not('.facebookcount').each(function() {
 	wrapNumberInString(this);
 });
 
-    // live video "views"
-    j('._1t6k span.fcg').not('.facebookcount').each(function() {
-	    wrapNumberInString(this);
-    });
+
 
 	
 
@@ -2983,20 +3083,7 @@ function demetricateFriendPageBlocks() {
     });
 }
 
-// APP CENTER
-function demetricateAppCenter() {
-    if(FUNCTION_REPORT) console.log("demetricateAppCenter()");
 
-            // APP CENTER pages
-
-    // app block user counts. erasing the number doesn't leave anything of use, unless there's also some personal friend
-    // counts.  for the moment, remove the line, but should come back and be more selective
-    j('.appsListItem .appCategories div.fcg').not('.facebookcount').
-        addClass('facebookcount facebookmetric_opacity').css('opacity',0);
-
-    // side navigation counts
-    j('.sideNavItem .count').not('.facebookcount').addClass('facebookcount facebookmetric_fade').hide();
-}
 
 
 // EVENTS / CALENDAR
@@ -3426,7 +3513,8 @@ function demetricateFollowListItem(jnode) {
 }
 
 
-//
+
+// not operating, need to redo or abandon jul 2016
 function demetricateFriendBrowserBlocks() {
     if(!demetricatorON) return;
 
@@ -3576,14 +3664,13 @@ function demetricateChatSeparator() {
         // MORE FRIENDS chat separator
         var chatsepParent = j('._55ob').not('.fbchatsep');
         if(chatsepParent) {
-			chatsepParent.addClass('fbchatsep');
+			chatsepParent.addClass('fbchatsep facebookmetric_toggleOFF');
 
             var chatsepDupe = chatsepParent.clone();
             chatsepDupe.find('._55oc').text("MORE FRIENDS");
             chatsepDupe.addClass('facebookmetric_toggleON');
             chatsepDupe.insertAfter(chatsepParent);
 
-            chatsepParent.addClass('facebookmetric_toggleOFF');
             chatsepParent.hide();
         }
 
