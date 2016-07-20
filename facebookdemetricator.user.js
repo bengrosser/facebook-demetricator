@@ -10,6 +10,7 @@
 //
 // @match *://*.facebook.com/*
 // @include *://*.facebook.com/*
+// @include *://*.facebookcorewwwi.onion/*
 // @exclude *://*.facebook.com/ai.php*
 // @exclude *://*.facebook.com/ajax/*
 // @exclude *://*.facebook.com/dialog/*
@@ -17,6 +18,13 @@
 // @exclude *://*.facebook.com/xti.php*
 // @exclude *://developers.facebook.com/*
 // @exclude *://code.facebook.com/*
+// @exclude *://*.facebookcorewwwi.onion/ai.php*
+// @exclude *://*.facebookcorewwwi.onion/ajax/*
+// @exclude *://*.facebookcorewwwi.onion/dialog/*
+// @exclude *://*.facebookcorewwwi.onion/connect/*
+// @exclude *://*.facebookcorewwwi.onion/xti.php*
+// @exclude *://developers.facebookcorewwwi.onion/xti.php*
+// @exclude *://code.facebookcorewwwi.onion/xti.php*
 //
 // @icon http://bengrosser.com/fbd/fbd-logo-32.png
 //
