@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.7.0
+// @version 1.7.1
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -10,6 +10,7 @@
 //
 // @match *://*.facebook.com/*
 // @include *://*.facebook.com/*
+// @include *://*.facebookcorewwwi.onion/*
 // @exclude *://*.facebook.com/ai.php*
 // @exclude *://*.facebook.com/ajax/*
 // @exclude *://*.facebook.com/dialog/*
@@ -17,6 +18,13 @@
 // @exclude *://*.facebook.com/xti.php*
 // @exclude *://developers.facebook.com/*
 // @exclude *://code.facebook.com/*
+// @exclude *://*.facebookcorewwwi.onion/ai.php*
+// @exclude *://*.facebookcorewwwi.onion/ajax/*
+// @exclude *://*.facebookcorewwwi.onion/dialog/*
+// @exclude *://*.facebookcorewwwi.onion/connect/*
+// @exclude *://*.facebookcorewwwi.onion/xti.php*
+// @exclude *://developers.facebookcorewwwi.onion/xti.php*
+// @exclude *://code.facebookcorewwwi.onion/xti.php*
 //
 // @icon http://bengrosser.com/fbd/fbd-logo-32.png
 //
@@ -33,7 +41,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.7.0
+// Version 1.7.1
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -80,7 +88,7 @@ var newSearchBarWidthNarrow = 350;
 // constants
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
-var VERSION_NUMBER = '1.7.0';       // used in the console logging
+var VERSION_NUMBER = '1.7.1';       // used in the console logging
 var KEY_CONTROL = false;             // debug kb control
 var FAN_PAGE_URL = 'http://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
@@ -383,6 +391,12 @@ function main() {
     // setup jQuery on j to avoid any possible conflicts
     j = jQuery.noConflict();
 
+    // if this is a Like button plugin on the dialog, hide and exit ASAP
+    // facilitates demetrication of the like button in the Demetricator dialog box
+    if(startURL.contains('FBD_TOGGLE_STATE_ON')) {
+        j('._5n6h._2pih').css('opacity','0');
+        return;
+    }
     // --- REMOVE GSSO 1.7.0
     //demetricateGraphSearchSelectorOverview();
     
@@ -480,11 +494,7 @@ function main() {
         });
     });
  
-    // facilitates demetrication of the like button in the Demetricator dialog box
-    if(startURL.contains('FBD_TOGGLE_STATE_ON')) {
-        j('._5n6h._2pih').css('opacity','0');
-        return;
-    }
+
 
     // enables kb control of Demetricator for testing
     if(KEY_CONTROL) j(document).bind('keydown','ctrl+f',function() { 
@@ -785,9 +795,11 @@ function launchPolling() {
         notificationsFlyoutNode = j("._5fwu:eq(2)")[0];
     }
 
+    /*
     if(containerNode == null) console.log('containerNode == null');
     if(bodyNode == null) console.log('bodyNode == null');
     if(photoOverlayNode == null) console.log('photoOverlayNode == null');
+    */
 
     // containerNode is the globalContainer, the parent of most hovercards
     if(containerNode != undefined) hovercardObserver.observe(containerNode, observerConfig);
@@ -845,6 +857,9 @@ var bodyObserver = new MutationObserver(function(mutations) {
                         var photoOverlayNode = nl[i].getElementsByClassName('fbPhotoSnowliftContainer')[0];
                         //if(photoOverlayNode) hovercardObserver.observe(photoOverlayNode, observerConfig);
                     } else if(nlc.contains("uiContextualLayerPositioner")) {
+
+                        // might be the account menu, hide countValues
+                        j(nl[i]).find('.countValue:not(".facebookcount")').addClass('facebookcount').hide();
 
                         // notification popup notifications (seriously wtf)
                         var notificationPopup = j(nl[i]).find('._42ef._8u');
@@ -912,7 +927,7 @@ var notificationsObserverLauncher = new MutationObserver(function(mutations) {
                     j(nl[i]).find('li').each(function() { demetricateNotificationItem(j(this)); });
 
                     // start an observer to watch for additional li's (on scroll)
-                   // notificationsObserver.observe(nl[i], observerConfig);
+                    notificationsObserver.observe(nl[i], observerConfig);
 
                     // disconnect the launcher observer
                     notificationsObserverLauncher.disconnect();
@@ -1837,7 +1852,7 @@ function removeMetricFromLikeSentence(txt) {
 
 function demetricateShareCount() {
     // newsfeed item share counts
-    j('.UFIShareLink, .UFIShareRow span._2w0q').not('.facebookcount').each(function() {
+    j('.UFIShareLink, .UFIShareRow span._2w0q, .UFIShareRow span.fcg').not('.facebookcount').each(function() {
         wrapNumberInString(this);
     });
 }
@@ -1850,7 +1865,7 @@ function demetricateNewsfeed() {
 	// feb 2016 occasional blingbox
     // jun 2016 now an additional way of listing these
 	//j('a._ipm, a._ipm span').not('.facebookcount').each(function() {
-	j('a._ipm').not('.facebookcount').each(function() {
+	j('a._ipm, span._ipm').not('.facebookcount').each(function() {
 		j(this).addClass('facebookcount');
         var h = j(this).html();
         if(h.contains("react-text")) {
@@ -3211,13 +3226,7 @@ function demetricateCounters() {
     // pages counter top right sidebar
     j('._bsv span').each(function() {
         //console.log("YES WAS HERE");
-       
-        var h = j(this).html();
-        
-        if(h.contains("Post")) {
-            //console.log("LKJSDF: "+h);
-            wrapNumberInString(j(this));
-        }
+        wrapNumberInString(j(this));
         //j(this).html('<span style="opacity:0;" class="facebookmetric_opacity">'+num+'</span>');
     });
 }

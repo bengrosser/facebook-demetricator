@@ -1,6 +1,6 @@
 {
     "name": "Facebook Demetricator",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "description": "Hides all the metrics on Facebook",
     "homepage_url": "http://bengrosser.com/projects/facebook-demetricator/",
     "manifest_version": 2,
