@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>Benjamin Grosser</string>
 	<key>Builder Version</key>
-	<string>9537.78.2</string>
+	<string>11601.6.17</string>
 	<key>CFBundleDisplayName</key>
 	<string>Facebook Demetricator</string>
 	<key>CFBundleIdentifier</key>
@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.5.2</string>
+	<string>1.7.1</string>
 	<key>CFBundleVersion</key>
-	<string>14</string>
+	<string>18</string>
 	<key>Chrome</key>
 	<dict/>
 	<key>Content</key>
@@ -30,6 +30,8 @@
 	</dict>
 	<key>Description</key>
 	<string>Hides all the metrics on Facebook</string>
+	<key>DeveloperIdentifier</key>
+	<string>9RDP9FK763</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
@@ -39,6 +41,7 @@
 			<key>Allowed Domains</key>
 			<array>
 				<string>*.facebook.com</string>
+				<string>*.facebookcorewwwi.onion</string>
 			</array>
 			<key>Include Secure Pages</key>
 			<true/>
