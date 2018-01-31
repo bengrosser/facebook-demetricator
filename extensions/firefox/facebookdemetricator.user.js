@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.7.1
+// @version 1.7.4
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -41,7 +41,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.7.1
+// Version 1.7.4
 // http://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -88,7 +88,7 @@ var newSearchBarWidthNarrow = 350;
 // constants
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
-var VERSION_NUMBER = '1.7.1';       // used in the console logging
+var VERSION_NUMBER = '1.7.4';       // used in the console logging
 var KEY_CONTROL = false;             // debug kb control
 var FAN_PAGE_URL = 'http://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
@@ -424,12 +424,12 @@ function main() {
     // FBD TOGGLE AND NAVBAR -------------------
     
      // new nav feb 2016
-     var fbdtoggleblock = '<img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:14px 0px 0 10px;">';
+     var fbdtoggleblock = '<img id="fbdtoggleindicator" class="loadingIndicator img" src="https://static.xx.fbcdn.net/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:15px 6px 0 10px;">';
 
 
      var fbdtoggleblockmar2016 = '<li class="_3zm-"><img id="fbdtoggleindicator" class="loadingIndicator img" src="https://s-static.ak.facebook.com/rsrc.php/v2/yb/r/GsNJNwuI-UM.gif" alt="" width="16" height="11" style="display:none;margin:4px 8px 0 10px;"></li>';
 
-     var navbarfeb2016 = '<div class="_1uh-"><div class="_4kny"> <div class="_4q39"><input id="demetricatortoggle" name="demetricatordb" type="checkbox" checked="checked" style="margin-top:8px;margin-right:-2px;"><a id="demetricatorlink" class="_2s25 _5yf" style="color:white;padding-left:6px;">Demetricator</a></div></div></div>'; 
+     var navbarfeb2016 = '<div class="_1uh-"><div class="_4kny"> <div class="_cy7 _4q39"><input id="demetricatortoggle" name="demetricatordb" type="checkbox" checked="checked" style="margin-top:8px;margin-right:-2px;"><a id="demetricatorlink" class="_2s25 _5yf" style="color:white;padding-left:6px;">Demetricator</a></div></div></div>'; 
 
      var navbarmar2016 = '<li class="_3zm-"><input id="demetricatortoggle" name="demetricatordb" type="checkbox" checked="checked" style="margin-top:3px;margin-right:0;"><a id="demetricatorlink" class="_1ayn" style="padding-left:6px;">Demetricator</a></li><li class="_2wnm _56lq"></li>'; 
 
@@ -724,9 +724,13 @@ function launchPolling() {
     waitForKeyElements('.ego_column', demetricateEgoSection, false);
 
     // chat list (e.g. 'MORE ONLINE FRIENDS (8)')
+
+    /*
     waitForKeyElements('._55oc', function() { 
         setTimeout(function() { demetricateChatSeparator(); }, 50);
     }, false);
+    */
+
 
     // chat tabs
     //waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
@@ -809,7 +813,7 @@ function launchPolling() {
 
     // for dropdown notifications from the navbar icon
     if(notificationsFlyoutNode != undefined) {
-        notificationsObserverLauncher.observe(notificationsFlyoutNode, { childList: true, subtree: true} );
+    //    notificationsObserverLauncher.observe(notificationsFlyoutNode, { childList: true, subtree: true} );
     }
 
     // launch an observer manually if we happened to have loaded a direct link to a photo overlay
@@ -1427,7 +1431,7 @@ function demetricate(callback) {
     demetricateCounters();
 
     // CHAT
-    demetricateChatSeparator();
+    //demetricateChatSeparator();
 
     // SHARES
     demetricateShareCount();
@@ -1563,6 +1567,7 @@ function attachReactionDialogDemetricator(n) {
     n.find('._39g5').not('.facebookcount').each(function() {
         wrapNumberInString(j(this));
     });
+
 
     if(tabs) {
         // all tab first
@@ -2350,7 +2355,8 @@ function demetricateNewTimeline() {
     // App Block header Counts 
     // e.g. Friends: (friends, followers, college, recent, etc.)
     // e.g. Places: (all, life event, recent, etc.)
-    j('._3d0').each(function() {
+    //j('._3d0').each(function() {
+    j('span a._39g5, ._3d0').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
             css('opacity','0');
     });
@@ -3652,7 +3658,7 @@ function demetricatePhotoIndex() {
             j(this).text() + '</span>');
     });
 
-    j('._5gm1,._5gl_').not('.facebookcount').each(function() {
+    j('._5gm1,._5gl_,._2ieq').not('.facebookcount').each(function() {
         j(this).html('<span style="opacity:0" class="facebookmetric_opacity">'+
             j(this).text() + '</span>');
     });
@@ -3671,6 +3677,8 @@ function demetricateChatSeparator() {
         //var chatsep = j('._55oc:eq(1)').not('.fbchatsep');
        
         // MORE FRIENDS chat separator
+
+
         var chatsepParent = j('._55ob').not('.fbchatsep');
         if(chatsepParent) {
 			chatsepParent.addClass('fbchatsep facebookmetric_toggleOFF');
@@ -3682,6 +3690,8 @@ function demetricateChatSeparator() {
 
             chatsepParent.hide();
         }
+
+
 
 
         // chat list time afk? (e.g. 2m)
@@ -3929,7 +3939,7 @@ function demetricateTimestamps() {
     if(FUNCTION_REPORT) console.log("demetricateTimestamps()");
     // adjusts all timestamps to remove the counts of those time segments 
     // (e.g. '8 minutes ago' becomes 'minutes ago')
-    j('abbr, .timestamp').not('.fbtimestamp').each(function() {
+    j('abbr, .timestamp, .livetimestamp').not('.fbtimestamp').each(function() {
         var t = j(this).text();
         var newtext;
         var newstamp;
@@ -3952,6 +3962,11 @@ function demetricateTimestamps() {
 
             t.contains('am') ||
             t.contains('pm') ||
+
+            t.contains('h') ||
+            t.contains('m') ||
+            t.contains('w') ||
+
 
             (
               (
