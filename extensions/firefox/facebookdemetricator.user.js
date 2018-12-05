@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.7.4
+// @version 1.7.5
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
-// @updateURL http://bengrosser.com/fbd/facebookdemetricator.meta.js
+// @updateURL https://bengrosser.com/fbd/facebookdemetricator.meta.js
 // @downloadURL https://bengrosser.com/fbd/facebookdemetricator.user.js
 //
 //
@@ -18,15 +18,17 @@
 // @exclude *://*.facebook.com/xti.php*
 // @exclude *://developers.facebook.com/*
 // @exclude *://code.facebook.com/*
+// @exclude *://*.facebook.com/common/referer_frame.php"
 // @exclude *://*.facebookcorewwwi.onion/ai.php*
 // @exclude *://*.facebookcorewwwi.onion/ajax/*
 // @exclude *://*.facebookcorewwwi.onion/dialog/*
 // @exclude *://*.facebookcorewwwi.onion/connect/*
 // @exclude *://*.facebookcorewwwi.onion/xti.php*
+// @exclude *://*.facebookcorewwwi.onion/common/referer_frame.php"
 // @exclude *://developers.facebookcorewwwi.onion/xti.php*
 // @exclude *://code.facebookcorewwwi.onion/xti.php*
 //
-// @icon http://bengrosser.com/fbd/fbd-logo-32.png
+// @icon https://bengrosser.com/fbd/fbd-logo-32.png
 //
 // ==/UserScript==// -----------------------------------------
 
@@ -36,13 +38,13 @@
 // 2012-present
 //
 // Benjamin Grosser
-// http://bengrosser.com
+// https://bengrosser.com
 //
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.7.4
-// http://bengrosser.com/projects/facebook-demetricator/
+// Version 1.7.5
+// https://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
 // 2012  Prospectives '12, University of Reno at Nevada
@@ -88,13 +90,13 @@ var newSearchBarWidthNarrow = 350;
 // constants
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
-var VERSION_NUMBER = '1.7.4';       // used in the console logging
+var VERSION_NUMBER = '1.7.5';       // used in the console logging
 var KEY_CONTROL = false;             // debug kb control
-var FAN_PAGE_URL = 'http://bengrosser.com';
-var DEMETRICATOR_HOME_URL = 'http://bengrosser.com/projects/facebook-demetricator/';
-var GROSSER_URL = 'http://bengrosser.com/';
+var FAN_PAGE_URL = 'https://bengrosser.com';
+var DEMETRICATOR_HOME_URL = 'https://bengrosser.com/projects/facebook-demetricator/';
+var GROSSER_URL = 'https://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox or Safari addon?
-var IS_FIREFOX_ADDON = true;       // is this just Firefox?  Need to adjust some things for FF' slow performance
+var IS_FIREFOX_ADDON = trrue;       // is this just Firefox?  Need to adjust some things for FF' slow performance
 var DBUG = false;                   // more debugging
 var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
 var HAS_GRAPH_SEARCH = true;        // does the user have graph search?
@@ -186,10 +188,8 @@ function toggleDemetricator() {
 
         // graph search
         if(HAS_GRAPH_SEARCH) {
-            demetricateGraphSearchResults();
-
-            // --- REMOVE 1.7
-            //demetricateGraphSearchSelectorOverview();
+            // needs rework, not active in dec 2018
+            //demetricateGraphSearchResults();
         }
 
         // fade out all selectors in fadeClasses
@@ -301,11 +301,6 @@ function toggleDemetricator() {
         j('.fbNubButton span.fbdchatlabel').hide();
         j('.fbNubButton span.label').not('.fbdchatlabel').show();
 
-        // REMOVE 1.7.0
-        // timeline ribbon dropdown is too much trouble to hide/show due to how
-        // FB updates it after clicking, so I instead animate its color for fade in/out
-        // j('.fbTimelineMoreButton').find('.fbTimelineRibbon').find('.text').animate({color:RIBBON_TEXT_COLOR});
-
         // view all XX comments - restore them to my previously stored count in the oldvalue attribute
         j('.fbviewallcomments').each(function() { j(this).attr('value',j(this).attr('oldvalue')); });
 
@@ -372,6 +367,8 @@ function main() {
            startURL.contains("/dialog/") ||
            startURL.contains("/connect/") ||
            startURL.contains("code.facebook.com") ||
+           startURL.contains("referer_frame.php") ||
+           startURL.contains("xti.php") ||
            startURL.contains("developers.facebook.com") 
            ) return; 
     }
@@ -397,12 +394,7 @@ function main() {
         j('._5n6h._2pih').css('opacity','0');
         return;
     }
-    // --- REMOVE GSSO 1.7.0
-    //demetricateGraphSearchSelectorOverview();
     
-    // 1.7 why is this here?
-    //demetricateGraphSearchResults();
-
 
     // FBD DIALOG -----------------
     
@@ -528,7 +520,7 @@ function launchPolling() {
     // the morepager at the bottom because it catches top stories as well
     // also catches dynamically loaded ticker stories when hovered over (?)
     
-    if(IS_FIREFOX_ADDON) COUNT_INTERVAL = 1500;
+    if(IS_FIREFOX_ADDON) COUNT_INTERVAL = 1100;
     else COUNT_INTERVAL = 800;
 
     COUNT_INTERVAL = 800;
@@ -541,7 +533,11 @@ function launchPolling() {
         
         //var lateststorycount = j('._5jmm').length;
         
+        // dec 2018 adding additional blocks to count (for Timeline and Pages - thx FB)
         var lateststorycount = j('._4ikz').length;
+        lateststorycount += j('._5pcb').length;
+        lateststorycount += j('._4-u2').length;
+
         var latesttimelineblockcount = j('.fbTimelineUnit').length;
         var latestphotogridcount = j('.fbPhotoStarGridElement').length;
 
@@ -615,11 +611,9 @@ function launchPolling() {
         }
         */
 
-        /*
         if(latestfriendblockcountVER2 > friendBlockCountVER2) {
             setTimeout(function() { if(demetricatorON) demetricateFriendPageBlocks(); }, 250);
         }
-        */
 
 
         timelineUnitCount = latesttimelineblockcount;
@@ -634,7 +628,8 @@ function launchPolling() {
     }, COUNT_INTERVAL);
 
     // graph search autosuggest results
-    waitForKeyElements('._21c', demetricateGraphSearchAutoSuggest, false); 
+    // dec 2018 prob defunct 
+    // waitForKeyElements('._21c', demetricateGraphSearchAutoSuggest, false); 
 
     // notifications drop down timestamps
     // REMOVE  1.7
@@ -645,13 +640,18 @@ function launchPolling() {
     */
 
     // dynamic comment changes (insertions, likes, timestamps)
+    // dec 2018 may be defunct
+    /*
     waitForKeyElements('.UFIComment', function() {
         demetricateTimestamps();
         demetricateCommentLikeButton();
     }, false);
+    */
 
 
-    waitForKeyElements('.UFIPagerLink span', demetricateViewAllComments, false);
+    //waitForKeyElements('.UFIPagerLink span', demetricateViewAllComments, false);
+    waitForKeyElements('.UFIPagerLink', demetricateViewAllComments, false);
+    waitForKeyElements('._4ssp', demetricateViewMoreComments, false);
 
     // friend-finder
     // not operating, need to redo or abandon jul 2016
@@ -672,6 +672,8 @@ function launchPolling() {
 
     // reaction metric like sentence updates
     waitForKeyElements('._3t53:not(".facebookcount")', attachReactionDemetricator, false);
+    // 2018 adding 3dlf for timeline
+    waitForKeyElements('._3dlf:not(".facebookcount")', attachReactionDemetricator2, false);
 
     // tooltips
     //waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked, #__sizzle__", :contains("#facebar_typeahead_view_list"))', attachTooltipDemetricator, false);
@@ -711,17 +713,19 @@ function launchPolling() {
    // waitForKeyElements('.detailedsearch_result', demetricateAddFriendButtons, false);
 
     // new timeline 5/2013
-    waitForKeyElements('.FriendButton', demetricateAddFriendButtons, false);
+    waitForKeyElements('.FriendButton', demetricateAddFriendButtons, false); // working dec 2018
 
     // search result items
     // needs work
     //waitForKeyElements('ul.search li', demetricateSearchResultEntries, false);
 
     // thumbs-up like counts on comments
-    waitForKeyElements('.UFICommentLikeButton', demetricateCommentLikeButton, false);
+    // dec 2018 prob superseded by ._1lld block below, hidiing for now
+    // waitForKeyElements('.UFICommentLikeButton', demetricateCommentLikeButton, false);
 
     // ego section (news feed sidebar)
-    waitForKeyElements('.ego_column', demetricateEgoSection, false);
+    // possibly defunct dec 2018
+    // waitForKeyElements('.ego_column', demetricateEgoSection, false);
 
     // chat list (e.g. 'MORE ONLINE FRIENDS (8)')
 
@@ -734,7 +738,7 @@ function launchPolling() {
 
     // chat tabs
     //waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
-    waitForKeyElements('.fbNubButton', demetricateChatTab, false);
+    waitForKeyElements('.fbNubButton', demetricateChatTab, false); // working dec 2018
 
     // new 'related' boxes that show up after you click a link on the new new newsfeed
     //waitForKeyElements('._5d73', function(jn) {
@@ -743,43 +747,50 @@ function launchPolling() {
     //    jn.find('._4pp').not('.facebookcount').addClass('facebookcount facebookmetric_hideshow').hide();
     //}, false);
 
-    waitForKeyElements('._3lkn', function(jn) {
-        console.log("HERljkasdlfkjasdfj");
-        console.log("--> "+jn.html());
+    // possibly defunct dec 2018 - hiding for now
+//    waitForKeyElements('._3lkn', function(jn) {
+//    
+//        setTimeout(function() {
+//        // related/suggested items SHARED counts
+//        jn.find('div.mts span span').not('.facebookcount').each(function() {
+//            wrapNumberInString(j(this));
+//        });
+//        
+//        // suggested videos VIEWED counts
+//        jn.find('div.mts span').not('.facebookcount').each(function() {
+//        j(this).addClass('facebookcount');
+//            var h = j(this).html();
+//            if(h) {
+//                var parsed = h.match(/(\s·\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+//                if(parsed) {
+//                    var newh = parsed[1]+
+//                        "<span class='facebookmetric_hideshow' style='display:none;'>"+parsed[2]+"</span>"+
+//                        parsed[3];
+//                    j(this).html(newh);
+//                }
+//            }
+//        });
+//        }, 500);
+//    });
 
-        setTimeout(function() {
-        // related/suggested items SHARED counts
-        jn.find('div.mts span span').not('.facebookcount').each(function() {
-            wrapNumberInString(j(this));
-        });
-        
-        // suggested videos VIEWED counts
-        jn.find('div.mts span').not('.facebookcount').each(function() {
-        j(this).addClass('facebookcount');
-            var h = j(this).html();
-            if(h) {
-                var parsed = h.match(/(\s·\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
-                if(parsed) {
-                    var newh = parsed[1]+
-                        "<span class='facebookmetric_hideshow' style='display:none;'>"+parsed[2]+"</span>"+
-                        parsed[3];
-                    j(this).html(newh);
-                }
-            }
-        });
-        }, 500);
-    });
-
-    
+    // thumbsup like button dec 2018
+    waitForKeyElements('._1lld', function(jn) {
+        if(jn.not('.facebookcount')) {
+            jn.addClass('facebookcount facebookmetric_hideshow').hide();
+        }
+    }, false);
 
 
     // new metrics in the search bar 2016
+    // prob defunct dec 2018, hiding for now
+    /*
     waitForKeyElements('.injectedSearchSuggestion div', function(jn) {
         if(jn.not('.facebookcount')) {
             jn.addClass('facebookcount');
             wrapNumberInString(jn);
         }
     }, true);
+    */
 
 
     // storage
@@ -812,9 +823,10 @@ function launchPolling() {
     bodyObserver.observe(bodyNode[0], observerConfig);
 
     // for dropdown notifications from the navbar icon
-    if(notificationsFlyoutNode != undefined) {
+    // prob defunct dec 2018?
+    //if(notificationsFlyoutNode != undefined) {
     //    notificationsObserverLauncher.observe(notificationsFlyoutNode, { childList: true, subtree: true} );
-    }
+    //}
 
     // launch an observer manually if we happened to have loaded a direct link to a photo overlay
     // (e.g. someone pasted or clicked a link directly to an image)
@@ -1023,7 +1035,7 @@ var hovercardObserver = new MutationObserver(function(mutations) {
                     }
 
                     // covers most metrics in a hovercard when metric starts the line
-                    j(nl[i]).find('._c24._50f3, a[data-hover], .pageByline li, div.mts._7lo div.fsm.fwn.fcg').
+                    j(nl[i]).find('._c24._50f3, a[data-hover], .pageByline li, div.mts._7lo .fsm.fwn.fcg,._2p4n').
                         not('.facebookcount').each(function() {
                             j(this).addClass('facebookcount');
 
@@ -1416,7 +1428,8 @@ function demetricate(callback) {
     demetricateTimestamps();
 
     // PAGERS
-    demetricatePagers();
+    // dec 2018 doubting this is still active, from ver 1.0
+    // demetricatePagers();
     
     // COMMENTS - comment like buttons, also called via waitForKeyElements
     demetricateCommentLikeButton();
@@ -1425,7 +1438,8 @@ function demetricate(callback) {
     demetricateViewAllComments();
 
     // COMMENTS - comment like buttons, also called via waitForKeyElements
-    demetricateLikesThis();
+    // dec 2018 pretty sure this is defunct now
+    // demetricateLikesThis();
 
     // COUNTERS (left hand col counts (messages, events, etc.) and other places
     demetricateCounters();
@@ -1434,7 +1448,8 @@ function demetricate(callback) {
     //demetricateChatSeparator();
 
     // SHARES
-    demetricateShareCount();
+    // dec 2018 defunct?
+    // demetricateShareCount();
 
     // NEWS FEED
     if(j('body.home').length) {
@@ -1458,22 +1473,36 @@ function demetricate(callback) {
         demetricateTimeline(); 
     }
 
+    if(j('#pagelet_timeline_main_column').length) {
+        demetricateNewsfeed();
+        demetricateTimeline(); 
+    }
+
+
     // MUSIC
-    if(curURL.contains('music')) demetricateMusic();
+    // this is SO OLD, doubt it works dec 2018
+    // if(curURL.contains('music')) demetricateMusic();
 
     // SEARCH RESULTS page
-    demetricateSearchResult(j('.detailedsearch_result'));
+    // dec 2018 unlikely this is still working
+    // demetricateSearchResult(j('.detailedsearch_result'));
 
     // APP CENTER
+    // dec 2018 defunct
+    /*
     if(j('body.app_center').length) {
         demetricateAppCenter();
     } 
+    */
 
     // EVENTS/CALENDAR 
     // new new event_navigation_header ... seems event pages lost body classes for ID
+    // dec 2018 looks defunct
+    /*
     if(j('body.fbCalendar').length || j('body.fbEventPermalink').length || j('#event_navigation_header').length) {
         demetricateEvents();
     } 
+    */
 
     // GROUP pages
     if(curURL.contains('groups') || startURL.contains('groups')) { 
@@ -1515,6 +1544,11 @@ function demetricate(callback) {
     // tag count on photo tag overlays
     j('.tagPhotoLink a.uiLinkLightBlue').not('.facebookcount').
         addClass('facebookcount facebookmetric_hideshow').hide();
+
+    // Page like counts, etc
+    j('._4bl9 div,._4bl9 span a').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
 
     // CALLBACK for launchPolling()
     if(callback) callback();
@@ -1754,6 +1788,59 @@ function attachTooltipDemetricator(n) {
         */
     }
 }
+
+// Reaction Metrics
+// Dec 2018 
+
+// receives a like sentence element as part of a reaction cluster
+// maybe should receive the cluster and manage from there?
+function attachReactionDemetricator2(p) {
+    // olsn is the original like sentence node as part of parent p
+    var olsn = p.find('._3dlh._3dli');
+
+    // find the metric tracker in this cluster p, tag and hide
+	//p.find('._1g5v').css('opacity','0');
+	//p.find('._3dlg').css('opacity','0').addClass('facebookmetric_opacity');
+	p.find('._3dlg').hide().addClass('facebookmetric_hideshow');
+
+    // clone the lsn for future demetrication toggling as a demetricated like sentence node (dlsn)
+	var dlsn = olsn.clone();
+    var dlsnspan = dlsn.find('span');
+    // was -100px
+	dlsn.css('margin-left','0px').addClass('facebookmetric_toggleON');
+	//dlsnspan.removeAttr('data-tooltip-uri id').addClass('fbd_demetricatedLikeSentence');
+	dlsnspan.removeAttr('id').addClass('fbd_demetricatedLikeSentence');
+
+    // demetricate the clone's like sentence text
+	cloneSentence = dlsnspan.text();
+    dlsnspan.text(removeMetricFromLikeSentence(cloneSentence));
+
+    // tag and hide the original like sentence node (olsn)
+    olsn.addClass('facebookmetric_toggleOFF').hide();
+    olsn.find('span').addClass('fbd_origLikeSentence');
+
+    // change order of elements so original tracking obj doesn't break tooltip link
+    olsn.insertBefore(olsn.parent().find('._1g5v'));
+
+    // append the clone to the DOM underneath the original
+	olsn.parent().prepend(dlsn);
+
+    // bind a listener adjust the cloned like sentence on any metric tracker updates
+	olsn.bind("DOMSubtreeModified", function() {
+        var newls = j(this).find('.fbd_origLikeSentence').text();
+        var dls = removeMetricFromLikeSentence(newls);
+        // tooltip content isn't filled out until a hover event
+        // var ttc = j(this).attr('data-tooltip-content');
+        j(this).parent().find('.fbd_demetricatedLikeSentence').text(dls);
+	});
+}
+
+
+
+
+
+
+
 
 // Reaction Metrics
 // Feb 2016
@@ -2240,11 +2327,30 @@ function demetricateNewsfeed() {
     });
 
         // live video "views"
-    j('._1t6k span.fcg, ._3x-2 div._3-8n div._50f8').not('.facebookcount').each(function() {
+    j('._1t6k span.fcg, ._3x-2 div._3-8n div._50f8, ._ipm ._2x0m').not('.facebookcount').each(function() {
 	    wrapNumberInString(this);
     });
 
-    
+    // X Comments
+        j('._3hg-._42ft, ._3rwx._42ft').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+
+
+    // 3 of 29 comment counts
+    j('._3bu3._293g').not('.facebookcount').addClass('facebookmetric_hideshow').hide();
+
+    // Your Page (1)
+    /*
+    j('#homepage_panel_pagelet div._p span').each(function(jn) {
+        var n = j(jn).find('div._p span');
+        var h = n.html();
+        console.log("pcode: "+j(jn).html());
+        console.log("code: "+h);
+        var regex = /\(\d\)/;
+        if(regex) n.html(h.replace(regex,"()"));
+    });
+    */
 
 } // end demetricateNewsfeed()
 
@@ -2255,6 +2361,12 @@ function demetricateNewTimeline() {
     // ALL TIMELINE PAGES
     // ####
     
+    //console.log("newtimeline()");
+        // video "views"
+    j('._ipm._2x0m').not('.facebookcount').each(function() {
+	    wrapNumberInString(this);
+    });
+
     // timeline header counts (about, photos, etc.)
     j('._gs6').each(function() {
         j(this).addClass('facebookcount facebookmetric_opacity').
@@ -2421,6 +2533,30 @@ j('._34mw').not('.facebookcount').each(function() {
 });
 
 
+    // x items for review
+        j('._c24._50f3').not('.facebookcount').each(function() {
+            j(this).addClass('facebookcount');
+            wrapNumberInString(j(this));
+        });
+
+
+    // video "views"
+    j('._ipm._2x0m').not('.facebookcount').each(function() {
+	    wrapNumberInString(this);
+    });
+
+
+        // X Comments
+    j('._3hg-._42ft, ._3rwx._42ft, ._ipm._-56').not('.facebookcount').each(function() {
+        wrapNumberInString(this);
+    });
+//2p4n 2ieq
+
+
+    // 3 of 29 comment counts
+    j('._3bu3._293g').not('.facebookcount').addClass('facebookmetric_hideshow').hide();
+
+    
 
 	
 
@@ -2858,6 +2994,9 @@ function demetricateTimeline() {
     });
 
 
+
+
+
     // timeline favorites reports friend counts
     j('.pageBox a[rel="dialog"]').not('.facebookcount').each(function() {
         wrapNumberInString(this);
@@ -3009,8 +3148,8 @@ function demetricateChatTab() {
 
     j('#BuddylistPagelet .fbNubButton').not('.demetricatedchat').each(function() {
         j(this).addClass('demetricatedchat');
-        j(this).append('<span class="fbdchatlabel" style="line-height:15px;">Chat</span>');
-        j(this).find('span.label').hide();
+        j(this).append('<span class="fbdchatlabel label" style="line-height:15px;">Chat</span>');
+        j(this).find('span.label').not(".fbdchatlabel").hide();
     });
 
 
@@ -3095,6 +3234,19 @@ function demetricateMusic() {
 
 // NEW FRIENDS PAGE
 function demetricateFriendPageBlocks() {
+
+    if(demetricatorON) {
+        j('._3d0,._3cz span._51lp').not('.facebookcount').hide();
+    }
+
+    j('#pagelet_timeline_medley_friends a._39g5').not('.fbd_modified').each(function() {
+        j(this).addClass('fbd_modified');
+        var txt = j(this).text();
+        if(txt.contains("friend")) {
+            wrapNumberInString(this);
+        }
+    });
+
 
     // new friend page mutual friend counts
     j('#pagelet_friends a.uiLinkSubtle').not('.fbmutualfriends').each(function() {
@@ -3718,6 +3870,39 @@ function demetricateChatSeparator() {
     }
 }
 
+
+// 'View all 4 comments'
+function demetricateViewMoreComments(jnode) {
+
+    if(demetricatorON) {
+
+        if(FUNCTION_REPORT) console.log("demetricateViewMoreComments()");
+
+    if(!jnode) {
+        return;
+        // jnode = j('.UFIPagerLink span');
+        // dropped span jul 2016
+        jnode = j('.UFIPagerLink');
+    }
+
+        var p = jnode.parent()
+        if(p.hasClass('demetricated')) return;
+        p.addClass('demetricated');
+        var clone = jnode.clone();
+        jnode.addClass('facebookmetric_toggleOFF').hide();
+        clone.addClass('facebookmetric_toggleON');
+        if(jnode.text().contains("comment")) clone.text("View more comments");
+        else if(jnode.text().contains("repl")) clone.text("View more replies");
+        p.prepend(clone);
+
+
+
+
+
+    }
+
+}
+
 // 'View all 4 comments'
 function demetricateViewAllComments(jnode) {
 
@@ -3745,6 +3930,16 @@ function demetricateViewAllComments(jnode) {
 
                 j(this).addClass('demetricatedviewall');
             } 
+            else {
+                            var h = j(this).html();
+            var parsed2 = h.match(/(.*-->View\s)(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+            if(parsed2) {
+                var newh = parsed2[1]+"<span class='facebookmetric_hideshow' style='display:none;'>"+
+                    parsed2[2]+"</span>"+parsed2[3];
+
+                j(this).html(newh);
+            }
+            }
 
         });
 
@@ -3770,10 +3965,18 @@ function demetricateViewAllComments(jnode) {
                     parsed[2]+"</span>"+parsed[3];
 
                 j(this).html(newh);
+            } else {
+                var parsed2 = h.match(/(\d+(?:[,,.]\d+)*[K|M|k|m]?\s)(.*)/);
+                if(parsed2) {
+                    var newh = "<span class='facebookmetric_hideshow' style='display:none;'>"+ parsed2[1]+"</span>"+parsed2[2];
+                    j(this).html(newh);
+                }
             }
         });
 
         // pager comments (e.g. View 3 more comments) -- jun 2016
+        // superseded above in 2018
+        /*
         j('.UFIPagerLink').not('.facebookmetric').each(function() {
             j(this).addClass('facebookmetric');
             var h = j(this).html();
@@ -3785,6 +3988,7 @@ function demetricateViewAllComments(jnode) {
                 j(this).html(newh);
             }
         });
+        */
 
 
 
@@ -3965,7 +4169,9 @@ function demetricateTimestamps() {
 
             t.contains('h') ||
             t.contains('m') ||
+            t.contains('d') ||
             t.contains('w') ||
+            t.contains('y') ||
 
 
             (
