@@ -208,6 +208,9 @@ function toggleDemetricator() {
         j('.fbNubButton span.label').hide();
         j('.fbNubButton span.fbdchatlabel').show();
 
+        // FB chat changes dec 2018
+        j('._429n').css('color','red');
+
         // drop-down on the timeline ribbon
         j('.fbTimelineMoreButton').find('.fbTimelineRibbon').find('.text').animate({color:"#fff"}, FADE_SPEED);
 
@@ -300,6 +303,9 @@ function toggleDemetricator() {
         // FB changes, 2/20/2012
         j('.fbNubButton span.fbdchatlabel').hide();
         j('.fbNubButton span.label').not('.fbdchatlabel').show();
+
+        // FB chat changes dec 2018
+        j('._429n').css('color','white');
 
         // view all XX comments - restore them to my previously stored count in the oldvalue attribute
         j('.fbviewallcomments').each(function() { j(this).attr('value',j(this).attr('oldvalue')); });
@@ -729,16 +735,18 @@ function launchPolling() {
 
     // chat list (e.g. 'MORE ONLINE FRIENDS (8)')
 
-    /*
+    /* needs more work dec 2018, wait for 1.7.6
     waitForKeyElements('._55oc', function() { 
-        setTimeout(function() { demetricateChatSeparator(); }, 50);
+        setTimeout(function() { demetricateChatSeparator(); }, 250);
     }, false);
     */
 
 
     // chat tabs
     //waitForKeyElements('.fbMercuryChatTab', demetricateChatTab, false);
-    waitForKeyElements('.fbNubButton', demetricateChatTab, false); // working dec 2018
+    //waitForKeyElements('.fbNubButton', demetricateChatTab, false); 
+    waitForKeyElements('._429n, ._6d4j', demetricateChatTab, false); // working dec 2018
+
 
     // new 'related' boxes that show up after you click a link on the new new newsfeed
     //waitForKeyElements('._5d73', function(jn) {
@@ -3154,16 +3162,32 @@ function demetricateChatTab() {
 
 
 	// feb 2016 updated chat nub metrics
+    // maybe not working dec 2018
+    /*
 	j('.messagesIcon').parent().find('span').
 		not('.facebookcount').addClass('facebookcount facebookmetric_opacity').css('opacity','0');
+        */
 
     // new new chattab metric
-    j('#ChatTabsPagelet .fbChatTab ._51jx').not('.facebookcount').
+    //j('#ChatTabsPagelet .fbChatTab ._51jx').not('.facebookcount').
+    j('#ChatTabsPagelet ._429n').not('.facebookcount').
         each(function() {
+            /*
             j(this).addClass('facebookcount facebookmetric_hideshow');
             j(this).css('display','none');
+            */
+            j(this).addClass('facebookcount');
+            j(this).css('color','red');
+
+
+
         }
       );
+
+            j('._6d4j').not('.facebookcount').each(function() {
+                j(this).addClass('facebookcount');
+                wrapNumberInString(j(this));
+            });
 }
 
 
@@ -3831,19 +3855,36 @@ function demetricateChatSeparator() {
         // MORE FRIENDS chat separator
 
 
+        /* defunct dec 2018
         var chatsepParent = j('._55ob').not('.fbchatsep');
         if(chatsepParent) {
 			chatsepParent.addClass('fbchatsep facebookmetric_toggleOFF');
 
             var chatsepDupe = chatsepParent.clone();
-            chatsepDupe.find('._55oc').text("MORE FRIENDS");
+            chatsepDupe.find('._55oc').text("MORE CONTACTS");
             chatsepDupe.addClass('facebookmetric_toggleON');
+            if(chatsepParent.hasClass('fbchatsep')) return;
             chatsepDupe.insertAfter(chatsepParent);
 
             chatsepParent.hide();
         }
+        */
 
 
+        /* needs more work dec 2018, save for 1.7.6 */
+        if(j(this).hasClass('.fbchatsep')) return;
+        else {
+            j(this).addClass('fbchatsep');
+            var ocsp = j(this).parent();
+            if(ocsp && ocsp.text().contains("MORE CONTACTS")) {
+                var ocs = j(this);
+                var ccs = ocs.clone();
+                ccs.text("MORE CONTACTS");
+                ocs.addClass("facebookmetric_toggleOFF");
+                ccs.addClass("facebookmetric_toggleON");
+                ccs.insertAfter(ocsp);
+            }
+        }
 
 
         // chat list time afk? (e.g. 2m)
