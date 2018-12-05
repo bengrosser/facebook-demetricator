@@ -1,6 +1,6 @@
 {
     "name": "Facebook Demetricator",
-    "version": "1.7.3",
+    "version": "1.7.5",
     "description": "Hides all the metrics on Facebook",
     "homepage_url": "http://bengrosser.com/projects/facebook-demetricator/",
     "manifest_version": 2,
@@ -16,6 +16,7 @@
                                     "*://*.facebook.com/dialog/*", 
                                     "*://*.facebook.com/xti.php*", 
                                     "*://*.facebook.com/connect/*",
+                                    "*://*.facebook.com/common/referer_frame.php",
                                     "*://developers.facebook.com/*", 
                                     "*://code.facebook.com/*", 
                                     "*://*.facebookcorewwwi.onion/ai.php*",
@@ -23,6 +24,7 @@
                                     "*://*.facebookcorewwwi.onion/dialog/*",
                                     "*://*.facebookcorewwwi.onion/connect/*",
                                     "*://*.facebookcorewwwi.onion/xti.php*",
+                                    "*://*.facebookcorewwwi.onion/common/referer_frame.php",
                                     "*://developers.facebookcorewwwi.onion/xti.php*",
                                     "*://code.facebookcorewwwi.onion/xti.php*"
                                 ],
@@ -31,6 +33,7 @@
                                     "*://*.facebook.com/dialog/*", 
                                     "*://*.facebook.com/xti.php*", 
                                     "*://*.facebook.com/connect/*", 
+                                    "*://*.facebook.com/common/referer_frame.php",
                                     "*://developers.facebook.com/*", 
                                     "*://code.facebook.com/*", 
                                     "*://*.facebookcorewwwi.onion/ai.php*",
@@ -38,6 +41,7 @@
                                     "*://*.facebookcorewwwi.onion/dialog/*",
                                     "*://*.facebookcorewwwi.onion/connect/*",
                                     "*://*.facebookcorewwwi.onion/xti.php*",
+                                    "*://*.facebookcorewwwi.onion/common/referer_frame.php",
                                     "*://developers.facebookcorewwwi.onion/xti.php*",
                                     "*://code.facebookcorewwwi.onion/xti.php*"
                                 ],
