@@ -96,7 +96,7 @@ var FAN_PAGE_URL = 'https://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'https://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'https://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox or Safari addon?
-var IS_FIREFOX_ADDON = trrue;       // is this just Firefox?  Need to adjust some things for FF' slow performance
+var IS_FIREFOX_ADDON = true;       // is this just Firefox?  Need to adjust some things for FF' slow performance
 var DBUG = false;                   // more debugging
 var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
 var HAS_GRAPH_SEARCH = true;        // does the user have graph search?
@@ -886,8 +886,8 @@ var bodyObserver = new MutationObserver(function(mutations) {
 
                                 j(this).addClass('facebookcount');
 
-                                console.log("found a notification popup notification -->");
-                                console.log(j(this).html());
+                                //console.log("found a notification popup notification -->");
+                                //console.log(j(this).html());
 
                                 var h = j(this).html();
 
