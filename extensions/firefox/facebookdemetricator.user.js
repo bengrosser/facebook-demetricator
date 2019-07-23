@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.7.5
+// @version 1.7.6
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -43,7 +43,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.7.5
+// Version 1.7.6
 // https://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -90,13 +90,13 @@ var newSearchBarWidthNarrow = 350;
 // constants
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
-var VERSION_NUMBER = '1.7.5';       // used in the console logging
+var VERSION_NUMBER = '1.7.6';       // used in the console logging
 var KEY_CONTROL = false;             // debug kb control
 var FAN_PAGE_URL = 'https://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'https://bengrosser.com/projects/facebook-demetricator/';
 var GROSSER_URL = 'https://bengrosser.com/';
 var IS_SAFARI_OR_FIREFOX_ADDON = true;        // is this a Firefox or Safari addon?
-var IS_FIREFOX_ADDON = true;       // is this just Firefox?  Need to adjust some things for FF' slow performance
+var IS_FIREFOX_ADDON = false;       // is this just Firefox?  Need to adjust some things for FF' slow performance
 var DBUG = false;                   // more debugging
 var FUNCTION_REPORT = false;        // rudimentary function reporting to the console
 var HAS_GRAPH_SEARCH = true;        // does the user have graph search?
@@ -375,6 +375,7 @@ function main() {
            startURL.contains("code.facebook.com") ||
            startURL.contains("referer_frame.php") ||
            startURL.contains("xti.php") ||
+           startURL.contains("referer_frame.php") ||
            startURL.contains("developers.facebook.com") 
            ) return; 
     }
@@ -679,7 +680,10 @@ function launchPolling() {
     // reaction metric like sentence updates
     waitForKeyElements('._3t53:not(".facebookcount")', attachReactionDemetricator, false);
     // 2018 adding 3dlf for timeline
-    waitForKeyElements('._3dlf:not(".facebookcount")', attachReactionDemetricator2, false);
+    //waitForKeyElements('._3dlf:not(".facebookcount")', attachReactionDemetricator2, false);
+    waitForKeyElements('._3dlf:not(".facebookcount")', function(n) {
+        attachReactionDemetricator2(n);
+    }, false);
 
     // tooltips
     //waitForKeyElements('.uiContextualLayerPositioner:not(".fbd_tracked, #__sizzle__", :contains("#facebar_typeahead_view_list"))', attachTooltipDemetricator, false);
@@ -1803,17 +1807,21 @@ function attachTooltipDemetricator(n) {
 // receives a like sentence element as part of a reaction cluster
 // maybe should receive the cluster and manage from there?
 function attachReactionDemetricator2(p) {
+    
+    p.addClass('facebookcount');
+
     // olsn is the original like sentence node as part of parent p
     var olsn = p.find('._3dlh._3dli');
 
     // find the metric tracker in this cluster p, tag and hide
 	//p.find('._1g5v').css('opacity','0');
 	//p.find('._3dlg').css('opacity','0').addClass('facebookmetric_opacity');
+    //
 	p.find('._3dlg').hide().addClass('facebookmetric_hideshow');
 
     // clone the lsn for future demetrication toggling as a demetricated like sentence node (dlsn)
 	var dlsn = olsn.clone();
-    var dlsnspan = dlsn.find('span');
+    var dlsnspan = dlsn.find('span._81hb'); // adding ._81hb jul 2019
     // was -100px
 	dlsn.css('margin-left','0px').addClass('facebookmetric_toggleON');
 	//dlsnspan.removeAttr('data-tooltip-uri id').addClass('fbd_demetricatedLikeSentence');
@@ -1824,7 +1832,21 @@ function attachReactionDemetricator2(p) {
     dlsnspan.text(removeMetricFromLikeSentence(cloneSentence));
 
     // tag and hide the original like sentence node (olsn)
+    //olsn.addClass('facebookmetric_toggleOFF').hide();
+    
     olsn.addClass('facebookmetric_toggleOFF').hide();
+
+    // jul 23 2019
+    // dealing with how FB hides single metric underneath like sentence
+    // and relies on width of comments/shares section to push like sentence
+    // out of sight when necessary ... so I test for the comments/shares width
+    // to see if it's going to push things out of the way and act accordingly
+    var trkr = p.parent().parent().find('._4vn1');
+    if(trkr.width() > 100) {
+        dlsn.hide();
+        dlsn.removeClass('facebookmetric_toggleON');
+    }
+   
     olsn.find('span').addClass('fbd_origLikeSentence');
 
     // change order of elements so original tracking obj doesn't break tooltip link
@@ -2093,8 +2115,10 @@ function demetricateNewsfeed() {
     // TODO: needs some cleanup...we don't need to alter the HTML here, just the inline text
     // might need a new function to handle that job, but this is giving hte right visual for hte moment
     j('.uiStreamMessage').find('a[data-hover="tooltip"]').not('.facebookcount').each(function() {
+        //TEST
         wrapNumberInString(this);
         //console.log("HERE???? 999");
+        console.log("HERE???? 10005");
     });
 
 
@@ -2125,10 +2149,13 @@ function demetricateNewsfeed() {
 
 
     // suggested page people like this metrics
+    /*
     j('.socialContext a[data-hover]').not('.facebookcount').each(function() {
         j(this).addClass('facebookcount');
         wrapNumberInString(this);
+        console.log("HERE???? 10006");
     });
+    */
 
     // newsfeed event blocks '8 people are going'
     j('._8m .mtm, ._42ef .mtm').not('.facebookcount').each(function() { 
@@ -2257,6 +2284,7 @@ function demetricateNewsfeed() {
 
     // newsfeed attachment like counts (e.g. 'Someone and 17 others like this')
     j('.uiAttachmentDesc a[data-hover="tooltip"]').not('.facebookcount').each(function() {
+        console.log("HERE???? 10007");
         j(this).addClass('facebookcount');
         var txt = j(this).text();
         var parsed = txt.match(/^(\d+(?:,\d+)*)\s+(.*)/);
@@ -2329,7 +2357,7 @@ function demetricateNewsfeed() {
     // stream headline metrics (e.g. "Ben and 2 others shared a link")
     j(this).find('a[data-hover="tooltip"]').each(function() {
         wrapNumberInString(j(this));
-        //console.log("HERE???? 10000");
+        console.log("HERE???? 10000");
 
 
     });
@@ -2424,7 +2452,8 @@ function demetricateNewTimeline() {
     // new followed by changed jul 2016
     //j('._5lrv li:last a').each(function() { ---> feb 2016
     
-    j('#intro_container_id li:last a').each(function() {
+    
+    j('#intro_container_id li div._50f3 a').each(function() {
         var txt = j(this).text();
         if(txt.contains("people")) {
             wrapNumberInString(this);
@@ -2786,6 +2815,7 @@ function demetricateTimeline() {
     j('.timelineRecentActivityTextBlock a[data-hover="tooltip"]').not('fbtimelineblockcounts').each(function() {
         j(this).addClass('fbtimelineblockcounts');
         wrapNumberInString(this);
+        console.log("HERE???? 10001");
     });
 
 
@@ -2955,6 +2985,7 @@ function demetricateTimeline() {
 
         // yet another way of listing photo counts in timeline boxes
         var nextitem = j(this).find('a[data-hover="tooltip"]');
+        console.log("HERE???? 10002");
 
         if(nextitem) {
             var nexttxt = nextitem.text();
@@ -3574,6 +3605,7 @@ function demetricateGroups() {
     // group feed member counts ('someone and 11 other people are in this group')
     j('#pagelet_group_pager .groupsStreamMemberBoxNames a[data-hover="tooltip"]').not('.facebookcount').each(function() {
         wrapNumberInString(this);
+        console.log("HERE???? 10003");
     });
 
     j('.uiStreamShowAll a').find('span').not('.facebookcount').each(function() {
