@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Facebook Demetricator
-// @version 1.7.6
+// @version 1.7.7
 // @namespace facebookdemetricator
 // @description Removes all the metrics from Facebook
 
@@ -43,7 +43,7 @@
 // Winner of a Terminal Award for 2012-13
 // http://terminalapsu.org
 //
-// Version 1.7.6
+// Version 1.7.7
 // https://bengrosser.com/projects/facebook-demetricator/
 //
 // Major Exhibitions:
@@ -90,7 +90,7 @@ var newSearchBarWidthNarrow = 350;
 // constants
 var FADE_SPEED = 175;               // used in jQuery fadeIn()/fadeOut()
 var ELEMENT_POLL_SPEED = 750;       // waitForKeyElements polling interval 
-var VERSION_NUMBER = '1.7.6';       // used in the console logging
+var VERSION_NUMBER = '1.7.7';       // used in the console logging
 var KEY_CONTROL = false;             // debug kb control
 var FAN_PAGE_URL = 'https://bengrosser.com';
 var DEMETRICATOR_HOME_URL = 'https://bengrosser.com/projects/facebook-demetricator/';
@@ -1806,6 +1806,8 @@ function attachTooltipDemetricator(n) {
 
 // receives a like sentence element as part of a reaction cluster
 // maybe should receive the cluster and manage from there?
+//
+// this function is a hacky shitstorm
 function attachReactionDemetricator2(p) {
     
     p.addClass('facebookcount');
@@ -1821,15 +1823,21 @@ function attachReactionDemetricator2(p) {
 
     // clone the lsn for future demetrication toggling as a demetricated like sentence node (dlsn)
 	var dlsn = olsn.clone();
-    var dlsnspan = dlsn.find('span._81hb'); // adding ._81hb jul 2019
-    // was -100px
 	dlsn.css('margin-left','0px').addClass('facebookmetric_toggleON');
+
+    var dlsnspan = dlsn.find('span._81hb').not('.fbd_demetricatedLikeSentence'); // adding ._81hb jul 2019
+    if(dlsnspan != undefined) {
+    // was -100px
 	//dlsnspan.removeAttr('data-tooltip-uri id').addClass('fbd_demetricatedLikeSentence');
-	dlsnspan.removeAttr('id').addClass('fbd_demetricatedLikeSentence');
+	dlsnspan.parent().removeAttr('id').addClass("WASHERE").attr('id','test2');
+    //console.log(dlsnspan.parent());
+	dlsnspan.removeAttr('id').addClass('fbd_demetricatedLikeSentence WASHERE').attr('id','test');
 
     // demetricate the clone's like sentence text
 	cloneSentence = dlsnspan.text();
+    //console.log("f: "+cloneSentence);
     dlsnspan.text(removeMetricFromLikeSentence(cloneSentence));
+    }
 
     // tag and hide the original like sentence node (olsn)
     //olsn.addClass('facebookmetric_toggleOFF').hide();
@@ -1856,12 +1864,17 @@ function attachReactionDemetricator2(p) {
 	olsn.parent().prepend(dlsn);
 
     // bind a listener adjust the cloned like sentence on any metric tracker updates
-	olsn.bind("DOMSubtreeModified", function() {
-        var newls = j(this).find('.fbd_origLikeSentence').text();
+	//olsn.bind("DOMSubtreeModified", function() {
+	olsn.parent().find('._3dlg').bind("DOMSubtreeModified", function() {
+        //console.log("got oclick");
+        //if(j(this).parent().hasClass('fbd_demetricatedLikeSentence')) return;
+
+        var newls = j(this).parent().find('._81hb.fbd_origLikeSentence').text();
         var dls = removeMetricFromLikeSentence(newls);
+        //console.log("f2: "+dls);
         // tooltip content isn't filled out until a hover event
         // var ttc = j(this).attr('data-tooltip-content');
-        j(this).parent().find('.fbd_demetricatedLikeSentence').text(dls);
+        j(this).parent().find('._81hb.fbd_demetricatedLikeSentence').text(dls);
 	});
 }
 
@@ -1920,10 +1933,13 @@ function attachReactionDemetricator(p) {
 function removeMetricFromLikeSentence(txt) {
     var result = "";
 
+    //console.log("rmfls: "+txt);
     // if this is a traditional like sentence like "You, Kate, and 8 others"
     if(txt.contains("other") || txt.contains(",")) {
 	    var parsed = txt.match(/^(.*)\s+(\d+(?:[,,.]\d+)*[K|M|k|m]?)\s+(.*)/);
-        if(parsed) result = parsed[1] + ' ' + parsed[3];
+        if(parsed) {
+            result = parsed[1] + ' ' + parsed[3];
+        }
         else {
             //console.log("ERROR ON like sentence metric removal");
             result = txt;
@@ -1936,8 +1952,11 @@ function removeMetricFromLikeSentence(txt) {
         result = "";
     }
 
-	else result = txt;
+	else {
+        result = txt;
+    }
 
+    //console.log("returning "+result);
     return result;
 }
 
